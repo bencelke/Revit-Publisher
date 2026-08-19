@@ -1,18 +1,23 @@
 # RevIt Publisher — Architecture
 
-RevIt Publisher is a private WordPress plugin for RevIt24 that ingests structured automotive article packages, validates them against a stable contract, and will eventually publish interconnected SEO content at scale.
+RevIt Publisher is a private WordPress plugin for RevIt24 that ingests structured automotive article packages, validates them against a stable contract, and publishes interconnected SEO content at scale.
 
-## Phase 0 Status
+## Phase 1 Status (v0.2.0)
 
-Phase 0 implements only the foundation:
+Phase 1 adds the article import engine and automotive content model:
 
-- WordPress plugin bootstrap
-- `revit-article-v1` JSON Schema contract
-- PHP validation service
-- REST validation endpoint
-- Minimal React admin UI (Dashboard + Import)
+- Article importer (`RevIt_Publisher_Article_Importer`)
+- Article key registry
+- Automotive taxonomies (manufacturer, model, generation, trim, engine, article type, cluster)
+- Vehicle and cluster synchronization services
+- Gutenberg content renderer
+- SEO, relationship, and source metadata storage
+- REST validate / preview / import endpoints
+- Enhanced admin Import workflow with file upload
+- Post editor sidebar and posts list columns
+- Docker local WordPress development environment
 
-No WordPress posts, taxonomies, clusters, or internal-link automation exist yet.
+Schema version remains **`revit-article-v1`** (unchanged).
 
 ## Conceptual Flow
 
@@ -29,66 +34,83 @@ RevIt Publisher
       ↓
 Validation
       ↓
-Future WordPress Importer
+Preview
       ↓
-Vehicle Taxonomy
-Article Clusters
-Internal Links
-SEO Metadata
-Structured Data
+WordPress Importer                    ← Phase 1
+      ↓
+Vehicle Taxonomy                      ← Phase 1
+Article Clusters                      ← Phase 1
+SEO Metadata (stored)                 ← Phase 1
+Planned Internal Links (stored)       ← Phase 1
+Structured Data Intent (stored)       ← Phase 1
       ↓
 WordPress Draft
+      ↓
+Future: link resolution, schema output, SEO health, hubs
 ```
 
 ## Current Components
 
 | Component | Status | Purpose |
 |-----------|--------|---------|
-| `revit-publisher.php` | Implemented | Plugin bootstrap |
-| `schemas/revit-article-v1.schema.json` | Implemented | Article package contract |
+| `revit-article-v1` schema | Implemented | Frozen editorial handoff contract |
 | `ArticlePackageValidator` | Implemented | Schema + business rule validation |
-| REST `POST /article-packages/validate` | Implemented | Admin/API validation |
-| Admin Dashboard | Implemented | Foundation status |
-| Admin Import screen | Implemented | Manual package validation |
-| React admin app | Implemented | UI for validation workflow |
+| `ArticleImporter` | Implemented | Create WordPress posts from packages |
+| `ArticleRegistry` | Implemented | Stable `article_key` → post mapping |
+| `VehicleTaxonomyService` | Implemented | Vehicle term sync + post meta |
+| `ClusterService` | Implemented | Cluster term sync + pillar metadata |
+| `ContentRenderer` | Implemented | Structured blocks → Gutenberg markup |
+| REST validate/preview/import | Implemented | Admin/API import workflow |
+| Admin Dashboard + Import UI | Implemented | Stats, preview, import |
+| Post editor meta box | Implemented | Read-only RevIt article info |
+| Posts list columns | Implemented | Vehicle, type, cluster, topic |
+
+## Data Storage (Phase 1)
+
+No custom database tables. Uses:
+
+| Storage | Contents |
+|---------|----------|
+| WordPress posts | Title, slug, content, excerpt, status |
+| Post meta | Article key, SEO, vehicle, relationships, sources, hash |
+| Taxonomies | Manufacturer, model, generation, trim, engine, article type, cluster |
+
+See [importer.md](./importer.md) for full meta and taxonomy mapping.
+
+## Taxonomy Visibility Strategy
+
+Automotive taxonomies are registered with `public => false` and `show_ui => true`:
+
+- Available for admin filtering and content intelligence
+- No public taxonomy archive URLs during Phase 1
+- Term identity stored via deterministic slugs + term meta
+
+Cross-taxonomy hierarchy (manufacturer → model → generation → trim) uses separate taxonomies with within-taxonomy parent terms where applicable. See importer documentation for details.
 
 ## Future Components (Not Implemented)
 
 | Component | Notes |
 |-----------|-------|
-| Article importer | Create/update WordPress posts from packages |
-| Vehicle taxonomies | Manufacturer, model, generation, trim, engine |
-| Cluster engine | Pillar/supporting relationships |
-| Internal-link manager | Resolve `article_key` references to URLs |
+| Article update/re-import | Explicit update workflow for existing article keys |
+| Internal-link insertion | Resolve keys to permalinks in content |
 | Orphan detection | Find articles without inbound links |
 | Cannibalization detection | Topic overlap analysis |
 | SEO health checks | Editorial/technical QA |
+| Public meta tags / JSON-LD | Frontend SEO output |
 | Breadcrumbs | Vehicle/cluster-aware navigation |
-| Schema output | Article, FAQ, breadcrumb JSON-LD |
-| Gutenberg blocks | Render structured content blocks |
-| Related article blocks | Display graph from `related_articles` |
+| Related article blocks | Frontend display components |
 | Vehicle hub pages | Aggregate cluster content per vehicle |
 | Content-plan import | Batch editorial planning |
-| Article update workflow | Re-import revisions safely |
-
-## Data Storage Strategy (Deferred)
-
-Phase 0 intentionally avoids custom database tables. Future phases must decide what belongs in:
-
-- WordPress posts (canonical article content)
-- Custom taxonomies (vehicle identity, clusters)
-- Post meta (SEO fields, article keys, relationships)
-- Options (global plugin settings)
-- Custom tables (relationship graphs, audit logs)
-
-Document decisions before Phase 1 implementation.
+| Rank Math / Yoast integration | Third-party SEO plugins |
 
 ## Security Model
 
-- REST validation requires authenticated users with `edit_posts`
-- Admin screens require `edit_posts`
-- No public endpoints expose article package payloads
-- Imported packages cannot request `publish` status in V1
+- REST endpoints require `edit_posts`
+- WordPress REST nonce in admin UI
+- Imported packages cannot auto-publish
+- Duplicate article keys blocked (409)
+- Sanitized meta storage, escaped admin output
+- JSON file upload is client-side only (no server-side arbitrary upload storage)
 
 ## Admin Architecture
 
@@ -99,25 +121,22 @@ RevIt Publisher menu
       ↓
 React app (Vite build)
       ↓
-REST validation endpoint
+REST validate / preview / import
       ↓
-ArticlePackageValidator
+ArticleImporter
       ↓
-JSON Schema (revit-article-v1)
+Registry + Taxonomies + ContentRenderer
+      ↓
+WordPress post + meta + terms
 ```
 
-Assets load only on RevIt Publisher admin pages.
+## Local Development
 
-## Extension Points for Phase 1
-
-1. **Importer service** — translate validated packages into draft posts
-2. **Article registry** — map `article_key` → post ID
-3. **Taxonomy sync** — upsert vehicle terms from `vehicle`
-4. **Cluster registry** — map `cluster_key` → taxonomy/meta structure
-5. **Link resolver** — deferred link insertion using `internal_links`
+Docker Compose provides WordPress + MariaDB + WP-CLI. See README for setup.
 
 ## Related Documentation
 
 - [Article Package Schema](./article-package-schema.md)
+- [Importer](./importer.md)
 - [Future Work](./future-work.md)
 - [Development Log](./development-log.md)

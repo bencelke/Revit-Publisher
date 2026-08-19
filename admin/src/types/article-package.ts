@@ -34,77 +34,6 @@ export type InternalLinkRelationship =
 
 export type PublishingStatus = 'draft' | 'pending' | 'private';
 
-export interface ArticlePackage {
-  schema_version: 'revit-article-v1';
-  article: {
-    article_key: string;
-    title: string;
-    slug: string;
-    article_type: ArticleType;
-    summary: string;
-    excerpt: string;
-  };
-  vehicle: {
-    manufacturer: string | null;
-    model: string | null;
-    generation: string | null;
-    trim: string | null;
-    start_year: number | null;
-    end_year: number | null;
-    engines: string[];
-  };
-  cluster: {
-    cluster_key: string;
-    name: string;
-    pillar_article_key: string | null;
-    parent_cluster_key: string | null;
-  };
-  seo: {
-    primary_topic: string;
-    secondary_topics: string[];
-    search_intent: SearchIntent;
-    seo_title: string;
-    meta_description: string;
-    canonical: 'auto' | string;
-    index: boolean;
-    follow: boolean;
-  };
-  content: {
-    intro: string;
-    blocks: Array<Record<string, unknown>>;
-    faq: Array<{ question: string; answer: string }>;
-  };
-  internal_links: Array<{
-    target_article_key: string;
-    preferred_anchor: string;
-    relationship: InternalLinkRelationship;
-    required: boolean;
-  }>;
-  related_articles: Array<{
-    article_key: string;
-    relationship: InternalLinkRelationship;
-    priority: number;
-  }>;
-  sources: Array<{
-    source_name: string;
-    title: string;
-    url: string;
-    source_type: string;
-    purpose: string;
-  }>;
-  structured_data: {
-    article: boolean;
-    breadcrumbs: boolean;
-    faq: boolean;
-  };
-  publishing: {
-    status: PublishingStatus;
-    author: number | null;
-    featured_image_id: number | null;
-    allow_comments: boolean;
-  };
-}
-
 export interface ValidationError {
   path: string;
   message: string;
@@ -123,6 +52,66 @@ export interface ValidationFailure {
 }
 
 export type ValidationResponse = ValidationSuccess | ValidationFailure;
+
+export interface PreviewSuccess {
+  valid: true;
+  article: {
+    title: string;
+    article_key: string;
+    article_type: string;
+  };
+  vehicle: string;
+  cluster: string;
+  seo: {
+    primary_topic: string;
+    seo_title: string;
+  };
+  relationships: {
+    internal_links: number;
+    related_articles: number;
+    pillar_article_key: string | null;
+  };
+  publishing: {
+    status: PublishingStatus;
+  };
+  existing_article: boolean;
+  existing_post_id?: number | null;
+}
+
+export type PreviewResponse = PreviewSuccess | ValidationFailure;
+
+export interface ImportSuccess {
+  success: true;
+  status: 'created';
+  article_key: string;
+  post_id: number;
+  edit_url: string;
+  post_status: PublishingStatus;
+}
+
+export interface ImportExisting {
+  success: false;
+  status: 'existing_article';
+  article_key: string;
+  post_id: number;
+  edit_url: string;
+}
+
+export interface ImportFailure {
+  success: false;
+  status: string;
+  errors?: ValidationError[];
+}
+
+export type ImportResponse = ImportSuccess | ImportExisting | ImportFailure;
+
+export interface StatsResponse {
+  version: string;
+  schema_version: string;
+  imported_articles: number;
+  vehicle_models: number;
+  clusters: number;
+}
 
 export interface RevitPublisherAdminConfig {
   version: string;

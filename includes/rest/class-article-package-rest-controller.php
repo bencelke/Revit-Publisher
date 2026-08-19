@@ -1,6 +1,6 @@
 <?php
 /**
- * REST API controller for article package validation.
+ * REST API controller for article package operations.
  *
  * @package RevIt_Publisher
  */
@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Exposes validation-only endpoints for article packages.
+ * Exposes validation, preview, and import endpoints for article packages.
  */
 class RevIt_Publisher_Article_Package_Rest_Controller {
 
@@ -26,12 +26,57 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 	private RevIt_Publisher_Article_Package_Validator $validator;
 
 	/**
-	 * Constructor.
+	 * Preview service.
 	 *
-	 * @param RevIt_Publisher_Article_Package_Validator $validator Validator instance.
+	 * @var RevIt_Publisher_Package_Preview
 	 */
-	public function __construct( RevIt_Publisher_Article_Package_Validator $validator ) {
-		$this->validator = $validator;
+	private RevIt_Publisher_Package_Preview $preview;
+
+	/**
+	 * Importer service.
+	 *
+	 * @var RevIt_Publisher_Article_Importer
+	 */
+	private RevIt_Publisher_Article_Importer $importer;
+
+	/**
+	 * Article registry.
+	 *
+	 * @var RevIt_Publisher_Article_Registry
+	 */
+	private RevIt_Publisher_Article_Registry $registry;
+
+	/**
+	 * Vehicle service.
+	 *
+	 * @var RevIt_Publisher_Vehicle_Taxonomy_Service
+	 */
+	private RevIt_Publisher_Vehicle_Taxonomy_Service $vehicle_service;
+
+	/**
+	 * Cluster service.
+	 *
+	 * @var RevIt_Publisher_Cluster_Service
+	 */
+	private RevIt_Publisher_Cluster_Service $cluster_service;
+
+	/**
+	 * Constructor.
+	 */
+	public function __construct(
+		RevIt_Publisher_Article_Package_Validator $validator,
+		RevIt_Publisher_Package_Preview $preview,
+		RevIt_Publisher_Article_Importer $importer,
+		RevIt_Publisher_Article_Registry $registry,
+		RevIt_Publisher_Vehicle_Taxonomy_Service $vehicle_service,
+		RevIt_Publisher_Cluster_Service $cluster_service
+	) {
+		$this->validator        = $validator;
+		$this->preview          = $preview;
+		$this->importer         = $importer;
+		$this->registry         = $registry;
+		$this->vehicle_service  = $vehicle_service;
+		$this->cluster_service  = $cluster_service;
 	}
 
 	/**
@@ -45,13 +90,42 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'validate_package' ),
 				'permission_callback' => array( $this, 'permissions_check' ),
-				'args'                => array(),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/article-packages/preview',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'preview_package' ),
+				'permission_callback' => array( $this, 'permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/article-packages/import',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'import_package' ),
+				'permission_callback' => array( $this, 'permissions_check' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/stats',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_stats' ),
+				'permission_callback' => array( $this, 'permissions_check' ),
 			)
 		);
 	}
 
 	/**
-	 * Permission check for validation endpoint.
+	 * Permission check.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 */
@@ -62,27 +136,44 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 	}
 
 	/**
+	 * Parse JSON body or return error response.
+	 *
+	 * @return array{0: mixed|null, 1: WP_REST_Response|null}
+	 */
+	private function parse_json_body( WP_REST_Request $request ): array {
+		$params = $request->get_json_params();
+
+		if ( null === $params ) {
+			return array(
+				null,
+				new WP_REST_Response(
+					array(
+						'valid'  => false,
+						'errors' => array(
+							array(
+								'path'    => '',
+								'message' => __( 'Request body must be valid JSON.', 'revit-publisher' ),
+							),
+						),
+					),
+					400
+				),
+			);
+		}
+
+		return array( $params, null );
+	}
+
+	/**
 	 * Validate submitted article package JSON.
 	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function validate_package( WP_REST_Request $request ) {
-		$params = $request->get_json_params();
-
-		if ( null === $params ) {
-			return new WP_REST_Response(
-				array(
-					'valid'  => false,
-					'errors' => array(
-						array(
-							'path'    => '',
-							'message' => __( 'Request body must be valid JSON.', 'revit-publisher' ),
-						),
-					),
-				),
-				400
-			);
+		list( $params, $error ) = $this->parse_json_body( $request );
+		if ( null !== $error ) {
+			return $error;
 		}
 
 		$result = $this->validator->validate( $params );
@@ -103,6 +194,91 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 				'schema_version' => $result['schema_version'],
 				'article_key'    => $result['article_key'],
 				'warnings'       => $result['warnings'],
+			),
+			200
+		);
+	}
+
+	/**
+	 * Preview package without creating content.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function preview_package( WP_REST_Request $request ) {
+		list( $params, $error ) = $this->parse_json_body( $request );
+		if ( null !== $error ) {
+			return $error;
+		}
+
+		$result = $this->validator->validate( $params );
+		if ( ! $result['valid'] ) {
+			return new WP_REST_Response(
+				array(
+					'valid'  => false,
+					'errors' => $result['errors'],
+				),
+				400
+			);
+		}
+
+		$package = is_array( $params ) ? json_decode( wp_json_encode( $params ), false ) : $params;
+
+		return new WP_REST_Response( $this->preview->build( $package ), 200 );
+	}
+
+	/**
+	 * Import package as WordPress post.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function import_package( WP_REST_Request $request ) {
+		list( $params, $error ) = $this->parse_json_body( $request );
+		if ( null !== $error ) {
+			return $error;
+		}
+
+		$result = $this->importer->import( $params );
+
+		if ( 'validation_failed' === ( $result['status'] ?? '' ) ) {
+			return new WP_REST_Response(
+				array(
+					'success' => false,
+					'valid'   => false,
+					'errors'  => $result['errors'] ?? array(),
+				),
+				400
+			);
+		}
+
+		if ( 'existing_article' === ( $result['status'] ?? '' ) ) {
+			return new WP_REST_Response( $result, 409 );
+		}
+
+		if ( empty( $result['success'] ) ) {
+			return new WP_REST_Response( $result, 500 );
+		}
+
+		return new WP_REST_Response( $result, 201 );
+	}
+
+	/**
+	 * Dashboard statistics.
+	 *
+	 * @param WP_REST_Request $request Request object.
+	 * @return WP_REST_Response
+	 */
+	public function get_stats( WP_REST_Request $request ) {
+		unset( $request );
+
+		return new WP_REST_Response(
+			array(
+				'version'           => REVIT_PUBLISHER_VERSION,
+				'schema_version'    => RevIt_Publisher_Article_Package_Validator::SCHEMA_VERSION,
+				'imported_articles' => $this->registry->count_managed_articles(),
+				'vehicle_models'    => $this->vehicle_service->count_models(),
+				'clusters'          => $this->cluster_service->count_clusters(),
 			),
 			200
 		);

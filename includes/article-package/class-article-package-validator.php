@@ -12,7 +12,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 use JsonSchema\Constraints\Constraint;
-use JsonSchema\SchemaStorage;
 use JsonSchema\Validator;
 
 /**
@@ -200,11 +199,7 @@ class RevIt_Publisher_Article_Package_Validator {
 
 		$this->schema = $schema;
 
-		$schema_storage = new SchemaStorage();
-		$schema_uri     = 'file://' . realpath( $schema_path );
-		$schema_storage->addSchema( $schema_uri, $schema );
-
-		$validator = new Validator( $schema_storage );
+		$validator = new Validator();
 		$validator->validate(
 			$payload,
 			$schema,
@@ -262,6 +257,7 @@ class RevIt_Publisher_Article_Package_Validator {
 	 */
 	private function format_error_path( string $property ): string {
 		$path = ltrim( $property, '.' );
+		$path = (string) preg_replace( '/\[(\d+)\]/', '.$1', $path );
 		return $path;
 	}
 
@@ -271,14 +267,17 @@ class RevIt_Publisher_Article_Package_Validator {
 	 * @param array<string, mixed> $error Error payload.
 	 */
 	private function format_error_message( array $error, string $path ): string {
-		$constraint = (string) ( $error['constraint'] ?? '' );
-		$message    = (string) ( $error['message'] ?? __( 'Validation failed.', 'revit-publisher' ) );
+		$constraint = $this->stringify_error_value( $error['constraint'] ?? '' );
+		$message    = $this->stringify_error_value( $error['message'] ?? __( 'Validation failed.', 'revit-publisher' ) );
 
 		if ( '' !== $path && str_starts_with( $message, '[' ) ) {
 			return $message;
 		}
 
 		if ( '' !== $path ) {
+			if ( str_starts_with( $message, $path . ':' ) || str_starts_with( $message, $path . ' ' ) ) {
+				return $message;
+			}
 			return sprintf(
 				/* translators: 1: field path, 2: error message */
 				__( '%1$s: %2$s', 'revit-publisher' ),
@@ -288,13 +287,30 @@ class RevIt_Publisher_Article_Package_Validator {
 		}
 
 		if ( 'const' === $constraint && isset( $error['expected'] ) ) {
+			$expected = $error['expected'];
+			if ( is_array( $expected ) ) {
+				$expected = wp_json_encode( $expected );
+			}
 			return sprintf(
 				/* translators: %s: expected value */
 				__( 'Expected value %s.', 'revit-publisher' ),
-				(string) $error['expected']
+				(string) $expected
 			);
 		}
 
 		return $message;
+	}
+
+	/**
+	 * Convert validator error fragment to string.
+	 *
+	 * @param mixed $value Raw value.
+	 */
+	private function stringify_error_value( mixed $value ): string {
+		if ( is_array( $value ) ) {
+			return (string) wp_json_encode( $value );
+		}
+
+		return (string) $value;
 	}
 }

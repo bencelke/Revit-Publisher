@@ -29,6 +29,10 @@ class RevIt_Publisher_Activator {
 			);
 		}
 
+		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/content-model/class-taxonomies.php';
+		RevIt_Publisher_Taxonomies::register();
+		RevIt_Publisher_Taxonomies::ensure_article_type_terms();
+
 		flush_rewrite_rules();
 	}
 }

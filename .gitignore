@@ -1,13 +1,15 @@
 /vendor/
 /node_modules/
 /admin/dist/
+composer.phar
 composer.lock
 package-lock.json
+.env
 .DS_Store
 *.log
 .phpunit.result.cache
+.phpunit.cache/
 .idea/
 .vscode/
 *.swp
-.env
-.env.*
+docker-data/

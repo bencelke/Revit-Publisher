@@ -8,7 +8,9 @@
     "justinrainbow/json-schema": "^6.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^11.0"
+    "phpunit/phpunit": "^9.6",
+    "yoast/phpunit-polyfills": "^3.0",
+    "wp-phpunit/wp-phpunit": "^6.7"
   },
   "autoload": {
     "classmap": [
@@ -21,7 +23,8 @@
     ]
   },
   "scripts": {
-    "test": "phpunit"
+    "test": "phpunit --testsuite unit",
+    "test:integration": "phpunit -c phpunit.integration.xml"
   },
   "config": {
     "sort-packages": true,

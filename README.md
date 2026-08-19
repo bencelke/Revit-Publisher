@@ -2,20 +2,27 @@
 
 **Automotive SEO & Content Intelligence** — private WordPress plugin for [RevIt24](https://revit24.com).
 
-RevIt Publisher ingests structured automotive article packages (`revit-article-v1`), validates them against a strict JSON contract, and will eventually publish interconnected SEO content at scale.
+RevIt Publisher ingests structured automotive article packages (`revit-article-v1`), validates them, and imports them as WordPress drafts with automotive taxonomies and structured metadata.
 
-> **Phase 0 (v0.1.0):** Plugin foundation, article package contract, validator, REST validation endpoint, and minimal admin UI. No WordPress post creation yet.
+> **Phase 1 (v0.2.0):** Article import engine, automotive content model, preview/import REST endpoints, Gutenberg content rendering, Docker dev environment.
 
 ---
 
-## v0.1.0 Scope
+## v0.2.0 Scope
 
-- WordPress plugin bootstrap
-- `revit-article-v1` JSON Schema
-- PHP validation service
-- REST validation endpoint
-- Admin Dashboard + Import screens (React)
-- Example packages and PHPUnit tests
+- Article importer (validate → preview → import as draft)
+- Article key registry with duplicate blocking
+- Automotive taxonomies (manufacturer, model, generation, trim, engine, cluster, article type)
+- Vehicle + cluster synchronization
+- Gutenberg content renderer
+- SEO, relationship, and source metadata storage
+- REST validate / preview / import endpoints
+- Enhanced Import admin UI with JSON file upload
+- Post editor sidebar + posts list columns
+- Docker local WordPress environment
+- PHPUnit unit + integration tests
+
+Article schema version remains **`revit-article-v1`**.
 
 ## Prerequisites
 
@@ -23,117 +30,151 @@ RevIt Publisher ingests structured automotive article packages (`revit-article-v
 - WordPress 6.0+
 - [Composer](https://getcomposer.org/)
 - [Node.js](https://nodejs.org/) 18+ and npm
+- [Docker](https://www.docker.com/) (for local WordPress development)
 
-## Installation
+## Docker Local WordPress Setup
 
-### 1. Copy plugin into WordPress
+```bash
+cp .env.example .env
+docker compose up -d
+```
 
-Copy or symlink this directory into your WordPress `wp-content/plugins/` folder:
+WordPress: http://localhost:8080
+
+Install WordPress on first run:
+
+```bash
+docker compose run --rm wpcli wp core install \
+  --url="http://localhost:8080" \
+  --title="RevIt Publisher Dev" \
+  --admin_user="admin" \
+  --admin_password="adminpass" \
+  --admin_email="admin@example.com" \
+  --skip-email
+```
+
+Install plugin dependencies and activate:
+
+```bash
+docker compose run --rm --entrypoint sh wpcli -c "
+  cd /var/www/html/wp-content/plugins/revit-publisher &&
+  curl -sS https://getcomposer.org/installer | php &&
+  php composer.phar install --no-interaction
+"
+npm install && npm run build
+docker compose run --rm wpcli wp plugin activate revit-publisher
+```
+
+## Manual Installation (existing WordPress)
 
 ```bash
 ln -s "/path/to/RevIt Publisher" /path/to/wordpress/wp-content/plugins/revit-publisher
-```
-
-Alternatively, clone/copy the repo so the main plugin file is at:
-
-```text
-wp-content/plugins/revit-publisher/revit-publisher.php
-```
-
-### 2. Install PHP dependencies
-
-```bash
 cd wp-content/plugins/revit-publisher
 composer install
-```
-
-### 3. Build admin assets
-
-```bash
-npm install
-npm run build
-```
-
-For development with hot reload:
-
-```bash
-npm run dev
-```
-
-### 4. Activate the plugin
-
-In WordPress admin: **Plugins → RevIt Publisher → Activate**
-
-Or via WP-CLI:
-
-```bash
+npm install && npm run build
 wp plugin activate revit-publisher
 ```
 
-## Admin Location
+## Article Import Workflow
 
-After activation, find **RevIt Publisher** in the WordPress admin sidebar:
-
-- **Dashboard** — version, schema version, foundation status
-- **Import** — paste JSON and validate packages
-
-Requires `edit_posts` capability (editors and administrators).
-
-## Validate a Sample Package
-
-### Via Admin UI
+### Admin UI
 
 1. Open **RevIt Publisher → Import**
-2. Paste contents of `examples/article-valid.json`
-3. Click **Validate Package**
+2. Paste JSON or choose a `.json` file (max 5 MB)
+3. Click **Validate & Preview**
+4. Review preview (title, vehicle, cluster, links, status)
+5. Click **Import as Draft**
 
-### Via REST API
+### REST API
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/wp-json/revit-publisher/v1/article-packages/validate` | POST | Validation only |
+| `/wp-json/revit-publisher/v1/article-packages/preview` | POST | Validation + preview |
+| `/wp-json/revit-publisher/v1/article-packages/import` | POST | Validation + import |
+| `/wp-json/revit-publisher/v1/stats` | GET | Dashboard counts |
+
+Requires authenticated user with `edit_posts` and `X-WP-Nonce` header.
+
+Example:
 
 ```bash
 curl -X POST \
-  'https://your-site.test/wp-json/revit-publisher/v1/article-packages/validate' \
+  'http://localhost:8080/wp-json/revit-publisher/v1/article-packages/import' \
   -H 'Content-Type: application/json' \
-  -H 'X-WP-Nonce: YOUR_WP_REST_NONCE' \
+  -H 'X-WP-Nonce: YOUR_NONCE' \
   --cookie 'wordpress_logged_in_...=...' \
   -d @examples/article-valid.json
 ```
 
-Authenticated users with `edit_posts` can obtain a REST nonce from `wpApiSettings.nonce` in admin or via the localized `revitPublisherAdmin.nonce` object on plugin pages.
+## Testing
 
-### Via PHPUnit
+### Unit tests (validator, no WordPress)
 
 ```bash
 composer install
 composer test
 ```
 
+### Integration tests (requires WordPress test suite)
+
+Inside Docker:
+
+```bash
+docker compose run --rm --entrypoint sh wpcli -c "
+  cd /var/www/html/wp-content/plugins/revit-publisher
+  apk add --no-cache subversion curl
+  bash bin/install-wp-tests.sh wordpress_test wordpress wordpress db latest
+  vendor/bin/phpunit -c phpunit.integration.xml
+"
+```
+
+### Runtime acceptance test
+
+```bash
+chmod +x scripts/acceptance-test.sh
+./scripts/acceptance-test.sh
+```
+
+This script:
+
+1. Starts Docker WordPress
+2. Activates the plugin
+3. Previews and imports `examples/article-valid.json`
+4. Verifies post, meta, taxonomies
+5. Confirms duplicate import returns HTTP 409
+
+## Admin Location
+
+**RevIt Publisher** in WordPress admin sidebar:
+
+- **Dashboard** — imported article counts, schema version
+- **Import** — validate, preview, import workflow
+
+Imported posts show a **RevIt Publisher** sidebar panel and extra columns in the Posts list.
+
 ## Repository Structure
 
 ```text
 revit-publisher.php          # Plugin entry point
-includes/                    # PHP classes
+includes/                    # PHP services
 schemas/                     # revit-article-v1 JSON Schema
-examples/                    # Valid and invalid sample packages
+examples/                    # Sample packages
 admin/src/                   # React admin source
-admin/dist/                  # Built admin assets (after npm run build)
-docs/                        # Architecture and schema documentation
+docker-compose.yml           # Local WordPress environment
+bin/install-wp-tests.sh      # WordPress test suite installer
+scripts/acceptance-test.sh   # Runtime acceptance test
+docs/                        # Documentation
 tests/                       # PHPUnit tests
 ```
-
-## Article Package Contract
-
-The handoff format is **`revit-article-v1`**. See:
-
-- `schemas/revit-article-v1.schema.json`
-- `docs/article-package-schema.md`
-- `examples/article-valid.json`
 
 ## Documentation
 
 | Document | Description |
 |----------|-------------|
-| [Architecture](docs/architecture.md) | System design and future flow |
-| [Article Package Schema](docs/article-package-schema.md) | Field-by-field contract reference |
+| [Architecture](docs/architecture.md) | System design |
+| [Importer](docs/importer.md) | Import workflow and storage mapping |
+| [Article Package Schema](docs/article-package-schema.md) | Field reference |
 | [Future Work](docs/future-work.md) | Planned features |
 | [Development Log](docs/development-log.md) | Phase history |
 
