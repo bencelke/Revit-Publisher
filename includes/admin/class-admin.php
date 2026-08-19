@@ -103,6 +103,15 @@ class RevIt_Publisher_Admin {
 
 		add_submenu_page(
 			self::MENU_SLUG,
+			__( 'Search Performance', 'revit-publisher' ),
+			__( 'Search Performance', 'revit-publisher' ),
+			'edit_posts',
+			self::MENU_SLUG . '-search-performance',
+			array( $this, 'render_search_performance_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
 			__( 'Needs Attention', 'revit-publisher' ),
 			__( 'Needs Attention', 'revit-publisher' ),
 			'edit_posts',
@@ -222,6 +231,10 @@ class RevIt_Publisher_Admin {
 	 */
 	public function render_seo_health_page(): void {
 		$this->render_app_shell( 'revit-publisher-seo-health', 'edit_posts' );
+	}
+
+	public function render_search_performance_page(): void {
+		$this->render_app_shell( 'revit-publisher-search-performance', 'edit_posts' );
 	}
 
 	public function render_attention_page(): void {

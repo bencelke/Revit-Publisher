@@ -58,6 +58,20 @@ final class RevIt_Publisher_Severity {
 
 			case 'missing_content':
 			case 'cluster_gap':
+			case 'gsc_page2_opportunity':
+			case 'gsc_low_ctr_opportunity':
+			case 'gsc_growing_page':
+			case 'gsc_unexpected_query':
+				return self::LOW;
+
+			case 'gsc_declining_page':
+			case 'gsc_zero_visibility':
+				return self::MEDIUM;
+
+			case 'gsc_index_issue':
+			case 'gsc_canonical_mismatch':
+				return self::HIGH;
+
 			default:
 				return self::LOW;
 		}

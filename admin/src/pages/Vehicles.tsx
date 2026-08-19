@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { fetchVehicleDetail, fetchVehicles } from '../api/operations';
+import { fetchGscStatus, fetchGscVehicles } from '../api/search-console';
 import {
   createVehicleHubDraft,
   fetchHubCreatePreview,
   fetchVehicleHubs,
 } from '../api/vehicle-hubs';
 import { HubCreatePreview, VehicleHubRecord, VehicleRowWithHub } from '../types/public-seo';
+import { GscVehicleRow } from '../types/search-console';
 
 function formatYears(start?: string, end?: string): string {
   if (start && end) return `${start}–${end}`;
@@ -45,16 +47,33 @@ export function VehiclesPage() {
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [gscConnected, setGscConnected] = useState(false);
+  const [gscByVehicle, setGscByVehicle] = useState<Map<string, GscVehicleRow>>(new Map());
 
   const loadVehicles = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [vehicleRows, hubRows] = await Promise.all([
+      const [vehicleRows, hubRows, gscStatus] = await Promise.all([
         fetchVehicles(),
         fetchVehicleHubs().catch(() => [] as VehicleHubRecord[]),
+        fetchGscStatus().catch(() => null),
       ]);
       setHubs(hubRows);
+
+      const connected = gscStatus?.connected ?? false;
+      setGscConnected(connected);
+
+      let gscMap = new Map<string, GscVehicleRow>();
+      if (connected) {
+        try {
+          const gscRows = await fetchGscVehicles('28d');
+          gscMap = new Map(gscRows.map((r) => [r.vehicle, r]));
+        } catch {
+          gscMap = new Map();
+        }
+      }
+      setGscByVehicle(gscMap);
 
       const hubByLabel = new Map<string, VehicleHubRecord>();
       hubRows.forEach((hub) => {
@@ -143,6 +162,39 @@ export function VehiclesPage() {
 
       {loading && <p className="revit-publisher-muted">Loading…</p>}
 
+      {gscConnected && (
+        <div className="revit-publisher-card revit-gsc-vehicles-table">
+          <h2>Search Console by Vehicle (28d)</h2>
+          <div className="revit-publisher-table-wrap">
+            <table className="revit-publisher-table">
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Clicks</th>
+                  <th>Impressions</th>
+                  <th>Position</th>
+                  <th>SEO Health</th>
+                </tr>
+              </thead>
+              <tbody>
+                {vehicles.map((v) => {
+                  const gsc = gscByVehicle.get(v.label);
+                  return (
+                    <tr key={v.label}>
+                      <td>{v.label}</td>
+                      <td>{gsc ? gsc.clicks.toLocaleString() : '—'}</td>
+                      <td>{gsc ? gsc.impressions.toLocaleString() : '—'}</td>
+                      <td>{gsc ? Number(gsc.position).toFixed(1) : '—'}</td>
+                      <td>{v.seo_health_avg}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       <div className="revit-publisher-grid">
         {vehicles.map((v) => (
           <button
@@ -165,6 +217,20 @@ export function VehiclesPage() {
               </div>
             ) : (
               <div className="revit-publisher-muted">No public hub</div>
+            )}
+            {gscConnected && gscByVehicle.has(v.label) && (
+              <div className="revit-gsc-inline-metrics">
+                {(() => {
+                  const gsc = gscByVehicle.get(v.label)!;
+                  return (
+                    <>
+                      <span>{gsc.clicks.toLocaleString()} clicks</span>
+                      <span>{gsc.impressions.toLocaleString()} impr</span>
+                      <span>Pos {Number(gsc.position).toFixed(1)}</span>
+                    </>
+                  );
+                })()}
+              </div>
             )}
           </button>
         ))}

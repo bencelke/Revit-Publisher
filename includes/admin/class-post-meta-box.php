@@ -104,6 +104,23 @@ class RevIt_Publisher_Post_Meta_Box {
 			}
 		}
 
+		if ( RevIt_Publisher_Services::gsc_auth()->is_connected() ) {
+			$gsc = RevIt_Publisher_Services::gsc_insights()->get_post_performance( (int) $post->ID );
+			$m   = (array) ( $gsc['metrics'] ?? array() );
+			echo '<hr /><strong>' . esc_html__( 'Google Search — 28 Days', 'revit-publisher' ) . '</strong>';
+			if ( (int) ( $m['impressions'] ?? 0 ) === 0 && (int) ( $m['clicks'] ?? 0 ) === 0 ) {
+				echo '<p class="description">' . esc_html__( 'No Search Console data yet.', 'revit-publisher' ) . '</p>';
+			} else {
+				$this->row( __( 'Clicks', 'revit-publisher' ), (string) ( $m['clicks'] ?? 0 ) );
+				$this->row( __( 'Impressions', 'revit-publisher' ), (string) ( $m['impressions'] ?? 0 ) );
+				$this->row( __( 'CTR', 'revit-publisher' ), (string) ( $m['ctr'] ?? 0 ) . '%' );
+				$this->row( __( 'Position', 'revit-publisher' ), (string) ( $m['position'] ?? 0 ) );
+				if ( ! empty( $gsc['opportunity'] ) ) {
+					$this->row( __( 'Opportunity', 'revit-publisher' ), (string) $gsc['opportunity'] );
+				}
+			}
+		}
+
 		echo '<hr />';
 		$this->row( __( 'Package hash', 'revit-publisher' ), substr( (string) get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::PACKAGE_HASH, true ), 0, 12 ) . '…' );
 		$this->row( __( 'Imported', 'revit-publisher' ), (string) get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::IMPORTED_AT, true ) );

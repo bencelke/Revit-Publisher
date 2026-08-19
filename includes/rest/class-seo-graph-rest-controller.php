@@ -326,6 +326,19 @@ class RevIt_Publisher_SEO_Graph_Rest_Controller {
 			'external_redirects_allowed' => RevIt_Publisher_Settings::EXTERNAL_REDIRECTS,
 			'max_cluster_links_per_article' => RevIt_Publisher_Settings::MAX_CLUSTER_LINKS,
 			'issue_retention_days'    => RevIt_Publisher_Settings::ISSUE_RETENTION_DAYS,
+			'gsc_property'            => RevIt_Publisher_Settings::GSC_PROPERTY,
+			'gsc_client_id'           => RevIt_Publisher_Settings::GSC_CLIENT_ID,
+			'gsc_client_secret'       => RevIt_Publisher_Settings::GSC_CLIENT_SECRET,
+			'gsc_sync_enabled'        => RevIt_Publisher_Settings::GSC_SYNC_ENABLED,
+			'gsc_sync_frequency'      => RevIt_Publisher_Settings::GSC_SYNC_FREQUENCY,
+			'gsc_max_rows'            => RevIt_Publisher_Settings::GSC_MAX_ROWS,
+			'gsc_inspection_daily_max'=> RevIt_Publisher_Settings::GSC_INSPECTION_DAILY_MAX,
+			'gsc_sitemap_write_enabled' => RevIt_Publisher_Settings::GSC_SITEMAP_WRITE,
+			'gsc_min_impressions'     => RevIt_Publisher_Settings::GSC_MIN_IMPRESSIONS,
+			'gsc_page2_min'           => RevIt_Publisher_Settings::GSC_PAGE2_MIN,
+			'gsc_page2_max'           => RevIt_Publisher_Settings::GSC_PAGE2_MAX,
+			'gsc_zero_visibility_days'=> RevIt_Publisher_Settings::GSC_ZERO_VISIBILITY_DAYS,
+			'gsc_decline_threshold_pct' => RevIt_Publisher_Settings::GSC_DECLINE_THRESHOLD_PCT,
 		);
 
 		foreach ( $map as $key => $option ) {
@@ -335,6 +348,7 @@ class RevIt_Publisher_SEO_Graph_Rest_Controller {
 		}
 
 		RevIt_Publisher_Audit_Cron::reschedule();
+		RevIt_Publisher_GSC_Cron::reschedule();
 
 		return new WP_REST_Response( RevIt_Publisher_Services::settings()->all(), 200 );
 	}

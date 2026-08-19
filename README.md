@@ -4,6 +4,8 @@
 
 RevIt Publisher ingests structured automotive article packages (`revit-article-v1`), validates them, and imports them as WordPress drafts with automotive taxonomies and structured metadata.
 
+> **Phase 6 (v0.7.0):** Google Search Console intelligence, search performance dashboard, opportunity engine.
+
 > **Phase 5 (v0.6.0):** Public vehicle hubs, crawlable content architecture, sitemaps, breadcrumbs, public blocks, SERP preview.
 
 > **Phase 4 (v0.5.0):** SEO operations, scheduled audits, redirect manager, consolidation workflow, 404 monitor, vehicle command center.
@@ -15,6 +17,21 @@ RevIt Publisher ingests structured automotive article packages (`revit-article-v
 ---
 
 ---
+
+---
+
+## v0.7.0 Scope
+
+- Google Search Console API integration (Search Analytics, URL Inspection, Sitemaps)
+- OAuth 2.0 connection with secure token storage
+- Custom tables for page/query metrics and inspections
+- Search Performance admin dashboard (Overview, Pages, Vehicles, Clusters, Opportunities, Indexing, Sitemaps)
+- Explainable opportunity engine (page 2, low CTR, declining, zero visibility, unexpected queries)
+- Needs Attention integration for GSC issues
+- Refresh request export (`revit-refresh-request-v1`)
+- Fixture client for automated testing
+- Daily sync cron with locking and failure preservation
+- Vehicle Command Center and article editor GSC panels
 
 ## v0.6.0 Scope
 

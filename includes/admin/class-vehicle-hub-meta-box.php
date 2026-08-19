@@ -61,6 +61,36 @@ class RevIt_Publisher_Vehicle_Hub_Meta_Box {
 				<textarea id="revit_hub_intro" name="revit_hub_intro" rows="4" class="large-text"><?php echo esc_textarea( $intro ); ?></textarea>
 			</p>
 			<p class="description"><?php esc_html_e( 'Article sections on the public hub are generated automatically from RevIt relationships.', 'revit-publisher' ); ?></p>
+			<?php if ( RevIt_Publisher_Services::gsc_auth()->is_connected() ) : ?>
+				<?php
+				$hub_metrics = RevIt_Publisher_Services::gsc_data_store()->get_post_metrics( $hub_id, '28d' );
+				$hub_url     = get_permalink( $hub_id );
+				if ( ! is_array( $hub_metrics ) && is_string( $hub_url ) ) {
+					global $wpdb;
+					$table = RevIt_Publisher_GSC_Schema::page_table();
+					$hub_metrics = $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+						$wpdb->prepare(
+							"SELECT SUM(clicks) AS clicks, SUM(impressions) AS impressions, AVG(ctr) AS ctr, AVG(position) AS position
+							FROM {$table} WHERE hub_id = %d AND window_key = %s",
+							$hub_id,
+							'28d'
+						),
+						ARRAY_A
+					);
+				}
+				?>
+				<hr />
+				<p><strong><?php esc_html_e( 'Google Search', 'revit-publisher' ); ?></strong></p>
+				<p class="description"><?php esc_html_e( 'Last 28 Days', 'revit-publisher' ); ?></p>
+				<?php if ( ! is_array( $hub_metrics ) || (int) ( $hub_metrics['impressions'] ?? 0 ) === 0 ) : ?>
+					<p><?php esc_html_e( 'No Search Console data yet.', 'revit-publisher' ); ?></p>
+				<?php else : ?>
+					<p><?php echo esc_html( sprintf( 'Clicks: %d', (int) ( $hub_metrics['clicks'] ?? 0 ) ) ); ?></p>
+					<p><?php echo esc_html( sprintf( 'Impressions: %d', (int) ( $hub_metrics['impressions'] ?? 0 ) ) ); ?></p>
+					<p><?php echo esc_html( sprintf( 'CTR: %.2f%%', (float) ( $hub_metrics['ctr'] ?? 0 ) * 100 ) ); ?></p>
+					<p><?php echo esc_html( sprintf( 'Position: %.1f', (float) ( $hub_metrics['position'] ?? 0 ) ) ); ?></p>
+				<?php endif; ?>
+			<?php endif; ?>
 		</div>
 		<?php
 	}

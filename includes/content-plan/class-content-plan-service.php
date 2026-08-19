@@ -102,21 +102,24 @@ class RevIt_Publisher_Content_Plan_Service {
 		$summary  = $this->summarize_plan_data( $plan );
 		$by_type  = $this->group_by_type( $plan, $articles );
 
+		$search_performance = RevIt_Publisher_Services::gsc_content_status()->summarize_plan_articles( $articles );
+
 		return array(
-			'plan_id'        => $plan_id,
-			'plan_key'       => (string) $plan->plan_key,
-			'vehicle'        => self::format_vehicle_label( $plan->vehicle ),
-			'summary'        => $summary,
-			'clusters'       => $clusters,
-			'articles'       => $articles,
-			'by_type'        => $by_type,
-			'missing'        => array_values(
+			'plan_id'            => $plan_id,
+			'plan_key'           => (string) $plan->plan_key,
+			'vehicle'            => self::format_vehicle_label( $plan->vehicle ),
+			'summary'            => $summary,
+			'clusters'           => $clusters,
+			'articles'           => $articles,
+			'by_type'            => $by_type,
+			'search_performance' => $search_performance,
+			'missing'            => array_values(
 				array_filter(
 					$articles,
 					static fn( array $row ): bool => 'missing' === $row['site_status']
 				)
 			),
-			'next_content'   => $this->get_next_content( $articles ),
+			'next_content'       => $this->get_next_content( $articles ),
 		);
 	}
 

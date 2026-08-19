@@ -2,6 +2,25 @@
 
 RevIt Publisher is a private WordPress plugin for RevIt24 that ingests structured automotive article packages, validates them against a stable contract, and publishes interconnected SEO content at scale.
 
+## Phase 6 Status (v0.7.0)
+
+Phase 6 adds Google Search Console intelligence:
+
+- `RevIt_Publisher_GSC_Client_Interface` — real Google API + fixture fake client
+- `RevIt_Publisher_GSC_Auth_Service` — OAuth 2.0 with secure token storage
+- `RevIt_Publisher_GSC_Sync_Service` — daily/manual sync with locking
+- `RevIt_Publisher_GSC_Data_Store` — local time-series metrics tables
+- `RevIt_Publisher_GSC_Page_Mapper` — URL → RevIt article/hub mapping
+- `RevIt_Publisher_GSC_Insights_Service` — dashboard aggregations and comparisons
+- `RevIt_Publisher_GSC_Opportunity_Service` — explainable performance opportunities
+- `RevIt_Publisher_GSC_URL_Inspection_Service` — manual inspect with quota
+- `RevIt_Publisher_GSC_Sitemap_Service` — list/submit sitemaps (optional write scope)
+- `RevIt_Publisher_GSC_Query_Coverage_Service` — unexpected query detection
+- `RevIt_Publisher_GSC_Content_Status` — content planner search performance states
+- `RevIt_Publisher_GSC_Refresh_Export` — `revit-refresh-request-v1` export
+
+See [google-search-console.md](./google-search-console.md), [search-performance.md](./search-performance.md), [search-opportunities.md](./search-opportunities.md), [url-inspection.md](./url-inspection.md), [google-oauth.md](./google-oauth.md), [refresh-requests.md](./refresh-requests.md).
+
 ## Phase 4 Status (v0.5.0)
 
 Phase 4 adds SEO operations and maintenance:

@@ -37,6 +37,20 @@ class RevIt_Publisher_Settings {
 	public const MAX_CLUSTER_LINKS         = 'revit_publisher_max_cluster_links_per_article';
 	public const ISSUE_RETENTION_DAYS      = 'revit_publisher_issue_retention_days';
 
+	public const GSC_PROPERTY              = 'revit_gsc_property';
+	public const GSC_CLIENT_ID             = 'revit_gsc_client_id';
+	public const GSC_CLIENT_SECRET         = 'revit_gsc_client_secret';
+	public const GSC_SYNC_ENABLED          = 'revit_gsc_sync_enabled';
+	public const GSC_SYNC_FREQUENCY        = 'revit_gsc_sync_frequency';
+	public const GSC_MAX_ROWS              = 'revit_gsc_max_rows';
+	public const GSC_INSPECTION_DAILY_MAX  = 'revit_gsc_inspection_daily_max';
+	public const GSC_SITEMAP_WRITE         = 'revit_gsc_sitemap_write_enabled';
+	public const GSC_MIN_IMPRESSIONS       = 'revit_gsc_min_impressions';
+	public const GSC_PAGE2_MIN             = 'revit_gsc_page2_min';
+	public const GSC_PAGE2_MAX             = 'revit_gsc_page2_max';
+	public const GSC_ZERO_VISIBILITY_DAYS  = 'revit_gsc_zero_visibility_days';
+	public const GSC_DECLINE_THRESHOLD_PCT = 'revit_gsc_decline_threshold_pct';
+
 	public const LINK_MODE_SUGGEST = 'suggest_only';
 
 	/**
@@ -133,6 +147,71 @@ class RevIt_Publisher_Settings {
 			'sanitize_callback' => array( self::class, 'sanitize_retention_days' ),
 			'default'           => 365,
 		) );
+		register_setting( self::OPTION_GROUP, self::GSC_PROPERTY, array(
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+			'default'           => '',
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_CLIENT_ID, array(
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+			'default'           => '',
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_CLIENT_SECRET, array(
+			'type'              => 'string',
+			'sanitize_callback' => 'sanitize_text_field',
+			'default'           => '',
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_SYNC_ENABLED, array(
+			'type'              => 'boolean',
+			'sanitize_callback' => array( self::class, 'sanitize_bool' ),
+			'default'           => true,
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_SYNC_FREQUENCY, array(
+			'type'              => 'string',
+			'sanitize_callback' => array( self::class, 'sanitize_gsc_frequency' ),
+			'default'           => 'daily',
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_MAX_ROWS, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_gsc_max_rows' ),
+			'default'           => 1000,
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_INSPECTION_DAILY_MAX, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_gsc_inspection_max' ),
+			'default'           => 20,
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_SITEMAP_WRITE, array(
+			'type'              => 'boolean',
+			'sanitize_callback' => array( self::class, 'sanitize_bool' ),
+			'default'           => false,
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_MIN_IMPRESSIONS, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_gsc_min_impressions' ),
+			'default'           => 1000,
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_PAGE2_MIN, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_gsc_page2' ),
+			'default'           => 11,
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_PAGE2_MAX, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_gsc_page2' ),
+			'default'           => 20,
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_ZERO_VISIBILITY_DAYS, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_gsc_grace_days' ),
+			'default'           => 90,
+		) );
+		register_setting( self::OPTION_GROUP, self::GSC_DECLINE_THRESHOLD_PCT, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_gsc_decline_pct' ),
+			'default'           => 20,
+		) );
 	}
 
 	/**
@@ -160,6 +239,18 @@ class RevIt_Publisher_Settings {
 			'external_redirects_allowed' => $this->external_redirects_allowed(),
 			'max_cluster_links_per_article' => $this->max_cluster_links_per_article(),
 			'issue_retention_days'       => $this->issue_retention_days(),
+			'gsc_property'               => $this->gsc_property(),
+			'gsc_sync_enabled'           => $this->gsc_sync_enabled(),
+			'gsc_sync_frequency'         => $this->gsc_sync_frequency(),
+			'gsc_max_rows'               => $this->gsc_max_rows(),
+			'gsc_inspection_daily_max'   => $this->gsc_inspection_daily_max(),
+			'gsc_sitemap_write_enabled'  => $this->gsc_sitemap_write_enabled(),
+			'gsc_min_impressions'        => $this->gsc_min_impressions(),
+			'gsc_page2_min'              => $this->gsc_page2_min(),
+			'gsc_page2_max'              => $this->gsc_page2_max(),
+			'gsc_zero_visibility_days'   => $this->gsc_zero_visibility_days(),
+			'gsc_decline_threshold_pct'  => $this->gsc_decline_threshold_pct(),
+			'gsc_client_id_configured'   => '' !== $this->gsc_client_id(),
 			'public_seo_output_enabled'  => $this->public_seo_output_enabled(),
 			'seo_plugin_conflict'        => RevIt_Publisher_SEO_Plugin_Detector::get_conflict_message(),
 		);
@@ -245,6 +336,65 @@ class RevIt_Publisher_Settings {
 		return (int) get_option( self::ISSUE_RETENTION_DAYS, 365 );
 	}
 
+	public function gsc_property(): string {
+		return (string) get_option( self::GSC_PROPERTY, '' );
+	}
+
+	public function gsc_client_id(): string {
+		if ( defined( 'REVIT_GSC_CLIENT_ID' ) ) {
+			return (string) REVIT_GSC_CLIENT_ID;
+		}
+		return (string) get_option( self::GSC_CLIENT_ID, '' );
+	}
+
+	public function gsc_client_secret(): string {
+		if ( defined( 'REVIT_GSC_CLIENT_SECRET' ) ) {
+			return (string) REVIT_GSC_CLIENT_SECRET;
+		}
+		return (string) get_option( self::GSC_CLIENT_SECRET, '' );
+	}
+
+	public function gsc_sync_enabled(): bool {
+		return (bool) get_option( self::GSC_SYNC_ENABLED, true );
+	}
+
+	public function gsc_sync_frequency(): string {
+		$freq = (string) get_option( self::GSC_SYNC_FREQUENCY, 'daily' );
+		return in_array( $freq, array( 'daily', 'weekly' ), true ) ? $freq : 'daily';
+	}
+
+	public function gsc_max_rows(): int {
+		return (int) get_option( self::GSC_MAX_ROWS, 1000 );
+	}
+
+	public function gsc_inspection_daily_max(): int {
+		return (int) get_option( self::GSC_INSPECTION_DAILY_MAX, 20 );
+	}
+
+	public function gsc_sitemap_write_enabled(): bool {
+		return (bool) get_option( self::GSC_SITEMAP_WRITE, false );
+	}
+
+	public function gsc_min_impressions(): int {
+		return (int) get_option( self::GSC_MIN_IMPRESSIONS, 1000 );
+	}
+
+	public function gsc_page2_min(): int {
+		return (int) get_option( self::GSC_PAGE2_MIN, 11 );
+	}
+
+	public function gsc_page2_max(): int {
+		return (int) get_option( self::GSC_PAGE2_MAX, 20 );
+	}
+
+	public function gsc_zero_visibility_days(): int {
+		return (int) get_option( self::GSC_ZERO_VISIBILITY_DAYS, 90 );
+	}
+
+	public function gsc_decline_threshold_pct(): int {
+		return (int) get_option( self::GSC_DECLINE_THRESHOLD_PCT, 20 );
+	}
+
 	/**
 	 * @param mixed $value Raw value.
 	 */
@@ -290,5 +440,40 @@ class RevIt_Publisher_Settings {
 	public static function sanitize_retention_days( mixed $value ): int {
 		$days = (int) $value;
 		return max( 30, min( 730, $days ) );
+	}
+
+	public static function sanitize_gsc_frequency( mixed $value ): string {
+		$freq = sanitize_key( (string) $value );
+		return in_array( $freq, array( 'daily', 'weekly' ), true ) ? $freq : 'daily';
+	}
+
+	public static function sanitize_gsc_max_rows( mixed $value ): int {
+		$rows = (int) $value;
+		return max( 100, min( 5000, $rows ) );
+	}
+
+	public static function sanitize_gsc_inspection_max( mixed $value ): int {
+		$max = (int) $value;
+		return max( 1, min( 100, $max ) );
+	}
+
+	public static function sanitize_gsc_min_impressions( mixed $value ): int {
+		$min = (int) $value;
+		return max( 100, min( 50000, $min ) );
+	}
+
+	public static function sanitize_gsc_page2( mixed $value ): int {
+		$pos = (int) $value;
+		return max( 1, min( 100, $pos ) );
+	}
+
+	public static function sanitize_gsc_grace_days( mixed $value ): int {
+		$days = (int) $value;
+		return max( 14, min( 365, $days ) );
+	}
+
+	public static function sanitize_gsc_decline_pct( mixed $value ): int {
+		$pct = (int) $value;
+		return max( 5, min( 90, $pct ) );
 	}
 }

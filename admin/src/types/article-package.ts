@@ -247,6 +247,16 @@ export interface ContentPlanCoverage {
     title: string;
     priority: number;
   }>;
+  search_performance?: {
+    connected: boolean;
+    groups: {
+      missing_content: Array<{ article_key: string; title: string; cluster_key: string; post_id: number }>;
+      published_no_visibility: Array<{ article_key: string; title: string; cluster_key: string; post_id: number }>;
+      emerging_content: Array<{ article_key: string; title: string; cluster_key: string; post_id: number }>;
+      established_content: Array<{ article_key: string; title: string; cluster_key: string; post_id: number }>;
+      declining_content: Array<{ article_key: string; title: string; cluster_key: string; post_id: number }>;
+    };
+  };
 }
 
 export interface StatsResponse {
@@ -280,6 +290,18 @@ export interface SettingsResponse {
   external_redirects_allowed?: boolean;
   max_cluster_links_per_article?: number;
   issue_retention_days?: number;
+  gsc_property?: string;
+  gsc_sync_enabled?: boolean;
+  gsc_sync_frequency?: string;
+  gsc_max_rows?: number;
+  gsc_inspection_daily_max?: number;
+  gsc_sitemap_write_enabled?: boolean;
+  gsc_min_impressions?: number;
+  gsc_page2_min?: number;
+  gsc_page2_max?: number;
+  gsc_zero_visibility_days?: number;
+  gsc_decline_threshold_pct?: number;
+  gsc_client_id_configured?: boolean;
   public_seo_output_enabled: boolean;
   seo_plugin_conflict: string | null;
 }
@@ -343,6 +365,12 @@ export interface RevitPublisherAdminConfig {
     planner: string;
     graph: string;
     seoHealth: string;
+    searchPerformance?: string;
+    attention?: string;
+    audits?: string;
+    vehicles?: string;
+    redirects?: string;
+    notFound?: string;
     settings: string;
   };
 }

@@ -45,6 +45,18 @@ final class RevIt_Publisher_Services {
 	private static ?RevIt_Publisher_Cluster_Link_Matrix $cluster_link_matrix = null;
 	private static ?RevIt_Publisher_Hub_SEO_Health $hub_seo_health = null;
 	private static ?RevIt_Publisher_SERP_Preview_Service $serp_preview = null;
+	private static ?RevIt_Publisher_GSC_Token_Store $gsc_tokens = null;
+	private static ?RevIt_Publisher_GSC_Auth_Service $gsc_auth = null;
+	private static ?RevIt_Publisher_GSC_Page_Mapper $gsc_mapper = null;
+	private static ?RevIt_Publisher_GSC_Data_Store $gsc_data_store = null;
+	private static ?RevIt_Publisher_GSC_Sync_Service $gsc_sync = null;
+	private static ?RevIt_Publisher_GSC_Opportunity_Service $gsc_opportunities = null;
+	private static ?RevIt_Publisher_GSC_URL_Inspection_Service $gsc_inspections = null;
+	private static ?RevIt_Publisher_GSC_Sitemap_Service $gsc_sitemaps = null;
+	private static ?RevIt_Publisher_GSC_Insights_Service $gsc_insights = null;
+	private static ?RevIt_Publisher_GSC_Query_Coverage_Service $gsc_query_coverage = null;
+	private static ?RevIt_Publisher_GSC_Content_Status $gsc_content_status = null;
+	private static ?RevIt_Publisher_GSC_Refresh_Export $gsc_refresh_export = null;
 
 	public static function registry(): RevIt_Publisher_Article_Registry {
 		return self::$registry ??= new RevIt_Publisher_Article_Registry();
@@ -188,6 +200,76 @@ final class RevIt_Publisher_Services {
 
 	public static function serp_preview(): RevIt_Publisher_SERP_Preview_Service {
 		return self::$serp_preview ??= new RevIt_Publisher_SERP_Preview_Service( self::sitemap() );
+	}
+
+	public static function gsc_tokens(): RevIt_Publisher_GSC_Token_Store {
+		return self::$gsc_tokens ??= new RevIt_Publisher_GSC_Token_Store();
+	}
+
+	public static function gsc_auth(): RevIt_Publisher_GSC_Auth_Service {
+		return self::$gsc_auth ??= new RevIt_Publisher_GSC_Auth_Service( self::gsc_tokens(), self::settings() );
+	}
+
+	public static function gsc_client(): RevIt_Publisher_GSC_Client_Interface {
+		return RevIt_Publisher_GSC_Client::create();
+	}
+
+	public static function gsc_mapper(): RevIt_Publisher_GSC_Page_Mapper {
+		return self::$gsc_mapper ??= new RevIt_Publisher_GSC_Page_Mapper();
+	}
+
+	public static function gsc_data_store(): RevIt_Publisher_GSC_Data_Store {
+		return self::$gsc_data_store ??= new RevIt_Publisher_GSC_Data_Store( self::gsc_mapper() );
+	}
+
+	public static function gsc_sync(): RevIt_Publisher_GSC_Sync_Service {
+		return self::$gsc_sync ??= new RevIt_Publisher_GSC_Sync_Service(
+			self::gsc_client(),
+			self::gsc_data_store(),
+			self::gsc_auth(),
+			self::settings()
+		);
+	}
+
+	public static function gsc_opportunities(): RevIt_Publisher_GSC_Opportunity_Service {
+		return self::$gsc_opportunities ??= new RevIt_Publisher_GSC_Opportunity_Service(
+			self::gsc_data_store(),
+			self::settings()
+		);
+	}
+
+	public static function gsc_inspections(): RevIt_Publisher_GSC_URL_Inspection_Service {
+		return self::$gsc_inspections ??= new RevIt_Publisher_GSC_URL_Inspection_Service(
+			self::gsc_client(),
+			self::gsc_data_store(),
+			self::settings()
+		);
+	}
+
+	public static function gsc_sitemaps(): RevIt_Publisher_GSC_Sitemap_Service {
+		return self::$gsc_sitemaps ??= new RevIt_Publisher_GSC_Sitemap_Service(
+			self::gsc_client(),
+			self::settings()
+		);
+	}
+
+	public static function gsc_insights(): RevIt_Publisher_GSC_Insights_Service {
+		return self::$gsc_insights ??= new RevIt_Publisher_GSC_Insights_Service( self::gsc_data_store() );
+	}
+
+	public static function gsc_query_coverage(): RevIt_Publisher_GSC_Query_Coverage_Service {
+		return self::$gsc_query_coverage ??= new RevIt_Publisher_GSC_Query_Coverage_Service( self::gsc_data_store() );
+	}
+
+	public static function gsc_content_status(): RevIt_Publisher_GSC_Content_Status {
+		return self::$gsc_content_status ??= new RevIt_Publisher_GSC_Content_Status(
+			self::gsc_data_store(),
+			self::settings()
+		);
+	}
+
+	public static function gsc_refresh_export(): RevIt_Publisher_GSC_Refresh_Export {
+		return self::$gsc_refresh_export ??= new RevIt_Publisher_GSC_Refresh_Export();
 	}
 
 	private function __construct() {}

@@ -1,5 +1,35 @@
 # Development Log
 
+## Phase 6 — Google Search Console Intelligence
+
+**Status:** Implemented  
+**Version:** 0.7.0  
+**Date:** 2026-08-19
+
+### Delivered
+
+- GSC integration layer with interface, fake client, and Google API client
+- OAuth 2.0 auth, encrypted token storage, property selection
+- Custom DB tables for page metrics, query metrics, URL inspections
+- Search Analytics sync with cron, locking, failure preservation
+- Page/article mapping, vehicle and cluster aggregations
+- Explainable opportunity engine and query coverage intelligence
+- URL Inspection with daily quota and caching
+- Sitemap list/submit integration
+- Search Performance admin UI and REST API
+- Needs Attention GSC issue types
+- Refresh request export (`revit-refresh-request-v1`)
+- Fixture dataset and Docker acceptance test
+
+### Explicitly Deferred
+
+- Google Analytics, Ads, Trends
+- SERP scraping and rank tracking APIs
+- Automatic article rewriting
+- Bing Webmaster Tools
+
+---
+
 ## Phase 5 — Public Automotive SEO Architecture
 
 **Status:** Implemented  

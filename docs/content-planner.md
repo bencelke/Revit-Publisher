@@ -53,6 +53,20 @@ Publisher identifies gap → export request → ChatGPT generates revit-article-
 
 Scopes: single article, cluster, or full vehicle plan.
 
+## Search Performance States (v0.7.0)
+
+When Google Search Console is connected, coverage reports include `search_performance` groups that are **separate from content-plan site status**:
+
+| State | Meaning |
+|-------|---------|
+| `missing_content` | Planned article not yet published |
+| `published_no_visibility` | Published but no Search Console impressions (after grace period) |
+| `emerging_content` | Impressions increasing vs previous period |
+| `established_content` | Consistent organic visibility |
+| `declining_content` | Impressions declining vs previous period |
+
+These states do not auto-change articles. See [search-performance.md](./search-performance.md).
+
 ## REST API
 
 | Endpoint | Purpose |

@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
 import { fetchStats } from '../api/article-packages';
+import { fetchGscStatus, fetchGscSummary } from '../api/search-console';
 import { StatsResponse } from '../types/article-package';
+import { GscStatus, GscSummary } from '../types/search-console';
 
 export function Dashboard() {
   const [stats, setStats] = useState<StatsResponse | null>(null);
+  const [gscStatus, setGscStatus] = useState<GscStatus | null>(null);
+  const [gscSummary, setGscSummary] = useState<GscSummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -11,6 +15,17 @@ export function Dashboard() {
       .then(setStats)
       .catch((err: unknown) => {
         setError(err instanceof Error ? err.message : 'Failed to load stats.');
+      });
+    fetchGscStatus()
+      .then((status) => {
+        setGscStatus(status);
+        if (status.connected) {
+          return fetchGscSummary('28d').then(setGscSummary);
+        }
+        return undefined;
+      })
+      .catch(() => {
+        setGscStatus(null);
       });
   }, []);
 
@@ -57,6 +72,41 @@ export function Dashboard() {
               <span className="revit-publisher-stat-value">{stats.intelligence?.topic_overlaps ?? 0}</span>
             </div>
           </div>
+
+          {gscStatus?.connected && gscSummary && (
+            <div className="revit-publisher-card revit-gsc-dashboard-card">
+              <h3>Search Console (28 days)</h3>
+              <div className="revit-publisher-grid revit-gsc-summary-grid">
+                <div className="revit-publisher-metric">
+                  <span className="revit-publisher-stat-label">Clicks</span>
+                  <span className="revit-publisher-stat-value">{gscSummary.current.clicks.toLocaleString()}</span>
+                  {gscSummary.change.clicks_pct !== null && (
+                    <span className={`revit-gsc-change ${gscSummary.change.clicks_pct >= 0 ? 'revit-gsc-change--up' : 'revit-gsc-change--down'}`}>
+                      {gscSummary.change.clicks_pct > 0 ? '+' : ''}{gscSummary.change.clicks_pct}%
+                    </span>
+                  )}
+                </div>
+                <div className="revit-publisher-metric">
+                  <span className="revit-publisher-stat-label">Impressions</span>
+                  <span className="revit-publisher-stat-value">{gscSummary.current.impressions.toLocaleString()}</span>
+                  {gscSummary.change.impressions_pct !== null && (
+                    <span className={`revit-gsc-change ${gscSummary.change.impressions_pct >= 0 ? 'revit-gsc-change--up' : 'revit-gsc-change--down'}`}>
+                      {gscSummary.change.impressions_pct > 0 ? '+' : ''}{gscSummary.change.impressions_pct}%
+                    </span>
+                  )}
+                </div>
+                <div className="revit-publisher-metric">
+                  <span className="revit-publisher-stat-label">Avg Position</span>
+                  <span className="revit-publisher-stat-value">{gscSummary.current.position}</span>
+                  {gscSummary.change.position_delta !== null && (
+                    <span className={`revit-gsc-change ${gscSummary.change.position_delta >= 0 ? 'revit-gsc-change--up' : 'revit-gsc-change--down'}`}>
+                      {gscSummary.change.position_delta > 0 ? '+' : ''}{gscSummary.change.position_delta}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="revit-publisher-card">
             <h3>Vehicle Content Health</h3>

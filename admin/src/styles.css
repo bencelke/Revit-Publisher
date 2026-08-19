@@ -281,3 +281,78 @@
   max-width: 320px;
 }
 
+/* Google Search Console metrics */
+.revit-gsc-summary-grid {
+  margin-bottom: 0;
+}
+
+.revit-gsc-metric .revit-gsc-change {
+  display: block;
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
+}
+
+.revit-gsc-change--up {
+  color: #4ade80;
+}
+
+.revit-gsc-change--down {
+  color: #f87171;
+}
+
+.revit-gsc-change--neutral {
+  color: #94a3b8;
+}
+
+.revit-gsc-status-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.revit-gsc-status-bar .revit-publisher-actions {
+  margin-top: 0;
+}
+
+.revit-gsc-inline-metrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8125rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+}
+
+.revit-gsc-page-link {
+  background: none;
+  border: none;
+  color: #60a5fa;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  text-align: left;
+}
+
+.revit-gsc-page-row.is-active {
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.revit-gsc-queries-panel {
+  margin-top: 1rem;
+  border-top: 1px solid #334155;
+}
+
+.revit-gsc-connect {
+  text-align: center;
+}
+
+.revit-gsc-dashboard-card h3 {
+  margin-top: 0;
+}
+
+.revit-gsc-settings-status {
+  margin-bottom: 0.75rem;
+}
+

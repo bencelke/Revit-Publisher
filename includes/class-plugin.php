@@ -79,6 +79,27 @@ require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-seo-graph-rest-co
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-content-plan-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-operations-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-vehicle-hub-rest-controller.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/interface-gsc-client.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-schema.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-fixture-data.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-fake-client.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-google-client.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-client.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-token-store.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-auth-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-page-mapper.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-data-store.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-sync-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-search-analytics-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-opportunity-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-url-inspection-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-sitemap-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-insights-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-query-coverage-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-content-status.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-refresh-export.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-cron.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-gsc-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-vehicle-hub-meta-box.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-admin.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-post-meta-box.php';
@@ -117,6 +138,10 @@ final class RevIt_Publisher_Plugin {
 		RevIt_Publisher_Vehicle_Hub_Post_Type::init();
 		RevIt_Publisher_Audit_Cron::init();
 		RevIt_Publisher_Issue_Retention_Cron::init();
+		RevIt_Publisher_GSC_Cron::init();
+		RevIt_Publisher_GSC_Schema::maybe_install();
+
+		add_action( 'admin_init', array( $this, 'handle_gsc_oauth_callback' ) );
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
@@ -205,5 +230,37 @@ final class RevIt_Publisher_Plugin {
 			RevIt_Publisher_Services::vehicle_hubs()
 		);
 		$hub_controller->register_routes();
+
+		$gsc_controller = new RevIt_Publisher_GSC_Rest_Controller();
+		$gsc_controller->register_routes();
+	}
+
+	/**
+	 * Handle Google OAuth callback on settings page.
+	 */
+	public function handle_gsc_oauth_callback(): void {
+		if ( ! is_admin() || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+		if ( empty( $_GET['revit_gsc_oauth'] ) || empty( $_GET['code'] ) || empty( $_GET['state'] ) ) { // phpcs:ignore WordPress.Security.NonceVerification
+			return;
+		}
+		$code  = sanitize_text_field( wp_unslash( (string) $_GET['code'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		$state = sanitize_text_field( wp_unslash( (string) $_GET['state'] ) ); // phpcs:ignore WordPress.Security.NonceVerification
+		$result = RevIt_Publisher_Services::gsc_auth()->handle_oauth_callback( $code, $state );
+		if ( is_wp_error( $result ) ) {
+			add_action(
+				'admin_notices',
+				static function () use ( $result ): void {
+					printf(
+						'<div class="notice notice-error"><p>%s</p></div>',
+						esc_html( $result->get_error_message() )
+					);
+				}
+			);
+			return;
+		}
+		wp_safe_redirect( admin_url( 'admin.php?page=revit-publisher-settings&gsc_connected=1' ) );
+		exit;
 	}
 }

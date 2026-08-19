@@ -13,9 +13,22 @@ Multi-vehicle content health comparison.
 - High overlap issues
 - Review-due count
 
+### Search Console (v0.7.0)
+
+When Google Search Console is connected and synced:
+
+- Clicks, impressions, CTR, average position (7d / 28d)
+- Trend vs previous comparable period
+- Articles with impressions vs total
+- Performance opportunity count
+
+Columns appear on **RevIt Publisher → Vehicles** and aggregate via `RevIt_Publisher_GSC_Insights_Service`.
+
 ## Vehicle detail
 
-**RevIt Publisher → Vehicles** provides drill-down with cluster breakdown and needs-attention summary.
+**RevIt Publisher → Vehicles** provides drill-down with cluster breakdown, needs-attention summary, and Google Search metrics.
+
+Vehicle hub editor panels show 28-day Search Console summary when data exists.
 
 ## Hub preparation (Phase 5)
 
@@ -28,3 +41,4 @@ Internal query methods (not public URLs yet):
 
 - `GET /revit-publisher/v1/vehicles`
 - `GET /revit-publisher/v1/vehicles/detail?vehicle=...`
+- `GET /revit-publisher/v1/search-console/vehicles?window=28d`

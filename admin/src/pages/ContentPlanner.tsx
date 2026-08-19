@@ -138,6 +138,35 @@ export function ContentPlannerPage() {
               <li key={item.article_key}>{item.title} (Priority {item.priority})</li>
             ))}
           </ol>
+
+          {coverage.search_performance?.connected && (
+            <>
+              <h4>Search Performance (Content vs Google)</h4>
+              <p className="revit-publisher-muted">
+                Search Console states are separate from content-plan coverage. They reflect organic visibility, not publish status.
+              </p>
+              {(
+                [
+                  ['Published / No Visibility', coverage.search_performance.groups.published_no_visibility],
+                  ['Emerging Content', coverage.search_performance.groups.emerging_content],
+                  ['Established Content', coverage.search_performance.groups.established_content],
+                  ['Declining Content', coverage.search_performance.groups.declining_content],
+                ] as const
+              ).map(([label, items]) =>
+                items.length > 0 ? (
+                  <div key={label}>
+                    <h5>{label}</h5>
+                    {items.map((item) => (
+                      <div key={item.article_key} className="revit-publisher-list-item">
+                        <strong>{item.title}</strong>
+                        <div>{item.cluster_key}</div>
+                      </div>
+                    ))}
+                  </div>
+                ) : null
+              )}
+            </>
+          )}
         </div>
       )}
     </div>
