@@ -1,5 +1,24 @@
 # Development Log
 
+## Phase A — Product Reset & UI Simplification
+
+**Status:** Implemented  
+**Version:** 0.8.1  
+**Date:** 2026-08-20
+
+### Delivered
+
+- Simplified primary navigation: Dashboard, Batch Import, Vehicles, SEO, Advanced
+- Batch-first import workflow (Upload → Analyze → Optimize → Import) with multi-file drop zone
+- Redesigned operator dashboard without GSC/audit dominance
+- Unified SEO overview screen; advanced diagnostics moved under Advanced hub
+- RevIt admin design system (PageHeader, StatCard, DropZone, StepIndicator, badges, buttons)
+- Application error boundary, normalized REST errors, loading and empty states
+- Fixture banner for Search Console test data
+- Operator workflow documentation
+
+---
+
 ## Phase 7 — Editorial Prioritization + Production Hardening
 
 **Status:** Implemented  

@@ -63,7 +63,7 @@ function summarizeDiff(diff: UpdatePreviewChanged['diff']): string[] {
   return lines;
 }
 
-export function ImportPage() {
+export function ImportPage({ embedded = false }: { embedded?: boolean }) {
   const [jsonInput, setJsonInput] = useState('');
   const [preview, setPreview] = useState<PreviewResponse | null>(null);
   const [importResult, setImportResult] = useState<ImportResponse | null>(null);
@@ -243,11 +243,15 @@ export function ImportPage() {
       : null;
 
   return (
-    <div className="revit-publisher-panel">
-      <h1>Import Article Package</h1>
-      <p className="revit-publisher-muted">
-        Paste or upload a <code>revit-article-v1</code> package to validate, preview, import, or update.
-      </p>
+    <div className={embedded ? 'revit-embedded-import' : 'revit-publisher-panel revit-publisher-dark'}>
+      {!embedded && (
+        <>
+          <h1>Single Article JSON</h1>
+          <p className="revit-publisher-muted">
+            Paste or upload a <code>revit-article-v1</code> package to validate, preview, import, or update.
+          </p>
+        </>
+      )}
 
       <form className="revit-publisher-card" onSubmit={handlePreview}>
         <label htmlFor="revit-article-json">Article Package JSON</label>

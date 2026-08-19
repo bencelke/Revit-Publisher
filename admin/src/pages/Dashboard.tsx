@@ -1,155 +1,125 @@
 import { useEffect, useState } from 'react';
 import { fetchStats } from '../api/article-packages';
-import { fetchEditorialToday, EditorialTodaySummary } from '../api/editorial';
-import { fetchGscStatus, fetchGscSummary } from '../api/search-console';
-import { ProductHeader } from '../components/ProductHeader';
+import { EmptyState, LoadingBlock, SectionError } from '../components/EmptyState';
+import { PageHeader } from '../components/PageHeader';
+import { PrimaryButton } from '../components/PrimaryButton';
+import { StatCard } from '../components/StatCard';
+import { StatusBadge } from '../components/StatusBadge';
+import { adminUrl } from '../lib/api-client';
+import { readRecentBatches } from '../lib/batch-utils';
 import { StatsResponse } from '../types/article-package';
-import { GscStatus, GscSummary } from '../types/search-console';
 
 export function Dashboard() {
   const [stats, setStats] = useState<StatsResponse | null>(null);
-  const [gscStatus, setGscStatus] = useState<GscStatus | null>(null);
-  const [gscSummary, setGscSummary] = useState<GscSummary | null>(null);
-  const [today, setToday] = useState<EditorialTodaySummary | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [batches] = useState(readRecentBatches);
 
   useEffect(() => {
     fetchStats()
       .then(setStats)
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : 'Failed to load stats.');
-      });
-    fetchGscStatus()
-      .then((status) => {
-        setGscStatus(status);
-        if (status.connected) {
-          return fetchGscSummary('28d').then(setGscSummary);
-        }
-        return undefined;
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard.');
       })
-      .catch(() => {
-        setGscStatus(null);
-      });
-    fetchEditorialToday().then(setToday).catch(() => undefined);
+      .finally(() => setLoading(false));
   }, []);
 
+  const seo = stats?.seo_health;
+  const graph = stats?.content_graph;
   const vehicles = stats?.intelligence?.vehicle_health ?? [];
-  const latest = stats?.intelligence?.latest_audit as { summary?: Record<string, number> } | undefined;
+  const needs = stats?.intelligence?.needs_attention;
 
   return (
     <div className="revit-publisher-panel revit-publisher-dark">
-      <ProductHeader title="Command Center" />
+      <PageHeader
+        action={<PrimaryButton href={adminUrl('import')}>Upload Articles</PrimaryButton>}
+      />
 
-      {error && (
-        <div className="revit-publisher-result revit-publisher-result--error">
-          <p>{error}</p>
-        </div>
-      )}
+      {loading && <LoadingBlock label="Loading dashboard…" />}
+      {error && <SectionError message={error} onRetry={() => window.location.reload()} />}
 
       {stats && (
         <>
-          {latest?.summary && (
-            <div className="revit-publisher-card revit-publisher-notice">
-              <strong>Latest audit:</strong>{' '}
-              {stats.intelligence?.needs_attention?.open_issues ?? 0} open issues ·{' '}
-              {latest.summary.unresolved_link_count ?? 0} unresolved links ·{' '}
-              {latest.summary.missing_content_count ?? 0} content gaps
-            </div>
-          )}
-
-          <div className="revit-publisher-grid">
-            <div className="revit-publisher-card revit-publisher-metric">
-              <span className="revit-publisher-stat-label">Articles</span>
-              <span className="revit-publisher-stat-value">{stats.imported_articles}</span>
-            </div>
-            <div className="revit-publisher-card revit-publisher-metric">
-              <span className="revit-publisher-stat-label">Open Issues</span>
-              <span className="revit-publisher-stat-value">{stats.intelligence?.needs_attention?.open_issues ?? 0}</span>
-            </div>
-            <div className="revit-publisher-card revit-publisher-metric">
-              <span className="revit-publisher-stat-label">Missing Content</span>
-              <span className="revit-publisher-stat-value">{stats.intelligence?.missing_content ?? 0}</span>
-            </div>
-            <div className="revit-publisher-card revit-publisher-metric">
-              <span className="revit-publisher-stat-label">Topic Overlaps</span>
-              <span className="revit-publisher-stat-value">{stats.intelligence?.topic_overlaps ?? 0}</span>
-            </div>
+          <div className="revit-stat-grid">
+            <StatCard label="Articles" value={stats.imported_articles} />
+            <StatCard label="Vehicles" value={stats.vehicle_models} />
+            <StatCard
+              label="SEO Issues"
+              value={(needs?.missing_meta ?? 0) + (needs?.orphans ?? 0) + (needs?.topic_overlaps ?? 0)}
+            />
+            <StatCard label="Link Opportunities" value={graph?.pending_links ?? needs?.unresolved_links ?? 0} />
           </div>
 
-          {today && (
-            <div className="revit-publisher-card revit-today-card">
-              <h3>What To Work On — Today</h3>
-              <p>
-                {(today.counts.high ?? 0) + (today.counts.urgent ?? 0)} high priority ·{' '}
-                {today.counts.medium ?? 0} medium priority
-              </p>
-              <ol>
-                {today.items.slice(0, 3).map((item) => (
-                  <li key={item.id}>{item.title}</li>
+          <section className="revit-publisher-card">
+            <h2>Recent Batches</h2>
+            {batches.length === 0 ? (
+              <EmptyState
+                title="No article batches yet"
+                description="Upload your first RevIt article package to get started."
+                actionLabel="Upload Articles"
+                href={adminUrl('import')}
+              />
+            ) : (
+              <ul className="revit-batch-list">
+                {batches.slice(0, 5).map((batch) => (
+                  <li key={batch.id} className="revit-batch-list__item">
+                    <div>
+                      <strong>{batch.vehicleLabel}</strong>
+                      <span className="revit-publisher-muted">{batch.articleCount} articles · Imported {batch.importedAt}</span>
+                    </div>
+                    <StatusBadge tone={batch.status === 'SEO Ready' ? 'success' : batch.status === 'Partial' ? 'error' : 'warning'}>
+                      {batch.status}
+                    </StatusBadge>
+                  </li>
                 ))}
-              </ol>
-              <a className="button" href="admin.php?page=revit-publisher-editorial">Open Editorial Queue</a>
-            </div>
-          )}
+              </ul>
+            )}
+          </section>
 
-          {gscStatus?.connected && gscSummary && (
-            <div className="revit-publisher-card revit-gsc-dashboard-card">
-              <h3>Search Console (28 days)</h3>
-              <div className="revit-publisher-grid revit-gsc-summary-grid">
-                <div className="revit-publisher-metric">
-                  <span className="revit-publisher-stat-label">Clicks</span>
-                  <span className="revit-publisher-stat-value">{gscSummary.current.clicks.toLocaleString()}</span>
-                  {gscSummary.change.clicks_pct !== null && (
-                    <span className={`revit-gsc-change ${gscSummary.change.clicks_pct >= 0 ? 'revit-gsc-change--up' : 'revit-gsc-change--down'}`}>
-                      {gscSummary.change.clicks_pct > 0 ? '+' : ''}{gscSummary.change.clicks_pct}%
-                    </span>
-                  )}
-                </div>
-                <div className="revit-publisher-metric">
-                  <span className="revit-publisher-stat-label">Impressions</span>
-                  <span className="revit-publisher-stat-value">{gscSummary.current.impressions.toLocaleString()}</span>
-                  {gscSummary.change.impressions_pct !== null && (
-                    <span className={`revit-gsc-change ${gscSummary.change.impressions_pct >= 0 ? 'revit-gsc-change--up' : 'revit-gsc-change--down'}`}>
-                      {gscSummary.change.impressions_pct > 0 ? '+' : ''}{gscSummary.change.impressions_pct}%
-                    </span>
-                  )}
-                </div>
-                <div className="revit-publisher-metric">
-                  <span className="revit-publisher-stat-label">Avg Position</span>
-                  <span className="revit-publisher-stat-value">{gscSummary.current.position}</span>
-                  {gscSummary.change.position_delta !== null && (
-                    <span className={`revit-gsc-change ${gscSummary.change.position_delta >= 0 ? 'revit-gsc-change--up' : 'revit-gsc-change--down'}`}>
-                      {gscSummary.change.position_delta > 0 ? '+' : ''}{gscSummary.change.position_delta}
-                    </span>
-                  )}
-                </div>
+          <section className="revit-publisher-card">
+            <h2>Needs Review</h2>
+            {(needs?.open_issues ?? 0) === 0 && (seo?.orphan_articles ?? 0) === 0 ? (
+              <p className="revit-publisher-muted">No urgent items — you're caught up.</p>
+            ) : (
+              <ul className="revit-publisher-list">
+                {(needs?.missing_meta ?? 0) > 0 && (
+                  <li>{needs?.missing_meta} articles missing metadata</li>
+                )}
+                {(needs?.unresolved_links ?? 0) > 0 && (
+                  <li>{needs?.unresolved_links} unresolved internal links</li>
+                )}
+                {(needs?.topic_overlaps ?? 0) > 0 && (
+                  <li>{needs?.topic_overlaps} topic overlap warnings</li>
+                )}
+                {(seo?.orphan_articles ?? 0) > 0 && (
+                  <li>{seo?.orphan_articles} orphan articles</li>
+                )}
+              </ul>
+            )}
+            <a className="revit-link" href={adminUrl('attention')}>View all in Needs Attention →</a>
+          </section>
+
+          <section className="revit-publisher-card">
+            <h2>Recent Vehicles</h2>
+            {vehicles.length === 0 ? (
+              <EmptyState
+                title="No vehicles yet"
+                description="Vehicles appear automatically after article import."
+              />
+            ) : (
+              <div className="revit-vehicle-grid">
+                {vehicles.slice(0, 6).map((vehicle) => (
+                  <div key={vehicle.label} className="revit-vehicle-card">
+                    <h3>{vehicle.label}</h3>
+                    <p>Articles {vehicle.published + vehicle.missing_articles}</p>
+                    <p>SEO Health {vehicle.seo_health_avg}</p>
+                    <p className="revit-publisher-muted">Link Coverage {vehicle.plan_coverage}%</p>
+                    <a className="revit-link" href={adminUrl('vehicles')}>Open</a>
+                  </div>
+                ))}
               </div>
-            </div>
-          )}
-
-          <div className="revit-publisher-card">
-            <h3>Vehicle Content Health</h3>
-            {vehicles.length === 0 && <p className="revit-publisher-muted">Import articles to populate vehicle metrics.</p>}
-            {vehicles.map((v) => (
-              <div key={v.label} className="revit-publisher-list-item">
-                <strong>{v.label}</strong>
-                <span className="revit-publisher-stat-value">{v.seo_health_avg}</span>
-                <div className="revit-publisher-muted">
-                  Coverage {v.plan_coverage}% · Published {v.published} · Missing {v.missing_articles}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="revit-publisher-card">
-            <h3>Needs Attention</h3>
-            <ul className="revit-publisher-stats">
-              <li><span className="revit-publisher-stat-label">Orphan Articles</span><span className="revit-publisher-stat-value">{stats.intelligence?.needs_attention?.orphans ?? 0}</span></li>
-              <li><span className="revit-publisher-stat-label">High-Risk Overlaps</span><span className="revit-publisher-stat-value">{stats.intelligence?.needs_attention?.topic_overlaps ?? 0}</span></li>
-              <li><span className="revit-publisher-stat-label">Missing Meta</span><span className="revit-publisher-stat-value">{stats.intelligence?.needs_attention?.missing_meta ?? 0}</span></li>
-              <li><span className="revit-publisher-stat-label">Unresolved Links</span><span className="revit-publisher-stat-value">{stats.intelligence?.needs_attention?.unresolved_links ?? 0}</span></li>
-            </ul>
-          </div>
+            )}
+          </section>
         </>
       )}
     </div>

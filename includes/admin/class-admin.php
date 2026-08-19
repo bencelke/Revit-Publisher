@@ -76,65 +76,11 @@ class RevIt_Publisher_Admin {
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'Import', 'revit-publisher' ),
-			__( 'Import', 'revit-publisher' ),
+			__( 'Batch Import', 'revit-publisher' ),
+			__( 'Batch Import', 'revit-publisher' ),
 			'edit_posts',
 			self::MENU_SLUG . '-import',
 			array( $this, 'render_import_page' )
-		);
-
-		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Content Planner', 'revit-publisher' ),
-			__( 'Content Planner', 'revit-publisher' ),
-			'edit_posts',
-			self::MENU_SLUG . '-planner',
-			array( $this, 'render_planner_page' )
-		);
-
-		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'SEO Health', 'revit-publisher' ),
-			__( 'SEO Health', 'revit-publisher' ),
-			'edit_posts',
-			self::MENU_SLUG . '-seo-health',
-			array( $this, 'render_seo_health_page' )
-		);
-
-		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Editorial Queue', 'revit-publisher' ),
-			__( 'Editorial Queue', 'revit-publisher' ),
-			'edit_posts',
-			self::MENU_SLUG . '-editorial',
-			array( $this, 'render_editorial_page' )
-		);
-
-		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Search Performance', 'revit-publisher' ),
-			__( 'Search Performance', 'revit-publisher' ),
-			'edit_posts',
-			self::MENU_SLUG . '-search-performance',
-			array( $this, 'render_search_performance_page' )
-		);
-
-		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Needs Attention', 'revit-publisher' ),
-			__( 'Needs Attention', 'revit-publisher' ),
-			'edit_posts',
-			self::MENU_SLUG . '-attention',
-			array( $this, 'render_attention_page' )
-		);
-
-		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Audits', 'revit-publisher' ),
-			__( 'Audits', 'revit-publisher' ),
-			'edit_posts',
-			self::MENU_SLUG . '-audits',
-			array( $this, 'render_audits_page' )
 		);
 
 		add_submenu_page(
@@ -148,49 +94,54 @@ class RevIt_Publisher_Admin {
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( 'Redirects', 'revit-publisher' ),
-			__( 'Redirects', 'revit-publisher' ),
-			'manage_options',
-			self::MENU_SLUG . '-redirects',
-			array( $this, 'render_redirects_page' )
+			__( 'SEO', 'revit-publisher' ),
+			__( 'SEO', 'revit-publisher' ),
+			'edit_posts',
+			self::MENU_SLUG . '-seo',
+			array( $this, 'render_seo_page' )
 		);
 
 		add_submenu_page(
 			self::MENU_SLUG,
-			__( '404 Monitor', 'revit-publisher' ),
-			__( '404 Monitor', 'revit-publisher' ),
-			'manage_options',
-			self::MENU_SLUG . '-404',
-			array( $this, 'render_404_page' )
+			__( 'Advanced', 'revit-publisher' ),
+			__( 'Advanced', 'revit-publisher' ),
+			'edit_posts',
+			self::MENU_SLUG . '-advanced',
+			array( $this, 'render_advanced_page' )
 		);
+
+		// Hidden from primary menu — reachable via Advanced hub or direct URL.
+		$this->register_hidden_page( __( 'Content Planner', 'revit-publisher' ), self::MENU_SLUG . '-planner', array( $this, 'render_planner_page' ), 'edit_posts' );
+		$this->register_hidden_page( __( 'Content Graph', 'revit-publisher' ), self::MENU_SLUG . '-graph', array( $this, 'render_graph_page' ), 'edit_posts' );
+		$this->register_hidden_page( __( 'SEO Health', 'revit-publisher' ), self::MENU_SLUG . '-seo-health', array( $this, 'render_seo_health_page' ), 'edit_posts' );
+		$this->register_hidden_page( __( 'Editorial Queue', 'revit-publisher' ), self::MENU_SLUG . '-editorial', array( $this, 'render_editorial_page' ), 'edit_posts' );
+		$this->register_hidden_page( __( 'Search Performance', 'revit-publisher' ), self::MENU_SLUG . '-search-performance', array( $this, 'render_search_performance_page' ), 'edit_posts' );
+		$this->register_hidden_page( __( 'Needs Attention', 'revit-publisher' ), self::MENU_SLUG . '-attention', array( $this, 'render_attention_page' ), 'edit_posts' );
+		$this->register_hidden_page( __( 'Audits', 'revit-publisher' ), self::MENU_SLUG . '-audits', array( $this, 'render_audits_page' ), 'edit_posts' );
+		$this->register_hidden_page( __( 'Redirects', 'revit-publisher' ), self::MENU_SLUG . '-redirects', array( $this, 'render_redirects_page' ), 'manage_options' );
+		$this->register_hidden_page( __( '404 Monitor', 'revit-publisher' ), self::MENU_SLUG . '-404', array( $this, 'render_404_page' ), 'manage_options' );
+		$this->register_hidden_page( __( 'System Health', 'revit-publisher' ), self::MENU_SLUG . '-system-health', array( $this, 'render_system_health_page' ), 'manage_options' );
+		$this->register_hidden_page( __( 'Settings', 'revit-publisher' ), self::MENU_SLUG . '-settings', array( $this, 'render_settings_page' ), 'manage_options' );
 
 		add_action( 'admin_menu', array( $this, 'add_attention_badge' ), 999 );
+	}
 
+	/**
+	 * Register a submenu page hidden from the sidebar (parent slug null).
+	 *
+	 * @param string   $title      Page title.
+	 * @param string   $slug       Page slug.
+	 * @param callable $callback   Render callback.
+	 * @param string   $capability Required capability.
+	 */
+	private function register_hidden_page( string $title, string $slug, callable $callback, string $capability ): void {
 		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Content Graph', 'revit-publisher' ),
-			__( 'Content Graph', 'revit-publisher' ),
-			'edit_posts',
-			self::MENU_SLUG . '-graph',
-			array( $this, 'render_graph_page' )
-		);
-
-		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'System Health', 'revit-publisher' ),
-			__( 'System Health', 'revit-publisher' ),
-			'manage_options',
-			self::MENU_SLUG . '-system-health',
-			array( $this, 'render_system_health_page' )
-		);
-
-		add_submenu_page(
-			self::MENU_SLUG,
-			__( 'Settings', 'revit-publisher' ),
-			__( 'Settings', 'revit-publisher' ),
-			'manage_options',
-			self::MENU_SLUG . '-settings',
-			array( $this, 'render_settings_page' )
+			null,
+			$title,
+			$title,
+			$capability,
+			$slug,
+			$callback
 		);
 	}
 
@@ -228,6 +179,14 @@ class RevIt_Publisher_Admin {
 	 */
 	public function render_import_page(): void {
 		$this->render_app_shell( 'revit-publisher-import', 'edit_posts' );
+	}
+
+	public function render_seo_page(): void {
+		$this->render_app_shell( 'revit-publisher-seo', 'edit_posts' );
+	}
+
+	public function render_advanced_page(): void {
+		$this->render_app_shell( 'revit-publisher-advanced', 'edit_posts' );
 	}
 
 	/**
@@ -288,15 +247,16 @@ class RevIt_Publisher_Admin {
 	 */
 	public function add_attention_badge(): void {
 		global $submenu;
-		if ( ! is_array( $submenu ) || ! isset( $submenu[ self::MENU_SLUG ] ) ) {
+		if ( ! is_array( $submenu ) ) {
 			return;
 		}
 		$count = RevIt_Publisher_Services::issues()->count_open();
 		if ( $count <= 0 ) {
 			return;
 		}
-		foreach ( $submenu[ self::MENU_SLUG ] as &$item ) {
-			if ( ( $item[2] ?? '' ) === self::MENU_SLUG . '-attention' ) {
+		// Badge on Advanced menu when Needs Attention has open issues.
+		foreach ( $submenu[ self::MENU_SLUG ] ?? array() as &$item ) {
+			if ( ( $item[2] ?? '' ) === self::MENU_SLUG . '-advanced' ) {
 				$item[0] .= ' <span class="awaiting-mod">' . (int) $count . '</span>';
 				break;
 			}
@@ -308,30 +268,7 @@ class RevIt_Publisher_Admin {
 	 * Show latest audit summary on dashboard pages.
 	 */
 	public function maybe_show_audit_notice(): void {
-		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
-		if ( ! $screen || 'toplevel_page_revit-publisher' !== $screen->id ) {
-			return;
-		}
-		$audits = RevIt_Publisher_Services::site_audit()->list_snapshots( 1 );
-		if ( empty( $audits ) ) {
-			return;
-		}
-		$summary = (array) ( $audits[0]['summary'] ?? array() );
-		$high    = (int) RevIt_Publisher_Services::issues()->count_open();
-		printf(
-			'<div class="notice notice-info"><p><strong>%s</strong> %s <a href="%s">%s</a></p></div>',
-			esc_html__( 'Latest audit found:', 'revit-publisher' ),
-			esc_html(
-				sprintf(
-					'%d open issues, %d unresolved links, %d content gaps.',
-					$high,
-					(int) ( $summary['unresolved_link_count'] ?? 0 ),
-					(int) ( $summary['missing_content_count'] ?? 0 )
-				)
-			),
-			esc_url( admin_url( 'admin.php?page=' . self::MENU_SLUG . '-attention' ) ),
-			esc_html__( 'Review', 'revit-publisher' )
-		);
+		// Audit summaries live under Advanced → Needs Attention / Audits (Phase A dashboard simplification).
 	}
 
 	/**

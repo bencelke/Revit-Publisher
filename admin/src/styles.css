@@ -442,3 +442,317 @@
   margin: 0.75rem 0;
 }
 
+/* Phase A design system */
+.revit-publisher-app {
+  max-width: 1280px;
+}
+
+@media (min-width: 1440px) {
+  .revit-publisher-app {
+    max-width: 1400px;
+  }
+}
+
+.revit-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #334155;
+}
+
+.revit-page-header__brand {
+  display: flex;
+  gap: 0.875rem;
+  align-items: flex-start;
+}
+
+.revit-page-header__mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #2563eb, #1e3a8a);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.revit-page-header__title {
+  margin: 0;
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.revit-page-header__subtitle,
+.revit-page-header__screen {
+  margin: 0.15rem 0 0;
+  color: #94a3b8;
+  font-size: 0.9375rem;
+}
+
+.revit-page-header__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.revit-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.revit-stat-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 1rem 1.125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.revit-stat-card__label {
+  color: #94a3b8;
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.revit-stat-card__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #60a5fa;
+}
+
+.revit-stat-card__hint {
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+.revit-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.revit-badge--success { background: #14532d; color: #86efac; }
+.revit-badge--warning { background: #78350f; color: #fcd34d; }
+.revit-badge--error { background: #7f1d1d; color: #fca5a5; }
+.revit-badge--info { background: #1e3a8a; color: #93c5fd; }
+.revit-badge--neutral { background: #334155; color: #cbd5e1; }
+
+.revit-btn {
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.revit-btn--primary {
+  background: #2563eb;
+  color: #fff;
+}
+
+.revit-btn--primary:hover { background: #1d4ed8; }
+.revit-btn--primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.revit-btn--secondary {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.revit-dropzone {
+  border: 2px dashed #475569;
+  border-radius: 12px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  background: #0f172a;
+  margin-top: 1rem;
+}
+
+.revit-dropzone:hover {
+  border-color: #60a5fa;
+  background: #111827;
+}
+
+.revit-step-indicator {
+  display: flex;
+  gap: 0.75rem;
+  list-style: none;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  flex-wrap: wrap;
+}
+
+.revit-step {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.revit-step__num {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: #334155;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.revit-step--active { color: #e2e8f0; }
+.revit-step--active .revit-step__num { background: #2563eb; color: #fff; }
+.revit-step--done { color: #94a3b8; }
+.revit-step--done .revit-step__num { background: #14532d; color: #86efac; }
+
+.revit-data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.revit-data-table th,
+.revit-data-table td {
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid #334155;
+  text-align: left;
+}
+
+.revit-empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.revit-warning-banner,
+.revit-fixture-banner {
+  background: #78350f;
+  color: #fef3c7;
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.revit-fixture-banner {
+  background: #7c2d12;
+  border: 1px solid #ea580c;
+}
+
+.revit-loading-block {
+  padding: 1.5rem;
+  color: #94a3b8;
+  animation: revit-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes revit-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+.revit-section-error,
+.revit-error-boundary {
+  text-align: center;
+}
+
+.revit-vehicle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.revit-vehicle-card {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  padding: 1rem;
+  text-align: left;
+  color: inherit;
+}
+
+.revit-vehicle-card h3 { margin: 0 0 0.5rem; }
+
+.revit-link {
+  color: #60a5fa;
+  text-decoration: none;
+}
+
+.revit-link:hover { text-decoration: underline; }
+
+.revit-batch-list { list-style: none; margin: 0; padding: 0; }
+.revit-batch-list__item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #334155;
+}
+
+.revit-advanced-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.revit-advanced-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+.revit-advanced-link:hover {
+  border-color: #60a5fa;
+}
+
+.revit-advanced-panel summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.revit-file-detail {
+  display: block;
+  font-size: 0.8125rem;
+  margin-top: 0.25rem;
+}
+
+.revit-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.revit-existing-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #334155;
+}
+
+.revit-warning-inline {
+  color: #fcd34d;
+}
+
+.revit-embedded-import {
+  margin-top: 1rem;
+}
+

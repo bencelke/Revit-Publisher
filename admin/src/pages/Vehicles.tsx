@@ -6,6 +6,9 @@ import {
   fetchHubCreatePreview,
   fetchVehicleHubs,
 } from '../api/vehicle-hubs';
+import { EmptyState, LoadingBlock, SectionError } from '../components/EmptyState';
+import { PageHeader } from '../components/PageHeader';
+import { adminUrl } from '../lib/api-client';
 import { HubCreatePreview, VehicleHubRecord, VehicleRowWithHub } from '../types/public-seo';
 import { GscVehicleRow } from '../types/search-console';
 
@@ -48,6 +51,7 @@ export function VehiclesPage() {
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [gscConnected, setGscConnected] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [gscByVehicle, setGscByVehicle] = useState<Map<string, GscVehicleRow>>(new Map());
 
   const loadVehicles = useCallback(async () => {
@@ -151,18 +155,21 @@ export function VehiclesPage() {
 
   return (
     <div className="revit-publisher-panel revit-publisher-dark">
-      <h1>Vehicle Content Health</h1>
-      <p className="revit-publisher-muted">Multi-vehicle health metrics and public hub management.</p>
+      <PageHeader title="Vehicles" />
 
-      {error && (
-        <div className="revit-publisher-result revit-publisher-result--error">
-          <p>{error}</p>
-        </div>
+      {error && <SectionError message={error} onRetry={loadVehicles} />}
+      {loading && <LoadingBlock label="Loading vehicles…" />}
+
+      {!loading && vehicles.length === 0 && (
+        <EmptyState
+          title="No vehicles yet"
+          description="Vehicles appear automatically after article import."
+          actionLabel="Batch Import"
+          href={adminUrl('import')}
+        />
       )}
 
-      {loading && <p className="revit-publisher-muted">Loading…</p>}
-
-      {gscConnected && (
+      {showAdvanced && gscConnected && (
         <div className="revit-publisher-card revit-gsc-vehicles-table">
           <h2>Search Console by Vehicle (28d)</h2>
           <div className="revit-publisher-table-wrap">
@@ -195,43 +202,26 @@ export function VehiclesPage() {
         </div>
       )}
 
-      <div className="revit-publisher-grid">
+      <div className="revit-publisher-actions">
+        <button type="button" className="revit-btn revit-btn--secondary" onClick={() => setShowAdvanced((v) => !v)}>
+          {showAdvanced ? 'Hide Search Performance' : 'Show Search Performance (Advanced)'}
+        </button>
+      </div>
+
+      <div className="revit-vehicle-grid">
         {vehicles.map((v) => (
           <button
             key={v.label}
             type="button"
-            className={`revit-publisher-card revit-publisher-metric revit-publisher-card--clickable${selected === v.label ? ' is-active' : ''}`}
+            className={`revit-vehicle-card revit-publisher-card--clickable${selected === v.label ? ' is-active' : ''}`}
             onClick={() => setSelected(v.label)}
           >
-            <strong>{v.label}</strong>
-            <div>SEO Health {v.seo_health_avg}</div>
-            <div className="revit-publisher-muted">
-              Coverage {v.plan_coverage}% · Published {v.published} · Missing {v.missing_articles}
-            </div>
-            {v.hub ? (
-              <div className="revit-publisher-muted">
-                Hub: {v.hub.status}
-                {v.hub.status === 'publish' && v.hub.permalink && (
-                  <> · <a href={v.hub.permalink} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()}>View</a></>
-                )}
-              </div>
-            ) : (
-              <div className="revit-publisher-muted">No public hub</div>
-            )}
-            {gscConnected && gscByVehicle.has(v.label) && (
-              <div className="revit-gsc-inline-metrics">
-                {(() => {
-                  const gsc = gscByVehicle.get(v.label)!;
-                  return (
-                    <>
-                      <span>{gsc.clicks.toLocaleString()} clicks</span>
-                      <span>{gsc.impressions.toLocaleString()} impr</span>
-                      <span>Pos {Number(gsc.position).toFixed(1)}</span>
-                    </>
-                  );
-                })()}
-              </div>
-            )}
+            <h3>{v.label}</h3>
+            <p>Articles {v.published + v.missing_articles}</p>
+            <p>Clusters {v.clusters_count ?? '—'}</p>
+            <p>SEO Health {v.seo_health_avg}</p>
+            <p className="revit-publisher-muted">Link Coverage {v.plan_coverage}%</p>
+            <span className="revit-link">Open</span>
           </button>
         ))}
       </div>
@@ -287,9 +277,9 @@ export function VehiclesPage() {
             <li>Articles: {String(detail.articles)} · Published: {String(detail.published)} · Draft: {String(detail.draft)}</li>
             <li>Clusters: {String(detail.clusters)} · Plan Coverage: {String(detail.plan_coverage)}%</li>
             <li>SEO Health Avg: {String(detail.seo_health_avg)}</li>
+            <li>Internal linking and hub status available in vehicle detail</li>
           </ul>
-          <h3>Needs Attention</h3>
-          <pre>{JSON.stringify(detail.needs_attention, null, 2)}</pre>
+          <a className="revit-link" href={adminUrl('searchPerformance')}>Search Performance (Advanced) →</a>
         </div>
       )}
 

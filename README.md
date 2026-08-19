@@ -1,8 +1,22 @@
 # RevIt Publisher
 
-**Automotive SEO & Content Intelligence** — private WordPress plugin for [RevIt24](https://revit24.com).
+**Automotive SEO Publishing Engine** — private WordPress plugin for [RevIt24](https://revit24.com).
 
-RevIt Publisher ingests structured automotive article packages (`revit-article-v1`), validates them, and imports them as WordPress drafts with automotive taxonomies and structured metadata.
+## Normal operator workflow
+
+```text
+Dashboard → Batch Import → Analyze → Optimize → Import Drafts → Review
+```
+
+1. **Dashboard** — snapshot of articles, vehicles, SEO issues, and link opportunities.
+2. **Batch Import** — upload multiple `revit-article-v1` JSON packages; validate, analyze, optimize, import as drafts.
+3. **Vehicles** — per-vehicle articles, clusters, SEO health, hub status.
+4. **SEO** — site-wide health, internal linking, topic overlap.
+5. **Advanced** — Content Planner, Search Performance, audits, settings, and other power tools.
+
+See [docs/operator-workflow.md](docs/operator-workflow.md) for details.
+
+> **Phase A (v0.8.1):** Product reset and UI simplification — streamlined navigation, batch-first import, design system, error boundaries.
 
 > **Phase 7 (v0.8.0):** Editorial prioritization queue, system health, backups, production packaging.
 
@@ -245,10 +259,19 @@ This script:
 
 ## Admin Location
 
-**RevIt Publisher** in WordPress admin sidebar:
+**RevIt Publisher** in WordPress admin sidebar (primary menu):
 
-- **Dashboard** — imported article counts, schema version
-- **Import** — validate, preview, import workflow
+- **Dashboard** — articles, vehicles, SEO issues, recent batches
+- **Batch Import** — multi-file upload, analyze, optimize, import drafts
+- **Vehicles** — vehicle cards, clusters, SEO health, hub status
+- **SEO** — overview, internal linking, topic overlap
+- **Advanced** — Content Planner, Search Performance, audits, settings, and other power tools
+
+See [Operator Workflow](docs/operator-workflow.md).
+
+### Advanced features
+
+All prior capabilities remain available under **Advanced**: Content Planner, Content Graph, Needs Attention, Audits, Search Performance (Google Search Console), Editorial Queue, Redirects, 404 Monitor, System Health, Settings, and detailed SEO Health.
 
 Imported posts show a **RevIt Publisher** sidebar panel and extra columns in the Posts list.
 
@@ -271,6 +294,7 @@ tests/                       # PHPUnit tests
 
 | Document | Description |
 |----------|-------------|
+| [Operator Workflow](docs/operator-workflow.md) | Normal publishing workflow |
 | [Architecture](docs/architecture.md) | System design |
 | [Importer](docs/importer.md) | Import workflow and storage mapping |
 | [Article Package Schema](docs/article-package-schema.md) | Field reference |

@@ -359,13 +359,18 @@ export interface RevitPublisherAdminConfig {
   schemaVersion: string;
   restUrl: string;
   nonce: string;
+  debug?: boolean;
   pages: {
     dashboard: string;
     import: string;
+    seo: string;
+    advanced: string;
     planner: string;
     graph: string;
     seoHealth: string;
     searchPerformance?: string;
+    editorial?: string;
+    systemHealth?: string;
     attention?: string;
     audits?: string;
     vehicles?: string;

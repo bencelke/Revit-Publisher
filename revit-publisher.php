@@ -3,7 +3,7 @@
  * Plugin Name:       RevIt Publisher
  * Plugin URI:        https://revit24.com
  * Description:       Private automotive SEO and content intelligence engine for RevIt24.
- * Version:           0.8.0
+ * Version:           0.8.1
  * Requires at least: 6.0
  * Requires PHP:      8.2
  * Author:            RevIt24
@@ -19,7 +19,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'REVIT_PUBLISHER_VERSION', '0.8.0' );
+define( 'REVIT_PUBLISHER_VERSION', '0.8.1' );
 define( 'REVIT_PUBLISHER_DB_VERSION', 1 );
 define( 'REVIT_PUBLISHER_PLUGIN_FILE', __FILE__ );
 define( 'REVIT_PUBLISHER_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );

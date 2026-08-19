@@ -14,6 +14,8 @@ import {
   submitGscSitemap,
   syncGsc,
 } from '../api/search-console';
+import { FixtureBanner } from '../components/EmptyState';
+import { PageHeader } from '../components/PageHeader';
 import {
   GscClusterRow,
   GscOpportunity,
@@ -323,16 +325,13 @@ export function SearchPerformancePage() {
 
   return (
     <div className="revit-publisher-panel revit-publisher-dark">
-      <h1>Search Performance</h1>
-      <p className="revit-publisher-muted">
-        Google Search Console metrics for RevIt-managed content (28-day window).
-      </p>
+      <PageHeader title="Search Performance" />
+      {status?.fixture_mode && <FixtureBanner />}
 
       {status?.connected && (
         <div className="revit-publisher-card revit-gsc-status-bar">
           <span>
             Connected to <strong>{status.property}</strong>
-            {status.fixture_mode && ' (fixture)'}
           </span>
           {status.last_sync && (
             <span className="revit-publisher-muted">Last sync: {status.last_sync}</span>
