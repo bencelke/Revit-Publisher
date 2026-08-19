@@ -210,6 +210,34 @@ class RevIt_Publisher_Internal_Link_Service {
 	}
 
 	/**
+	 * Apply link and record in change log.
+	 *
+	 * @return int|WP_Error Log entry ID on success.
+	 */
+	public function apply_link_logged( int $post_id, array $suggestion, string $action = RevIt_Publisher_Link_Change_Log::ACTION_APPLIED ) {
+		$post = get_post( $post_id );
+		$pre_hash = $post instanceof WP_Post ? hash( 'sha256', $post->post_content ) : '';
+
+		$result = $this->apply_link( $post_id, $suggestion );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$updated = get_post( $post_id );
+		$post_hash = $updated instanceof WP_Post ? hash( 'sha256', $updated->post_content ) : '';
+
+		return RevIt_Publisher_Services::link_change_log()->record(
+			$post_id,
+			(int) ( $suggestion['target_post_id'] ?? 0 ),
+			$action,
+			(string) ( $suggestion['anchor'] ?? '' ),
+			(string) ( $suggestion['relationship'] ?? '' ),
+			$pre_hash,
+			$post_hash
+		);
+	}
+
+	/**
 	 * Check if post content already links to target.
 	 */
 	public function content_already_links_to( int $post_id, int $target_id ): bool {
@@ -435,14 +463,14 @@ class RevIt_Publisher_Internal_Link_Service {
 				continue;
 			}
 
-			$result = $this->apply_link( $post_id, $fresh );
-			if ( is_wp_error( $result ) ) {
+			$log_id = $this->apply_link_logged( $post_id, $fresh, RevIt_Publisher_Link_Change_Log::ACTION_BATCH );
+			if ( is_wp_error( $log_id ) ) {
 				++$skipped;
 				$results[] = array(
 					'index'   => $index,
 					'post_id' => $post_id,
 					'success' => false,
-					'message' => $result->get_error_message(),
+					'message' => $log_id->get_error_message(),
 				);
 				continue;
 			}
@@ -452,6 +480,7 @@ class RevIt_Publisher_Internal_Link_Service {
 				'index'   => $index,
 				'post_id' => $post_id,
 				'success' => true,
+				'log_id'  => $log_id,
 			);
 		}
 

@@ -366,6 +366,10 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 			$missing_content += (int) ( $plan['summary']['missing_articles'] ?? 0 );
 		}
 
+		$audits = RevIt_Publisher_Services::site_audit()->list_snapshots( 1 );
+		$latest_audit = ! empty( $audits ) ? $audits[0] : null;
+		$open_issues  = RevIt_Publisher_Services::issues()->count_open();
+
 		return new WP_REST_Response(
 			array(
 				'version'           => REVIT_PUBLISHER_VERSION,
@@ -384,11 +388,15 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 				'intelligence'      => array(
 					'missing_content'    => $missing_content,
 					'topic_overlaps'     => count( $overlaps ),
+					'open_issues'        => $open_issues,
+					'latest_audit'       => $latest_audit,
+					'vehicle_health'     => RevIt_Publisher_Services::vehicle_health()->get_all_vehicle_summaries(),
 					'needs_attention'    => array(
 						'orphans'          => (int) ( $health['orphan_articles'] ?? 0 ),
 						'topic_overlaps'   => count( array_filter( $overlaps, static fn( $o ) => 'high' === ( $o['risk'] ?? '' ) ) ),
 						'missing_meta'     => (int) ( $health['missing_meta'] ?? 0 ),
 						'unresolved_links' => (int) ( $health['unresolved_links'] ?? 0 ),
+						'open_issues'      => $open_issues,
 					),
 				),
 			),

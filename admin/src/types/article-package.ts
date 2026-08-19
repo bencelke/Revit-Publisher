@@ -165,12 +165,24 @@ export interface ContentGraphSummary {
 export interface IntelligenceSummary {
   missing_content: number;
   topic_overlaps: number;
+  open_issues?: number;
+  latest_audit?: Record<string, unknown>;
+  vehicle_health?: VehicleHealthRow[];
   needs_attention?: {
     orphans: number;
     topic_overlaps: number;
     missing_meta: number;
     unresolved_links: number;
+    open_issues?: number;
   };
+}
+
+export interface VehicleHealthRow {
+  label: string;
+  seo_health_avg: number;
+  plan_coverage: number;
+  published: number;
+  missing_articles: number;
 }
 
 export interface ContentPlanPreview {
@@ -260,6 +272,14 @@ export interface SettingsResponse {
   avoid_duplicate_target: boolean;
   org_name: string;
   org_logo_url: string;
+  review_after_months?: number;
+  max_batch_links?: number;
+  scheduled_audit_enabled?: boolean;
+  audit_frequency?: string;
+  enable_404_monitor?: boolean;
+  external_redirects_allowed?: boolean;
+  max_cluster_links_per_article?: number;
+  issue_retention_days?: number;
   public_seo_output_enabled: boolean;
   seo_plugin_conflict: string | null;
 }

@@ -47,6 +47,7 @@ class RevIt_Publisher_Admin {
 	public function init(): void {
 		add_action( 'admin_menu', array( $this, 'register_menus' ) );
 		add_action( 'admin_notices', array( $this, 'maybe_show_seo_conflict_notice' ) );
+		add_action( 'admin_notices', array( $this, 'maybe_show_audit_notice' ) );
 		RevIt_Publisher_Admin_Assets::instance()->init();
 	}
 
@@ -99,6 +100,53 @@ class RevIt_Publisher_Admin {
 			self::MENU_SLUG . '-seo-health',
 			array( $this, 'render_seo_health_page' )
 		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'Needs Attention', 'revit-publisher' ),
+			__( 'Needs Attention', 'revit-publisher' ),
+			'edit_posts',
+			self::MENU_SLUG . '-attention',
+			array( $this, 'render_attention_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'Audits', 'revit-publisher' ),
+			__( 'Audits', 'revit-publisher' ),
+			'edit_posts',
+			self::MENU_SLUG . '-audits',
+			array( $this, 'render_audits_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'Vehicles', 'revit-publisher' ),
+			__( 'Vehicles', 'revit-publisher' ),
+			'edit_posts',
+			self::MENU_SLUG . '-vehicles',
+			array( $this, 'render_vehicles_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'Redirects', 'revit-publisher' ),
+			__( 'Redirects', 'revit-publisher' ),
+			'manage_options',
+			self::MENU_SLUG . '-redirects',
+			array( $this, 'render_redirects_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( '404 Monitor', 'revit-publisher' ),
+			__( '404 Monitor', 'revit-publisher' ),
+			'manage_options',
+			self::MENU_SLUG . '-404',
+			array( $this, 'render_404_page' )
+		);
+
+		add_action( 'admin_menu', array( $this, 'add_attention_badge' ), 999 );
 
 		add_submenu_page(
 			self::MENU_SLUG,
@@ -174,6 +222,77 @@ class RevIt_Publisher_Admin {
 	 */
 	public function render_seo_health_page(): void {
 		$this->render_app_shell( 'revit-publisher-seo-health', 'edit_posts' );
+	}
+
+	public function render_attention_page(): void {
+		$this->render_app_shell( 'revit-publisher-attention', 'edit_posts' );
+	}
+
+	public function render_audits_page(): void {
+		$this->render_app_shell( 'revit-publisher-audits', 'edit_posts' );
+	}
+
+	public function render_vehicles_page(): void {
+		$this->render_app_shell( 'revit-publisher-vehicles', 'edit_posts' );
+	}
+
+	public function render_redirects_page(): void {
+		$this->render_app_shell( 'revit-publisher-redirects', 'manage_options' );
+	}
+
+	public function render_404_page(): void {
+		$this->render_app_shell( 'revit-publisher-404', 'manage_options' );
+	}
+
+	/**
+	 * Add open issue count badge to Needs Attention menu.
+	 */
+	public function add_attention_badge(): void {
+		global $submenu;
+		if ( ! is_array( $submenu ) || ! isset( $submenu[ self::MENU_SLUG ] ) ) {
+			return;
+		}
+		$count = RevIt_Publisher_Services::issues()->count_open();
+		if ( $count <= 0 ) {
+			return;
+		}
+		foreach ( $submenu[ self::MENU_SLUG ] as &$item ) {
+			if ( ( $item[2] ?? '' ) === self::MENU_SLUG . '-attention' ) {
+				$item[0] .= ' <span class="awaiting-mod">' . (int) $count . '</span>';
+				break;
+			}
+		}
+		unset( $item );
+	}
+
+	/**
+	 * Show latest audit summary on dashboard pages.
+	 */
+	public function maybe_show_audit_notice(): void {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || 'toplevel_page_revit-publisher' !== $screen->id ) {
+			return;
+		}
+		$audits = RevIt_Publisher_Services::site_audit()->list_snapshots( 1 );
+		if ( empty( $audits ) ) {
+			return;
+		}
+		$summary = (array) ( $audits[0]['summary'] ?? array() );
+		$high    = (int) RevIt_Publisher_Services::issues()->count_open();
+		printf(
+			'<div class="notice notice-info"><p><strong>%s</strong> %s <a href="%s">%s</a></p></div>',
+			esc_html__( 'Latest audit found:', 'revit-publisher' ),
+			esc_html(
+				sprintf(
+					'%d open issues, %d unresolved links, %d content gaps.',
+					$high,
+					(int) ( $summary['unresolved_link_count'] ?? 0 ),
+					(int) ( $summary['missing_content_count'] ?? 0 )
+				)
+			),
+			esc_url( admin_url( 'admin.php?page=' . self::MENU_SLUG . '-attention' ) ),
+			esc_html__( 'Review', 'revit-publisher' )
+		);
 	}
 
 	/**

@@ -30,6 +30,12 @@ class RevIt_Publisher_Settings {
 	public const ORG_LOGO_URL              = 'revit_publisher_org_logo_url';
 	public const REVIEW_AFTER_MONTHS       = 'revit_publisher_review_after_months';
 	public const MAX_BATCH_LINKS           = 'revit_publisher_max_batch_links';
+	public const SCHEDULED_AUDIT_ENABLED   = 'revit_publisher_scheduled_audit_enabled';
+	public const AUDIT_FREQUENCY           = 'revit_publisher_audit_frequency';
+	public const ENABLE_404_MONITOR        = 'revit_publisher_enable_404_monitor';
+	public const EXTERNAL_REDIRECTS        = 'revit_publisher_external_redirects_allowed';
+	public const MAX_CLUSTER_LINKS         = 'revit_publisher_max_cluster_links_per_article';
+	public const ISSUE_RETENTION_DAYS      = 'revit_publisher_issue_retention_days';
 
 	public const LINK_MODE_SUGGEST = 'suggest_only';
 
@@ -97,6 +103,36 @@ class RevIt_Publisher_Settings {
 			'sanitize_callback' => array( self::class, 'sanitize_batch_links' ),
 			'default'           => 50,
 		) );
+		register_setting( self::OPTION_GROUP, self::SCHEDULED_AUDIT_ENABLED, array(
+			'type'              => 'boolean',
+			'sanitize_callback' => array( self::class, 'sanitize_bool' ),
+			'default'           => true,
+		) );
+		register_setting( self::OPTION_GROUP, self::AUDIT_FREQUENCY, array(
+			'type'              => 'string',
+			'sanitize_callback' => array( self::class, 'sanitize_audit_frequency' ),
+			'default'           => 'daily',
+		) );
+		register_setting( self::OPTION_GROUP, self::ENABLE_404_MONITOR, array(
+			'type'              => 'boolean',
+			'sanitize_callback' => array( self::class, 'sanitize_bool' ),
+			'default'           => false,
+		) );
+		register_setting( self::OPTION_GROUP, self::EXTERNAL_REDIRECTS, array(
+			'type'              => 'boolean',
+			'sanitize_callback' => array( self::class, 'sanitize_bool' ),
+			'default'           => false,
+		) );
+		register_setting( self::OPTION_GROUP, self::MAX_CLUSTER_LINKS, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_cluster_links' ),
+			'default'           => 5,
+		) );
+		register_setting( self::OPTION_GROUP, self::ISSUE_RETENTION_DAYS, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_retention_days' ),
+			'default'           => 365,
+		) );
 	}
 
 	/**
@@ -118,6 +154,12 @@ class RevIt_Publisher_Settings {
 			'org_logo_url'               => $this->org_logo_url(),
 			'review_after_months'        => $this->review_after_months(),
 			'max_batch_links'            => $this->max_batch_links(),
+			'scheduled_audit_enabled'    => $this->scheduled_audit_enabled(),
+			'audit_frequency'            => $this->audit_frequency(),
+			'enable_404_monitor'         => $this->enable_404_monitor(),
+			'external_redirects_allowed' => $this->external_redirects_allowed(),
+			'max_cluster_links_per_article' => $this->max_cluster_links_per_article(),
+			'issue_retention_days'       => $this->issue_retention_days(),
 			'public_seo_output_enabled'  => $this->public_seo_output_enabled(),
 			'seo_plugin_conflict'        => RevIt_Publisher_SEO_Plugin_Detector::get_conflict_message(),
 		);
@@ -178,6 +220,31 @@ class RevIt_Publisher_Settings {
 		return (int) get_option( self::MAX_BATCH_LINKS, 50 );
 	}
 
+	public function scheduled_audit_enabled(): bool {
+		return (bool) get_option( self::SCHEDULED_AUDIT_ENABLED, true );
+	}
+
+	public function audit_frequency(): string {
+		$freq = (string) get_option( self::AUDIT_FREQUENCY, 'daily' );
+		return in_array( $freq, array( 'daily', 'revit_twice_daily', 'weekly' ), true ) ? $freq : 'daily';
+	}
+
+	public function enable_404_monitor(): bool {
+		return (bool) get_option( self::ENABLE_404_MONITOR, false );
+	}
+
+	public function external_redirects_allowed(): bool {
+		return (bool) get_option( self::EXTERNAL_REDIRECTS, false );
+	}
+
+	public function max_cluster_links_per_article(): int {
+		return (int) get_option( self::MAX_CLUSTER_LINKS, 5 );
+	}
+
+	public function issue_retention_days(): int {
+		return (int) get_option( self::ISSUE_RETENTION_DAYS, 365 );
+	}
+
 	/**
 	 * @param mixed $value Raw value.
 	 */
@@ -208,5 +275,20 @@ class RevIt_Publisher_Settings {
 	public static function sanitize_batch_links( mixed $value ): int {
 		$max = (int) $value;
 		return max( 1, min( 50, $max ) );
+	}
+
+	public static function sanitize_audit_frequency( mixed $value ): string {
+		$freq = sanitize_key( (string) $value );
+		return in_array( $freq, array( 'daily', 'revit_twice_daily', 'weekly' ), true ) ? $freq : 'daily';
+	}
+
+	public static function sanitize_cluster_links( mixed $value ): int {
+		$max = (int) $value;
+		return max( 1, min( 20, $max ) );
+	}
+
+	public static function sanitize_retention_days( mixed $value ): int {
+		$days = (int) $value;
+		return max( 30, min( 730, $days ) );
 	}
 }

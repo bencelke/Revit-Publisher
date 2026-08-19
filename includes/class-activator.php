@@ -30,8 +30,16 @@ class RevIt_Publisher_Activator {
 		}
 
 		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/content-model/class-taxonomies.php';
+		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/content-plan/class-content-plan-post-type.php';
+		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/operations/class-operations-post-types.php';
+		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/operations/class-audit-cron.php';
+		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/seo/class-settings.php';
+
 		RevIt_Publisher_Taxonomies::register();
 		RevIt_Publisher_Taxonomies::ensure_article_type_terms();
+		RevIt_Publisher_Content_Plan_Post_Type::register();
+		RevIt_Publisher_Operations_Post_Types::register();
+		RevIt_Publisher_Audit_Cron::activate();
 
 		flush_rewrite_rules();
 	}

@@ -4,9 +4,28 @@
 
 RevIt Publisher ingests structured automotive article packages (`revit-article-v1`), validates them, and imports them as WordPress drafts with automotive taxonomies and structured metadata.
 
+> **Phase 4 (v0.5.0):** SEO operations, scheduled audits, redirect manager, consolidation workflow, 404 monitor, vehicle command center.
+
+> **Phase 3 (v0.4.0):** Content intelligence, content plans, article updates, topic overlap, RevIt SEO Health.
+
 > **Phase 2 (v0.3.0):** SEO content graph, internal linking engine, public SEO output, structured data.
 
 ---
+
+## v0.5.0 Scope
+
+- Scheduled audit engine (WP-Cron, batched, locked)
+- Audit snapshots and history with trends
+- Needs Attention unified issue queue with reconciliation
+- Deterministic severity model
+- Pillar-to-supporting link policy and cluster batch apply
+- Link change log and undo
+- Redirect manager (301) with runtime and safety checks
+- Cannibalization consolidation workflow (no body merge)
+- Optional 404 monitor (privacy-safe, off by default)
+- Multi-vehicle command center and vehicle detail
+- Settings UI completion (audit, 404, redirects, batch limits)
+- Admin notifications and issue badge
 
 ## v0.4.0 Scope
 

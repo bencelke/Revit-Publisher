@@ -320,6 +320,12 @@ class RevIt_Publisher_SEO_Graph_Rest_Controller {
 			'org_logo_url'            => RevIt_Publisher_Settings::ORG_LOGO_URL,
 			'review_after_months'     => RevIt_Publisher_Settings::REVIEW_AFTER_MONTHS,
 			'max_batch_links'         => RevIt_Publisher_Settings::MAX_BATCH_LINKS,
+			'scheduled_audit_enabled' => RevIt_Publisher_Settings::SCHEDULED_AUDIT_ENABLED,
+			'audit_frequency'         => RevIt_Publisher_Settings::AUDIT_FREQUENCY,
+			'enable_404_monitor'      => RevIt_Publisher_Settings::ENABLE_404_MONITOR,
+			'external_redirects_allowed' => RevIt_Publisher_Settings::EXTERNAL_REDIRECTS,
+			'max_cluster_links_per_article' => RevIt_Publisher_Settings::MAX_CLUSTER_LINKS,
+			'issue_retention_days'    => RevIt_Publisher_Settings::ISSUE_RETENTION_DAYS,
 		);
 
 		foreach ( $map as $key => $option ) {
@@ -327,6 +333,8 @@ class RevIt_Publisher_SEO_Graph_Rest_Controller {
 				update_option( $option, $params[ $key ] );
 			}
 		}
+
+		RevIt_Publisher_Audit_Cron::reschedule();
 
 		return new WP_REST_Response( RevIt_Publisher_Services::settings()->all(), 200 );
 	}
@@ -362,7 +370,7 @@ class RevIt_Publisher_SEO_Graph_Rest_Controller {
 			return new WP_REST_Response( array( 'success' => false, 'message' => 'Invalid JSON.' ), 400 );
 		}
 
-		$result = RevIt_Publisher_Services::link_service()->apply_link( $post_id, $suggestion );
+		$result = RevIt_Publisher_Services::link_service()->apply_link_logged( $post_id, $suggestion );
 		if ( is_wp_error( $result ) ) {
 			return new WP_REST_Response(
 				array(
@@ -373,7 +381,7 @@ class RevIt_Publisher_SEO_Graph_Rest_Controller {
 			);
 		}
 
-		return new WP_REST_Response( array( 'success' => true ), 200 );
+		return new WP_REST_Response( array( 'success' => true, 'log_id' => $result ), 200 );
 	}
 
 	/**

@@ -20,6 +20,8 @@ class RevIt_Publisher_Deactivator {
 	 * Run on plugin deactivation.
 	 */
 	public static function deactivate(): void {
+		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/operations/class-audit-cron.php';
+		RevIt_Publisher_Audit_Cron::deactivate();
 		flush_rewrite_rules();
 	}
 }

@@ -1,5 +1,37 @@
 # Development Log
 
+## Phase 4 — SEO Operations + Redirect Management + Automated Content Maintenance
+
+**Status:** Implemented  
+**Version:** 0.5.0  
+**Date:** 2026-08-19
+
+### Delivered
+
+- Scheduled audit engine with batched processing and locking
+- Audit snapshots (`revit_audit_snapshot`) and trend history
+- Needs Attention queue (`revit_issue`) with reconciliation
+- Severity model and operator statuses
+- Pillar link policy and cluster batch apply with change log
+- Link undo from change log entries
+- Redirect manager (`revit_redirect`) with frontend runtime
+- Consolidation workflow (preview/apply, no body merge)
+- Optional 404 monitor (aggregated, privacy-safe)
+- Vehicle command center and hub-prep query methods
+- Settings UI for all previously API-only options
+- Operations REST API and admin pages
+- Integration tests and Docker acceptance script
+
+### Explicitly Deferred
+
+- Google Search Console / Analytics
+- Email/Slack notifications
+- Public vehicle hubs
+- Automatic redirect/merge decisions
+- XML sitemap engine
+
+---
+
 ## Phase 3 — Content Intelligence + Cluster Coverage + Article Update Workflow
 
 **Status:** Implemented  

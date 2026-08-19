@@ -58,6 +58,11 @@ class RevIt_Publisher_Admin_Assets {
 			'revit-publisher_page_revit-publisher-planner',
 			'revit-publisher_page_revit-publisher-graph',
 			'revit-publisher_page_revit-publisher-seo-health',
+			'revit-publisher_page_revit-publisher-attention',
+			'revit-publisher_page_revit-publisher-audits',
+			'revit-publisher_page_revit-publisher-vehicles',
+			'revit-publisher_page_revit-publisher-redirects',
+			'revit-publisher_page_revit-publisher-404',
 			'revit-publisher_page_revit-publisher-settings',
 		);
 
@@ -167,6 +172,11 @@ class RevIt_Publisher_Admin_Assets {
 					'planner'    => RevIt_Publisher_Admin::MENU_SLUG . '-planner',
 					'graph'      => RevIt_Publisher_Admin::MENU_SLUG . '-graph',
 					'seoHealth'  => RevIt_Publisher_Admin::MENU_SLUG . '-seo-health',
+					'attention'  => RevIt_Publisher_Admin::MENU_SLUG . '-attention',
+					'audits'     => RevIt_Publisher_Admin::MENU_SLUG . '-audits',
+					'vehicles'   => RevIt_Publisher_Admin::MENU_SLUG . '-vehicles',
+					'redirects'  => RevIt_Publisher_Admin::MENU_SLUG . '-redirects',
+					'notFound'   => RevIt_Publisher_Admin::MENU_SLUG . '-404',
 					'settings'   => RevIt_Publisher_Admin::MENU_SLUG . '-settings',
 				),
 			)

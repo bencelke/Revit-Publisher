@@ -80,11 +80,18 @@ class RevIt_Publisher_Article_Registry {
 	 * Count imported RevIt-managed articles.
 	 */
 	public function count_managed_articles(): int {
-		$query = new WP_Query(
+		return count( $this->get_managed_post_ids() );
+	}
+
+	/**
+	 * @return int[]
+	 */
+	public function get_managed_post_ids(): array {
+		$posts = get_posts(
 			array(
 				'post_type'      => 'post',
 				'post_status'    => 'any',
-				'posts_per_page' => 1,
+				'posts_per_page' => -1,
 				'fields'         => 'ids',
 				'meta_query'     => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query
 					array(
@@ -95,6 +102,6 @@ class RevIt_Publisher_Article_Registry {
 			)
 		);
 
-		return (int) $query->found_posts;
+		return array_map( 'intval', $posts );
 	}
 }

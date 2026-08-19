@@ -208,4 +208,31 @@
   margin-top: 0.25rem;
 }
 
+.revit-publisher-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.revit-publisher-table th,
+.revit-publisher-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #2a3340;
+  text-align: left;
+  vertical-align: top;
+}
+
+.revit-publisher-card--clickable {
+  cursor: pointer;
+  text-align: left;
+}
+
+.revit-severity--critical { color: #ff6b6b; }
+.revit-severity--high { color: #ffa94d; }
+.revit-severity--medium { color: #ffd43b; }
+.revit-severity--low { color: #94d82d; }
+
+.revit-publisher-notice {
+  border-left: 3px solid #2271b1;
+}
 
