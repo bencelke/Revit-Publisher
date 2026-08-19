@@ -38,16 +38,25 @@ class RevIt_Publisher_Structured_Data_Output {
 	private RevIt_Publisher_Content_Graph $graph;
 
 	/**
+	 * Public breadcrumbs.
+	 *
+	 * @var RevIt_Publisher_Public_Breadcrumbs
+	 */
+	private RevIt_Publisher_Public_Breadcrumbs $breadcrumbs;
+
+	/**
 	 * Constructor.
 	 */
 	public function __construct(
 		RevIt_Publisher_Settings $settings,
 		RevIt_Publisher_Article_Resolver $resolver,
-		RevIt_Publisher_Content_Graph $graph
+		RevIt_Publisher_Content_Graph $graph,
+		RevIt_Publisher_Public_Breadcrumbs $breadcrumbs
 	) {
-		$this->settings = $settings;
-		$this->resolver = $resolver;
-		$this->graph    = $graph;
+		$this->settings    = $settings;
+		$this->resolver    = $resolver;
+		$this->graph       = $graph;
+		$this->breadcrumbs = $breadcrumbs;
 	}
 
 	/**
@@ -126,6 +135,17 @@ class RevIt_Publisher_Structured_Data_Output {
 			'mainEntityOfPage' => get_permalink( $post_id ),
 		);
 
+		$thumbnail_id = get_post_thumbnail_id( $post_id );
+		if ( $thumbnail_id > 0 ) {
+			$image_url = wp_get_attachment_image_url( $thumbnail_id, 'full' );
+			if ( is_string( $image_url ) && '' !== $image_url ) {
+				$schema['image'] = array(
+					'@type' => 'ImageObject',
+					'url'   => $image_url,
+				);
+			}
+		}
+
 		$author_id = (int) $post->post_author;
 		if ( $author_id > 0 ) {
 			$schema['author'] = array(
@@ -159,40 +179,8 @@ class RevIt_Publisher_Structured_Data_Output {
 	 * @return array<string, mixed>|null
 	 */
 	public function build_breadcrumb_schema( int $post_id ): ?array {
-		$items   = array();
-		$position = 1;
-
-		$home = home_url( '/' );
-		if ( $home ) {
-			$items[] = array(
-				'@type'    => 'ListItem',
-				'position' => $position++,
-				'name'     => __( 'Home', 'revit-publisher' ),
-				'item'     => $home,
-			);
-		}
-
-		$permalink = get_permalink( $post_id );
-		$vehicle   = $this->graph->get_vehicle_label( $post_id );
-		if ( '' !== $vehicle && is_string( $permalink ) ) {
-			// Vehicle taxonomy archives are not public — use article URL with vehicle label only at end.
-			$items[] = array(
-				'@type'    => 'ListItem',
-				'position' => $position++,
-				'name'     => $vehicle,
-				'item'     => $permalink,
-			);
-		}
-
-		if ( is_string( $permalink ) ) {
-			$items[] = array(
-				'@type'    => 'ListItem',
-				'position' => $position,
-				'name'     => get_the_title( $post_id ),
-				'item'     => $permalink,
-			);
-		}
-
+		unset( $post_id );
+		$items = $this->breadcrumbs->get_json_ld_items();
 		if ( count( $items ) < 2 ) {
 			return null;
 		}

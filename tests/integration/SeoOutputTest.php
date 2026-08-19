@@ -28,7 +28,7 @@ class SeoOutputTest extends WP_UnitTestCase {
 		$graph    = RevIt_Publisher_Services::graph();
 
 		( new RevIt_Publisher_Public_SEO_Output( $settings, $resolver ) )->init();
-		( new RevIt_Publisher_Structured_Data_Output( $settings, $resolver, $graph ) )->init();
+		( new RevIt_Publisher_Structured_Data_Output( $settings, $resolver, $graph, new RevIt_Publisher_Public_Breadcrumbs() ) )->init();
 	}
 
 	/**

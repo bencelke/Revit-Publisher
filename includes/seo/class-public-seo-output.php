@@ -1,6 +1,6 @@
 <?php
 /**
- * Public SEO metadata output for RevIt-managed posts.
+ * Public SEO metadata output for RevIt-managed posts and vehicle hubs.
  *
  * @package RevIt_Publisher
  */
@@ -56,13 +56,21 @@ class RevIt_Publisher_Public_SEO_Output {
 	}
 
 	/**
-	 * Filter document title for RevIt-managed singular posts.
+	 * Filter document title for RevIt-managed singular posts and vehicle hubs.
 	 *
 	 * @param array<string, string> $parts Title parts.
 	 * @return array<string, string>
 	 */
 	public function filter_document_title( array $parts ): array {
-		if ( ! is_singular( 'post' ) || ! $this->settings->public_seo_output_enabled() ) {
+		if ( ! $this->settings->public_seo_output_enabled() ) {
+			return $parts;
+		}
+
+		if ( is_singular( RevIt_Publisher_Vehicle_Hub_Post_Type::POST_TYPE ) ) {
+			return $parts;
+		}
+
+		if ( ! is_singular( 'post' ) ) {
 			return $parts;
 		}
 
@@ -83,23 +91,34 @@ class RevIt_Publisher_Public_SEO_Output {
 	 * Output meta description tag.
 	 */
 	public function output_meta_description(): void {
-		if ( ! is_singular( 'post' ) || ! $this->settings->enable_meta_description() || $this->meta_description_output ) {
+		if ( ! $this->settings->enable_meta_description() || $this->meta_description_output ) {
 			return;
 		}
 
-		$post_id = get_queried_object_id();
-		if ( ! $this->resolver->is_managed( $post_id ) ) {
+		$description = '';
+		if ( is_singular( RevIt_Publisher_Vehicle_Hub_Post_Type::POST_TYPE ) && $this->settings->public_seo_output_enabled() ) {
+			$hub_id      = get_queried_object_id();
+			$description = (string) get_post_meta( $hub_id, RevIt_Publisher_Vehicle_Hub_Meta_Keys::INTRO, true );
+			if ( '' === trim( $description ) ) {
+				$description = (string) get_post_field( 'post_excerpt', $hub_id );
+			}
+		} elseif ( is_singular( 'post' ) ) {
+			$post_id = get_queried_object_id();
+			if ( ! $this->resolver->is_managed( $post_id ) ) {
+				return;
+			}
+			$description = (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::META_DESCRIPTION, true );
+		} else {
 			return;
 		}
 
-		$description = (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::META_DESCRIPTION, true );
-		if ( '' === $description ) {
+		if ( '' === trim( $description ) ) {
 			return;
 		}
 
 		printf(
 			'<meta name="description" content="%s" />' . "\n",
-			esc_attr( $description )
+			esc_attr( wp_strip_all_tags( $description ) )
 		);
 		$this->meta_description_output = true;
 	}
@@ -108,17 +127,24 @@ class RevIt_Publisher_Public_SEO_Output {
 	 * Output canonical link tag.
 	 */
 	public function output_canonical(): void {
-		if ( ! is_singular( 'post' ) || ! $this->settings->enable_canonical() ) {
+		if ( ! $this->settings->enable_canonical() ) {
 			return;
 		}
 
-		$post_id = get_queried_object_id();
-		if ( ! $this->resolver->is_managed( $post_id ) ) {
+		$url = '';
+		if ( is_singular( RevIt_Publisher_Vehicle_Hub_Post_Type::POST_TYPE ) && $this->settings->public_seo_output_enabled() ) {
+			$permalink = get_permalink( get_queried_object_id() );
+			$url       = is_string( $permalink ) ? $permalink : '';
+		} elseif ( is_singular( 'post' ) ) {
+			$post_id = get_queried_object_id();
+			if ( ! $this->resolver->is_managed( $post_id ) ) {
+				return;
+			}
+			$canonical = (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::CANONICAL, true );
+			$url       = 'auto' === $canonical ? get_permalink( $post_id ) : esc_url_raw( $canonical );
+		} else {
 			return;
 		}
-
-		$canonical = (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::CANONICAL, true );
-		$url       = 'auto' === $canonical ? get_permalink( $post_id ) : esc_url_raw( $canonical );
 
 		if ( ! is_string( $url ) || '' === $url ) {
 			return;
@@ -131,7 +157,21 @@ class RevIt_Publisher_Public_SEO_Output {
 	 * Output robots meta tag.
 	 */
 	public function output_robots(): void {
-		if ( ! is_singular( 'post' ) || ! $this->settings->enable_robots() ) {
+		if ( ! $this->settings->enable_robots() ) {
+			return;
+		}
+
+		if ( is_singular( RevIt_Publisher_Vehicle_Hub_Post_Type::POST_TYPE ) && $this->settings->public_seo_output_enabled() ) {
+			$hub_id = get_queried_object_id();
+			if ( 'publish' !== get_post_status( $hub_id ) ) {
+				printf( '<meta name="robots" content="%s" />' . "\n", esc_attr( 'noindex, nofollow' ) );
+				return;
+			}
+			printf( '<meta name="robots" content="%s" />' . "\n", esc_attr( 'index, follow' ) );
+			return;
+		}
+
+		if ( ! is_singular( 'post' ) ) {
 			return;
 		}
 
@@ -143,7 +183,7 @@ class RevIt_Publisher_Public_SEO_Output {
 		$index  = '1' === (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::INDEX, true );
 		$follow = '1' === (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::FOLLOW, true );
 
-		$directives = array();
+		$directives   = array();
 		$directives[] = $index ? 'index' : 'noindex';
 		$directives[] = $follow ? 'follow' : 'nofollow';
 

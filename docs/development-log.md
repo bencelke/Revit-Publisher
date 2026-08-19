@@ -1,5 +1,35 @@
 # Development Log
 
+## Phase 5 — Public Automotive SEO Architecture
+
+**Status:** Implemented  
+**Version:** 0.6.0  
+**Date:** 2026-08-19
+
+### Delivered
+
+- Public `revit_vehicle` hub CPT and deterministic identity registry
+- Vehicle hub creation workflow (draft-only) and admin editor panel
+- Dynamic public hub templates with theme override support
+- Gutenberg blocks: vehicle-content, related-articles, cluster-navigation
+- Public breadcrumbs (HTML + JSON-LD) with real navigable URLs
+- WordPress core sitemap integration and sitemap health view
+- SERP preview and snippet validation
+- Vehicle hub and cluster SEO health signals
+- Cluster link matrix UI in Content Graph
+- Issue retention purge cron
+- Vehicle index and manufacturer landing pages
+- REST API for vehicle hubs, sitemap health, cluster link matrix
+- Integration tests and Docker acceptance script
+
+### Explicitly Deferred
+
+- Google Search Console integration
+- Rank tracking and external SEO APIs
+- Auto-publishing of hubs or articles
+
+---
+
 ## Phase 4 — SEO Operations + Redirect Management + Automated Content Maintenance
 
 **Status:** Implemented  

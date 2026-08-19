@@ -6,6 +6,7 @@ import {
   SettingsResponse,
   VehicleSummary,
 } from '../types/article-package';
+import { ClusterLinkMatrix } from '../types/public-seo';
 import { getAdminConfig } from './article-packages';
 
 async function apiGet<T>(endpoint: string): Promise<T> {
@@ -75,4 +76,8 @@ export async function applyLink(
   suggestion: LinkOpportunity,
 ): Promise<{ success: boolean; message?: string }> {
   return apiPost(`/posts/${postId}/apply-link`, suggestion);
+}
+
+export async function fetchClusterLinkMatrix(clusterKey: string): Promise<ClusterLinkMatrix> {
+  return apiGet<ClusterLinkMatrix>(`/clusters/${encodeURIComponent(clusterKey)}/link-matrix`);
 }

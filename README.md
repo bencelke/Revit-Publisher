@@ -4,6 +4,8 @@
 
 RevIt Publisher ingests structured automotive article packages (`revit-article-v1`), validates them, and imports them as WordPress drafts with automotive taxonomies and structured metadata.
 
+> **Phase 5 (v0.6.0):** Public vehicle hubs, crawlable content architecture, sitemaps, breadcrumbs, public blocks, SERP preview.
+
 > **Phase 4 (v0.5.0):** SEO operations, scheduled audits, redirect manager, consolidation workflow, 404 monitor, vehicle command center.
 
 > **Phase 3 (v0.4.0):** Content intelligence, content plans, article updates, topic overlap, RevIt SEO Health.
@@ -11,6 +13,23 @@ RevIt Publisher ingests structured automotive article packages (`revit-article-v
 > **Phase 2 (v0.3.0):** SEO content graph, internal linking engine, public SEO output, structured data.
 
 ---
+
+---
+
+## v0.6.0 Scope
+
+- Public `revit_vehicle` hub CPT with deterministic vehicle identity keys
+- Vehicle hub registry, draft creation workflow, and admin editor panel
+- Dynamic hub templates with theme override support
+- Server-rendered blocks: `revit/vehicle-content`, `revit/related-articles`, `revit/cluster-navigation`
+- Public breadcrumbs (HTML + JSON-LD) with real navigable URLs
+- WordPress core sitemap integration and sitemap health admin view
+- SERP preview and snippet validation
+- Vehicle hub and cluster SEO health signals
+- Cluster link matrix UI in Content Graph
+- Issue retention purge cron
+- Vehicle index (`/vehicles/`) and manufacturer pages (threshold: 2 hubs)
+- REST endpoints for vehicle hubs, sitemap health, cluster link matrix
 
 ## v0.5.0 Scope
 

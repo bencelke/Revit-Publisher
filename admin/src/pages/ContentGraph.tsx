@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import {
+  applyClusterLinks,
+  fetchClusterLinks,
+  undoLink,
+} from '../api/operations';
+import {
   applyLink,
+  fetchClusterLinkMatrix,
   fetchClusters,
   fetchLinkOpportunities,
   fetchOrphans,
@@ -14,8 +20,17 @@ import {
   OrphanEntry,
   VehicleSummary,
 } from '../types/article-package';
+import {
+  ClusterLinkMatrix,
+  LinkMatrixAppliedLink,
+  LinkMatrixSuggestion,
+} from '../types/public-seo';
 
 type Tab = 'vehicles' | 'clusters' | 'opportunities' | 'orphans';
+
+function suggestionKey(s: LinkMatrixSuggestion): string {
+  return `${s.source_post_id}-${s.target_post_id}`;
+}
 
 export function ContentGraphPage() {
   const [tab, setTab] = useState<Tab>('vehicles');
@@ -26,6 +41,11 @@ export function ContentGraphPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<number[]>([]);
+
+  const [activeCluster, setActiveCluster] = useState<string | null>(null);
+  const [linkMatrix, setLinkMatrix] = useState<ClusterLinkMatrix | null>(null);
+  const [matrixSelected, setMatrixSelected] = useState<string[]>([]);
+  const [matrixLoading, setMatrixLoading] = useState(false);
 
   async function loadTab(next: Tab) {
     setTab(next);
@@ -40,6 +60,21 @@ export function ContentGraphPage() {
       setError(err instanceof Error ? err.message : 'Failed to load data.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function loadClusterMatrix(clusterKey: string) {
+    setActiveCluster(clusterKey);
+    setMatrixLoading(true);
+    setError(null);
+    setMatrixSelected([]);
+    try {
+      setLinkMatrix(await fetchClusterLinkMatrix(clusterKey));
+    } catch (err) {
+      setLinkMatrix(null);
+      setError(err instanceof Error ? err.message : 'Failed to load link matrix.');
+    } finally {
+      setMatrixLoading(false);
     }
   }
 
@@ -73,6 +108,67 @@ export function ContentGraphPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to apply link.');
     }
+  }
+
+  async function handleMatrixApplySelected() {
+    if (!linkMatrix || matrixSelected.length === 0) return;
+    const suggestions = linkMatrix.suggestions.filter((s) =>
+      matrixSelected.includes(suggestionKey(s)),
+    );
+    try {
+      await applyClusterLinks(suggestions);
+      setMatrixSelected([]);
+      if (activeCluster) await loadClusterMatrix(activeCluster);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to apply selected links.');
+    }
+  }
+
+  async function handleSuggestMissing() {
+    if (!activeCluster) return;
+    setMatrixLoading(true);
+    try {
+      const data = await fetchClusterLinks(activeCluster) as {
+        suggestions: LinkMatrixSuggestion[];
+      };
+      if (linkMatrix) {
+        setLinkMatrix({ ...linkMatrix, suggestions: data.suggestions ?? [] });
+      }
+      const missingKeys = (data.suggestions ?? []).map(suggestionKey);
+      setMatrixSelected(missingKeys);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load suggestions.');
+    } finally {
+      setMatrixLoading(false);
+    }
+  }
+
+  async function handleUndoApplied(entry: LinkMatrixAppliedLink) {
+    try {
+      await undoLink(entry.log_id);
+      if (activeCluster) await loadClusterMatrix(activeCluster);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to undo link.');
+    }
+  }
+
+  function toggleMatrixSuggestion(s: LinkMatrixSuggestion) {
+    const key = suggestionKey(s);
+    setMatrixSelected((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
+  }
+
+  function isLinked(sourceId: number, targetId: number): boolean {
+    if (!linkMatrix) return false;
+    return Boolean(linkMatrix.matrix[String(sourceId)]?.[String(targetId)]);
+  }
+
+  function hasSuggestion(sourceId: number, targetId: number): boolean {
+    if (!linkMatrix) return false;
+    return linkMatrix.suggestions.some(
+      (s) => s.source_post_id === sourceId && s.target_post_id === targetId,
+    );
   }
 
   return (
@@ -109,14 +205,118 @@ export function ContentGraphPage() {
       )}
 
       {tab === 'clusters' && (
-        <div className="revit-publisher-card">
-          {clusters.map((c) => (
-            <div key={c.cluster_key} className="revit-publisher-list-item">
-              <strong>{c.name}</strong>
-              <div>{c.article_count} articles · {c.resolved_links} resolved · {c.missing_links} missing links</div>
+        <>
+          <div className="revit-publisher-card">
+            {clusters.map((c) => (
+              <div key={c.cluster_key} className="revit-publisher-list-item">
+                <button
+                  type="button"
+                  className={activeCluster === c.cluster_key ? 'is-active' : ''}
+                  onClick={() => loadClusterMatrix(c.cluster_key)}
+                >
+                  <strong>{c.name}</strong>
+                </button>
+                <div>{c.article_count} articles · {c.resolved_links} resolved · {c.missing_links} missing links</div>
+              </div>
+            ))}
+          </div>
+
+          {activeCluster && (
+            <div className="revit-publisher-card">
+              <h2>{linkMatrix?.name ?? activeCluster} — Link Matrix</h2>
+              {matrixLoading && <p className="revit-publisher-muted">Loading matrix…</p>}
+
+              {linkMatrix && linkMatrix.articles.length > 0 && (
+                <>
+                  <div className="revit-publisher-actions">
+                    <button
+                      type="button"
+                      disabled={matrixSelected.length === 0}
+                      onClick={handleMatrixApplySelected}
+                    >
+                      Apply Selected ({matrixSelected.length})
+                    </button>
+                    <button type="button" onClick={handleSuggestMissing}>Suggest Missing</button>
+                  </div>
+
+                  <div className="revit-publisher-table-wrap">
+                    <table className="revit-publisher-table">
+                      <thead>
+                        <tr>
+                          <th />
+                          {linkMatrix.articles.map((col) => (
+                            <th key={col.post_id} title={col.title}>
+                              {col.short_title ?? col.title.slice(0, 12)}
+                              {col.is_pillar ? ' ★' : ''}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {linkMatrix.articles.map((row) => (
+                          <tr key={row.post_id}>
+                            <th title={row.title}>
+                              {row.short_title ?? row.title.slice(0, 20)}
+                              {row.is_pillar ? ' ★' : ''}
+                            </th>
+                            {linkMatrix.articles.map((col) => {
+                              if (row.post_id === col.post_id) {
+                                return <td key={col.post_id} className="revit-publisher-matrix-dash">—</td>;
+                              }
+                              const linked = isLinked(row.post_id, col.post_id);
+                              const suggested = hasSuggestion(row.post_id, col.post_id);
+                              const key = suggestionKey({
+                                source_post_id: row.post_id,
+                                target_post_id: col.post_id,
+                              });
+                              return (
+                                <td key={col.post_id}>
+                                  {linked ? (
+                                    <span title="Linked">✓</span>
+                                  ) : suggested ? (
+                                    <label title="Suggested link">
+                                      <input
+                                        type="checkbox"
+                                        checked={matrixSelected.includes(key)}
+                                        onChange={() => toggleMatrixSuggestion({
+                                          source_post_id: row.post_id,
+                                          target_post_id: col.post_id,
+                                        })}
+                                      />
+                                      ✗
+                                    </label>
+                                  ) : (
+                                    <span className="revit-publisher-muted">·</span>
+                                  )}
+                                </td>
+                              );
+                            })}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {linkMatrix.revit_applied && linkMatrix.revit_applied.length > 0 && (
+                    <>
+                      <h3>RevIt-Applied Links</h3>
+                      {linkMatrix.revit_applied.map((entry) => (
+                        <div key={entry.log_id} className="revit-publisher-list-item">
+                          {entry.source_title ?? entry.source_post_id} → {entry.target_title ?? entry.target_post_id}
+                          <button type="button" onClick={() => handleUndoApplied(entry)}>Undo</button>
+                        </div>
+                      ))}
+                    </>
+                  )}
+                </>
+              )}
+
+              {linkMatrix && linkMatrix.articles.length === 0 && (
+                <p className="revit-publisher-muted">No articles in this cluster.</p>
+              )}
             </div>
-          ))}
-        </div>
+          )}
+        </>
       )}
 
       {tab === 'opportunities' && (

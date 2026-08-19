@@ -236,3 +236,48 @@
   border-left: 3px solid #2271b1;
 }
 
+.revit-publisher-serp-preview {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 4px;
+  max-width: 600px;
+}
+
+.revit-publisher-serp-title {
+  color: #1a0dab;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+
+.revit-publisher-serp-url {
+  color: #006621;
+  font-size: 0.875rem;
+}
+
+.revit-publisher-serp-desc {
+  color: #545454;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.revit-publisher-table-wrap {
+  overflow-x: auto;
+}
+
+.revit-publisher-matrix-dash {
+  color: #888;
+  text-align: center;
+}
+
+.revit-publisher-card.is-active,
+.revit-publisher-card--clickable.is-active {
+  outline: 2px solid #2271b1;
+}
+
+.revit-publisher-card select {
+  display: block;
+  margin-top: 0.25rem;
+  max-width: 320px;
+}
+

@@ -38,6 +38,13 @@ final class RevIt_Publisher_Services {
 	private static ?RevIt_Publisher_Pillar_Link_Policy_Service $pillar_links = null;
 	private static ?RevIt_Publisher_Link_Undo_Service $link_undo = null;
 	private static ?RevIt_Publisher_Vehicle_Health_Service $vehicle_health = null;
+	private static ?RevIt_Publisher_Vehicle_Hub_Service $vehicle_hubs = null;
+	private static ?RevIt_Publisher_Hub_Cache $hub_cache = null;
+	private static ?RevIt_Publisher_Sitemap_Service $sitemap = null;
+	private static ?RevIt_Publisher_Sitemap_Health_Service $sitemap_health = null;
+	private static ?RevIt_Publisher_Cluster_Link_Matrix $cluster_link_matrix = null;
+	private static ?RevIt_Publisher_Hub_SEO_Health $hub_seo_health = null;
+	private static ?RevIt_Publisher_SERP_Preview_Service $serp_preview = null;
 
 	public static function registry(): RevIt_Publisher_Article_Registry {
 		return self::$registry ??= new RevIt_Publisher_Article_Registry();
@@ -143,6 +150,44 @@ final class RevIt_Publisher_Services {
 
 	public static function vehicle_health(): RevIt_Publisher_Vehicle_Health_Service {
 		return self::$vehicle_health ??= new RevIt_Publisher_Vehicle_Health_Service();
+	}
+
+	public static function vehicle_hubs(): RevIt_Publisher_Vehicle_Hub_Service {
+		return self::$vehicle_hubs ??= new RevIt_Publisher_Vehicle_Hub_Service(
+			self::resolver(),
+			self::graph(),
+			self::hub_cache()
+		);
+	}
+
+	public static function hub_cache(): RevIt_Publisher_Hub_Cache {
+		return self::$hub_cache ??= new RevIt_Publisher_Hub_Cache();
+	}
+
+	public static function sitemap(): RevIt_Publisher_Sitemap_Service {
+		return self::$sitemap ??= new RevIt_Publisher_Sitemap_Service();
+	}
+
+	public static function sitemap_health(): RevIt_Publisher_Sitemap_Health_Service {
+		return self::$sitemap_health ??= new RevIt_Publisher_Sitemap_Health_Service( self::sitemap() );
+	}
+
+	public static function cluster_link_matrix(): RevIt_Publisher_Cluster_Link_Matrix {
+		return self::$cluster_link_matrix ??= new RevIt_Publisher_Cluster_Link_Matrix(
+			self::graph(),
+			self::link_service()
+		);
+	}
+
+	public static function hub_seo_health(): RevIt_Publisher_Hub_SEO_Health {
+		return self::$hub_seo_health ??= new RevIt_Publisher_Hub_SEO_Health(
+			self::vehicle_hubs(),
+			self::sitemap()
+		);
+	}
+
+	public static function serp_preview(): RevIt_Publisher_SERP_Preview_Service {
+		return self::$serp_preview ??= new RevIt_Publisher_SERP_Preview_Service( self::sitemap() );
 	}
 
 	private function __construct() {}

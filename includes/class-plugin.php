@@ -58,11 +58,28 @@ require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/operations/class-consolidati
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/operations/class-404-monitor.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/operations/class-vehicle-health-service.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/operations/class-audit-cron.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-vehicle-hub-meta-keys.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-vehicle-identity.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-vehicle-hub-post-type.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-hub-cache.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-vehicle-hub-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-public-template-loader.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-public-breadcrumbs.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-public-blocks.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-sitemap-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-sitemap-health-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-hub-seo-health.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-cluster-link-matrix.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-serp-preview-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-issue-retention-cron.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-hub-structured-data.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/class-services.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-article-package-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-seo-graph-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-content-plan-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-operations-rest-controller.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-vehicle-hub-rest-controller.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-vehicle-hub-meta-box.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-admin.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-post-meta-box.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-post-list-columns.php';
@@ -97,20 +114,28 @@ final class RevIt_Publisher_Plugin {
 		RevIt_Publisher_Taxonomies::init();
 		RevIt_Publisher_Content_Plan_Post_Type::init();
 		RevIt_Publisher_Operations_Post_Types::init();
+		RevIt_Publisher_Vehicle_Hub_Post_Type::init();
 		RevIt_Publisher_Audit_Cron::init();
+		RevIt_Publisher_Issue_Retention_Cron::init();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 		add_action( 'admin_init', array( RevIt_Publisher_Settings::class, 'register' ) );
 
 		$this->init_public_seo();
+		RevIt_Publisher_Services::hub_cache()->init();
 		RevIt_Publisher_Services::not_found_monitor()->init();
 		( new RevIt_Publisher_Redirect_Runtime() )->init();
+		( new RevIt_Publisher_Public_Template_Loader() )->init();
+		( new RevIt_Publisher_Public_Breadcrumbs() )->init();
+		( new RevIt_Publisher_Public_Blocks() )->init();
+		RevIt_Publisher_Services::sitemap()->init();
 
 		if ( is_admin() ) {
 			RevIt_Publisher_Admin::instance()->init();
 			RevIt_Publisher_Post_Meta_Box::instance()->init();
 			RevIt_Publisher_Post_List_Columns::instance()->init();
+			RevIt_Publisher_Vehicle_Hub_Meta_Box::init();
 		}
 	}
 
@@ -118,12 +143,14 @@ final class RevIt_Publisher_Plugin {
 	 * Initialize frontend SEO output hooks.
 	 */
 	private function init_public_seo(): void {
-		$settings = RevIt_Publisher_Services::settings();
-		$resolver = RevIt_Publisher_Services::resolver();
-		$graph    = RevIt_Publisher_Services::graph();
+		$settings   = RevIt_Publisher_Services::settings();
+		$resolver   = RevIt_Publisher_Services::resolver();
+		$graph      = RevIt_Publisher_Services::graph();
+		$breadcrumbs = new RevIt_Publisher_Public_Breadcrumbs();
 
 		( new RevIt_Publisher_Public_SEO_Output( $settings, $resolver ) )->init();
-		( new RevIt_Publisher_Structured_Data_Output( $settings, $resolver, $graph ) )->init();
+		( new RevIt_Publisher_Structured_Data_Output( $settings, $resolver, $graph, $breadcrumbs ) )->init();
+		( new RevIt_Publisher_Hub_Structured_Data( $settings, $breadcrumbs ) )->init();
 	}
 
 	/**
@@ -173,5 +200,10 @@ final class RevIt_Publisher_Plugin {
 
 		$ops_controller = new RevIt_Publisher_Operations_Rest_Controller();
 		$ops_controller->register_routes();
+
+		$hub_controller = new RevIt_Publisher_Vehicle_Hub_Rest_Controller(
+			RevIt_Publisher_Services::vehicle_hubs()
+		);
+		$hub_controller->register_routes();
 	}
 }
