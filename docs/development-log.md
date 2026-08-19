@@ -1,5 +1,24 @@
 # Development Log
 
+## Phase 7 — Editorial Prioritization + Production Hardening
+
+**Status:** Implemented  
+**Version:** 0.8.0  
+**Date:** 2026-08-19
+
+### Delivered
+
+- Editorial Priority Engine with explainable scoring and deduplication
+- Editorial Queue CPT, lifecycle (defer/complete/cooldown), manual items
+- Vehicle and cluster opportunity indexes
+- Dashboard "What To Work On" today view
+- Enhanced refresh/article request exports with editorial context
+- Migration framework, System Health page, backup export/restore
+- Performance profiler, fixture generator, production packaging scripts
+- REST APIs for editorial queue, system health, backups
+
+---
+
 ## Phase 6 — Google Search Console Intelligence
 
 **Status:** Implemented  

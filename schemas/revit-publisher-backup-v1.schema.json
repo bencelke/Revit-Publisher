@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://revit24.com/schemas/revit-publisher-backup-v1.schema.json",
+  "title": "RevIt Publisher Backup v1",
+  "type": "object",
+  "required": ["backup_type", "plugin_version", "exported_at"],
+  "properties": {
+    "backup_type": { "const": "revit-publisher-backup-v1" },
+    "plugin_version": { "type": "string" },
+    "exported_at": { "type": "string", "format": "date-time" },
+    "site_url": { "type": "string" },
+    "configuration": { "type": "object" },
+    "content_intelligence": { "type": "object" },
+    "editorial_queue": { "type": "array" }
+  },
+  "additionalProperties": true
+}

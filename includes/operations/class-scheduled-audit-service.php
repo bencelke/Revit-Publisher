@@ -53,6 +53,7 @@ class RevIt_Publisher_Audit_Service {
 				delete_transient( self::PROGRESS_KEY );
 				$snapshot_id = $this->save_snapshot( $result['summary'] );
 				RevIt_Publisher_Services::issues()->reconcile( $result['issues'] );
+				RevIt_Publisher_Services::editorial_reconciler()->reconcile();
 				RevIt_Publisher_Services::event_logger()->log(
 					'audit_complete',
 					array(

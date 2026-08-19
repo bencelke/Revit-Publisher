@@ -4,6 +4,8 @@
 
 RevIt Publisher ingests structured automotive article packages (`revit-article-v1`), validates them, and imports them as WordPress drafts with automotive taxonomies and structured metadata.
 
+> **Phase 7 (v0.8.0):** Editorial prioritization queue, system health, backups, production packaging.
+
 > **Phase 6 (v0.7.0):** Google Search Console intelligence, search performance dashboard, opportunity engine.
 
 > **Phase 5 (v0.6.0):** Public vehicle hubs, crawlable content architecture, sitemaps, breadcrumbs, public blocks, SERP preview.
@@ -19,6 +21,17 @@ RevIt Publisher ingests structured automotive article packages (`revit-article-v
 ---
 
 ---
+
+## v0.8.0 Scope
+
+- Editorial Priority Engine with explainable scoring
+- Editorial Queue (Today, Create, Refresh, Technical, Linking, Review)
+- Vehicle and cluster opportunity indexes
+- Dashboard "What To Work On" today view
+- Enhanced refresh/article request exports with editorial context
+- DB migration framework, System Health diagnostics
+- Backup export/restore (`revit-publisher-backup-v1`)
+- Performance profiler and production ZIP packaging
 
 ## v0.7.0 Scope
 

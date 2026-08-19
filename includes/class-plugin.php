@@ -100,6 +100,20 @@ require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-c
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-refresh-export.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-cron.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-gsc-rest-controller.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/core/class-migration-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/editorial/class-editorial-meta-keys.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/editorial/class-editorial-priority-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/editorial/class-editorial-queue-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/editorial/class-editorial-queue-reconciler.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/editorial/class-vehicle-opportunity-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/editorial/class-cluster-opportunity-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/system/class-system-health-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/system/class-backup-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/system/class-performance-profiler.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/system/class-fixture-generator.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-editorial-rest-controller.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-system-health-rest-controller.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-backup-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-vehicle-hub-meta-box.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-admin.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-post-meta-box.php';
@@ -140,6 +154,7 @@ final class RevIt_Publisher_Plugin {
 		RevIt_Publisher_Issue_Retention_Cron::init();
 		RevIt_Publisher_GSC_Cron::init();
 		RevIt_Publisher_GSC_Schema::maybe_install();
+		RevIt_Publisher_Services::migrations()->maybe_upgrade();
 
 		add_action( 'admin_init', array( $this, 'handle_gsc_oauth_callback' ) );
 
@@ -233,6 +248,15 @@ final class RevIt_Publisher_Plugin {
 
 		$gsc_controller = new RevIt_Publisher_GSC_Rest_Controller();
 		$gsc_controller->register_routes();
+
+		$editorial_controller = new RevIt_Publisher_Editorial_Rest_Controller();
+		$editorial_controller->register_routes();
+
+		$health_controller = new RevIt_Publisher_System_Health_Rest_Controller();
+		$health_controller->register_routes();
+
+		$backup_controller = new RevIt_Publisher_Backup_Rest_Controller();
+		$backup_controller->register_routes();
 	}
 
 	/**

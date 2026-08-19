@@ -51,6 +51,9 @@ class RevIt_Publisher_Settings {
 	public const GSC_ZERO_VISIBILITY_DAYS  = 'revit_gsc_zero_visibility_days';
 	public const GSC_DECLINE_THRESHOLD_PCT = 'revit_gsc_decline_threshold_pct';
 
+	public const EDITORIAL_COOLDOWN_DAYS   = 'revit_editorial_cooldown_days';
+	public const DELETE_DATA_ON_UNINSTALL  = 'revit_delete_data_on_uninstall';
+
 	public const LINK_MODE_SUGGEST = 'suggest_only';
 
 	/**
@@ -393,6 +396,81 @@ class RevIt_Publisher_Settings {
 
 	public function gsc_decline_threshold_pct(): int {
 		return (int) get_option( self::GSC_DECLINE_THRESHOLD_PCT, 20 );
+	}
+
+	public function editorial_cooldown_days(): int {
+		return (int) get_option( self::EDITORIAL_COOLDOWN_DAYS, 30 );
+	}
+
+	public function delete_data_on_uninstall(): bool {
+		return (bool) get_option( self::DELETE_DATA_ON_UNINSTALL, false );
+	}
+
+	public function gsc_has_credentials(): bool {
+		return '' !== $this->gsc_client_id() && '' !== $this->gsc_client_secret();
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	public function get_all(): array {
+		return array(
+			'enable_meta_description'   => $this->enable_meta_description(),
+			'enable_canonical'          => $this->enable_canonical(),
+			'enable_robots'             => $this->enable_robots(),
+			'enable_article_schema'     => $this->enable_article_schema(),
+			'enable_breadcrumb_schema'  => $this->enable_breadcrumb_schema(),
+			'internal_link_mode'        => $this->internal_link_mode(),
+			'max_suggested_links'       => $this->max_suggested_links(),
+			'avoid_duplicate_target'    => $this->avoid_duplicate_target(),
+			'org_name'                  => $this->org_name(),
+			'org_logo_url'              => $this->org_logo_url(),
+			'review_after_months'       => $this->review_after_months(),
+			'scheduled_audit_enabled'   => $this->scheduled_audit_enabled(),
+			'audit_frequency'           => $this->audit_frequency(),
+			'enable_404_monitor'        => $this->enable_404_monitor(),
+			'external_redirects'        => $this->external_redirects_allowed(),
+			'issue_retention_days'      => $this->issue_retention_days(),
+			'editorial_cooldown_days'   => $this->editorial_cooldown_days(),
+			'gsc_property'              => $this->gsc_property(),
+			'gsc_sync_enabled'          => $this->gsc_sync_enabled(),
+			'gsc_min_impressions'       => $this->gsc_min_impressions(),
+		);
+	}
+
+	/**
+	 * Restore safe settings from backup (no secrets).
+	 *
+	 * @param array<string, mixed> $settings
+	 */
+	public function import_safe( array $settings ): void {
+		$map = array(
+			'enable_meta_description'  => self::ENABLE_META_DESCRIPTION,
+			'enable_canonical'         => self::ENABLE_CANONICAL,
+			'enable_robots'            => self::ENABLE_ROBOTS,
+			'enable_article_schema'    => self::ENABLE_ARTICLE_SCHEMA,
+			'enable_breadcrumb_schema' => self::ENABLE_BREADCRUMB_SCHEMA,
+			'internal_link_mode'       => self::INTERNAL_LINK_MODE,
+			'max_suggested_links'      => self::MAX_SUGGESTED_LINKS,
+			'avoid_duplicate_target'   => self::AVOID_DUPLICATE_TARGET,
+			'org_name'                 => self::ORG_NAME,
+			'org_logo_url'             => self::ORG_LOGO_URL,
+			'review_after_months'      => self::REVIEW_AFTER_MONTHS,
+			'scheduled_audit_enabled'  => self::SCHEDULED_AUDIT_ENABLED,
+			'audit_frequency'          => self::AUDIT_FREQUENCY,
+			'enable_404_monitor'       => self::ENABLE_404_MONITOR,
+			'external_redirects'       => self::EXTERNAL_REDIRECTS,
+			'issue_retention_days'     => self::ISSUE_RETENTION_DAYS,
+			'editorial_cooldown_days'  => self::EDITORIAL_COOLDOWN_DAYS,
+			'gsc_property'             => self::GSC_PROPERTY,
+			'gsc_sync_enabled'         => self::GSC_SYNC_ENABLED,
+			'gsc_min_impressions'      => self::GSC_MIN_IMPRESSIONS,
+		);
+		foreach ( $settings as $key => $value ) {
+			if ( isset( $map[ $key ] ) ) {
+				update_option( $map[ $key ], $value );
+			}
+		}
 	}
 
 	/**

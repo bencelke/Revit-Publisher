@@ -2,6 +2,21 @@
 
 RevIt Publisher is a private WordPress plugin for RevIt24 that ingests structured automotive article packages, validates them against a stable contract, and publishes interconnected SEO content at scale.
 
+## Phase 7 Status (v0.8.0)
+
+Phase 7 adds editorial prioritization and production hardening:
+
+- `RevIt_Publisher_Editorial_Priority_Service` — deterministic work detection
+- `RevIt_Publisher_Editorial_Queue_Service` — editorial work lifecycle
+- `RevIt_Publisher_Editorial_Queue_Reconciler` — sync with audits/GSC
+- `RevIt_Publisher_Vehicle_Opportunity_Service` / `Cluster_Opportunity_Service`
+- `RevIt_Publisher_Migration_Service` — DB schema versioning
+- `RevIt_Publisher_System_Health_Service` — diagnostics and self-test
+- `RevIt_Publisher_Backup_Service` — `revit-publisher-backup-v1` export/restore
+- `RevIt_Publisher_Performance_Profiler` — admin operation timing
+
+See [editorial-queue.md](./editorial-queue.md), [system-health.md](./system-health.md), [production-deployment.md](./production-deployment.md).
+
 ## Phase 6 Status (v0.7.0)
 
 Phase 6 adds Google Search Console intelligence:

@@ -57,6 +57,16 @@ final class RevIt_Publisher_Services {
 	private static ?RevIt_Publisher_GSC_Query_Coverage_Service $gsc_query_coverage = null;
 	private static ?RevIt_Publisher_GSC_Content_Status $gsc_content_status = null;
 	private static ?RevIt_Publisher_GSC_Refresh_Export $gsc_refresh_export = null;
+	private static ?RevIt_Publisher_Migration_Service $migrations = null;
+	private static ?RevIt_Publisher_Editorial_Priority_Service $editorial_priority = null;
+	private static ?RevIt_Publisher_Editorial_Queue_Service $editorial_queue = null;
+	private static ?RevIt_Publisher_Editorial_Queue_Reconciler $editorial_reconciler = null;
+	private static ?RevIt_Publisher_Vehicle_Opportunity_Service $vehicle_opportunity = null;
+	private static ?RevIt_Publisher_Cluster_Opportunity_Service $cluster_opportunity = null;
+	private static ?RevIt_Publisher_System_Health_Service $system_health = null;
+	private static ?RevIt_Publisher_Backup_Service $backup = null;
+	private static ?RevIt_Publisher_Performance_Profiler $profiler = null;
+	private static ?RevIt_Publisher_Fixture_Generator $fixture_generator = null;
 
 	public static function registry(): RevIt_Publisher_Article_Registry {
 		return self::$registry ??= new RevIt_Publisher_Article_Registry();
@@ -270,6 +280,46 @@ final class RevIt_Publisher_Services {
 
 	public static function gsc_refresh_export(): RevIt_Publisher_GSC_Refresh_Export {
 		return self::$gsc_refresh_export ??= new RevIt_Publisher_GSC_Refresh_Export();
+	}
+
+	public static function migrations(): RevIt_Publisher_Migration_Service {
+		return self::$migrations ??= new RevIt_Publisher_Migration_Service();
+	}
+
+	public static function editorial_priority(): RevIt_Publisher_Editorial_Priority_Service {
+		return self::$editorial_priority ??= new RevIt_Publisher_Editorial_Priority_Service();
+	}
+
+	public static function editorial_queue(): RevIt_Publisher_Editorial_Queue_Service {
+		return self::$editorial_queue ??= new RevIt_Publisher_Editorial_Queue_Service();
+	}
+
+	public static function editorial_reconciler(): RevIt_Publisher_Editorial_Queue_Reconciler {
+		return self::$editorial_reconciler ??= new RevIt_Publisher_Editorial_Queue_Reconciler();
+	}
+
+	public static function vehicle_opportunity(): RevIt_Publisher_Vehicle_Opportunity_Service {
+		return self::$vehicle_opportunity ??= new RevIt_Publisher_Vehicle_Opportunity_Service();
+	}
+
+	public static function cluster_opportunity(): RevIt_Publisher_Cluster_Opportunity_Service {
+		return self::$cluster_opportunity ??= new RevIt_Publisher_Cluster_Opportunity_Service();
+	}
+
+	public static function system_health(): RevIt_Publisher_System_Health_Service {
+		return self::$system_health ??= new RevIt_Publisher_System_Health_Service();
+	}
+
+	public static function backup(): RevIt_Publisher_Backup_Service {
+		return self::$backup ??= new RevIt_Publisher_Backup_Service();
+	}
+
+	public static function profiler(): RevIt_Publisher_Performance_Profiler {
+		return self::$profiler ??= new RevIt_Publisher_Performance_Profiler();
+	}
+
+	public static function fixture_generator(): RevIt_Publisher_Fixture_Generator {
+		return self::$fixture_generator ??= new RevIt_Publisher_Fixture_Generator();
 	}
 
 	private function __construct() {}

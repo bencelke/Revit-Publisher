@@ -120,6 +120,7 @@ class RevIt_Publisher_GSC_Sync_Service {
 
 			RevIt_Publisher_Services::gsc_opportunities()->detect_and_reconcile();
 			RevIt_Publisher_Services::gsc_query_coverage()->detect_and_reconcile();
+			RevIt_Publisher_Services::editorial_reconciler()->reconcile();
 
 			$this->release_lock();
 			return array_merge( array( 'success' => true ), $stats );

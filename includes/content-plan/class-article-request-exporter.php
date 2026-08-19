@@ -110,6 +110,53 @@ class RevIt_Publisher_Article_Request_Exporter {
 				'cluster_key' => $cluster_key,
 			),
 			'plan_key'      => (string) ( $plan->plan_key ?? '' ),
+			'editorial_context' => $this->build_editorial_context( $plan, $entry, $cluster_key, $cluster ),
+		);
+	}
+
+	/**
+	 * @return array<string, mixed>
+	 */
+	private function build_editorial_context( object $plan, object $entry, string $cluster_key, ?object $cluster ): array {
+		$neighbor_keys = array();
+		foreach ( (array) ( $plan->articles ?? array() ) as $article ) {
+			if ( (string) ( $article->cluster_key ?? '' ) === $cluster_key && (string) ( $article->article_key ?? '' ) !== (string) ( $entry->article_key ?? '' ) ) {
+				$neighbor_keys[] = (string) $article->article_key;
+			}
+		}
+		$published_neighbors = array();
+		foreach ( $neighbor_keys as $key ) {
+			$post_id = RevIt_Publisher_Services::registry()->find_post_id_by_article_key( $key );
+			if ( $post_id && 'publish' === get_post_status( $post_id ) ) {
+				$published_neighbors[] = array(
+					'article_key' => $key,
+					'title'       => get_the_title( $post_id ),
+					'url'         => get_permalink( $post_id ),
+				);
+			}
+		}
+
+		$gsc_signal = null;
+		if ( RevIt_Publisher_Services::gsc_auth()->is_connected() ) {
+			$clusters = RevIt_Publisher_Services::gsc_insights()->get_cluster_performance( '28d' );
+			foreach ( $clusters as $cluster_perf ) {
+				if ( ( $cluster_perf['cluster_key'] ?? '' ) === $cluster_key ) {
+					$gsc_signal = array(
+						'impressions' => (int) ( $cluster_perf['impressions'] ?? 0 ),
+						'clicks'      => (int) ( $cluster_perf['clicks'] ?? 0 ),
+						'position'    => (float) ( $cluster_perf['position'] ?? 0 ),
+					);
+					break;
+				}
+			}
+		}
+
+		return array(
+			'pillar_article_key'       => null !== $cluster ? (string) ( $cluster->pillar_article_key ?? '' ) : '',
+			'related_planned_articles'   => $neighbor_keys,
+			'published_neighbors'      => $published_neighbors,
+			'search_console_cluster'   => $gsc_signal,
+			'creation_priority'        => (int) ( $entry->priority ?? 0 ),
 		);
 	}
 }

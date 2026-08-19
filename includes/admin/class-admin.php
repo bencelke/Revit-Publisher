@@ -103,6 +103,15 @@ class RevIt_Publisher_Admin {
 
 		add_submenu_page(
 			self::MENU_SLUG,
+			__( 'Editorial Queue', 'revit-publisher' ),
+			__( 'Editorial Queue', 'revit-publisher' ),
+			'edit_posts',
+			self::MENU_SLUG . '-editorial',
+			array( $this, 'render_editorial_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
 			__( 'Search Performance', 'revit-publisher' ),
 			__( 'Search Performance', 'revit-publisher' ),
 			'edit_posts',
@@ -164,6 +173,15 @@ class RevIt_Publisher_Admin {
 			'edit_posts',
 			self::MENU_SLUG . '-graph',
 			array( $this, 'render_graph_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'System Health', 'revit-publisher' ),
+			__( 'System Health', 'revit-publisher' ),
+			'manage_options',
+			self::MENU_SLUG . '-system-health',
+			array( $this, 'render_system_health_page' )
 		);
 
 		add_submenu_page(
@@ -231,6 +249,14 @@ class RevIt_Publisher_Admin {
 	 */
 	public function render_seo_health_page(): void {
 		$this->render_app_shell( 'revit-publisher-seo-health', 'edit_posts' );
+	}
+
+	public function render_editorial_page(): void {
+		$this->render_app_shell( 'revit-publisher-editorial', 'edit_posts' );
+	}
+
+	public function render_system_health_page(): void {
+		$this->render_app_shell( 'revit-publisher-system-health', 'manage_options' );
 	}
 
 	public function render_search_performance_page(): void {

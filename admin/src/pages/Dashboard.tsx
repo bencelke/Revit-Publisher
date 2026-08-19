@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { fetchStats } from '../api/article-packages';
+import { fetchEditorialToday, EditorialTodaySummary } from '../api/editorial';
 import { fetchGscStatus, fetchGscSummary } from '../api/search-console';
+import { ProductHeader } from '../components/ProductHeader';
 import { StatsResponse } from '../types/article-package';
 import { GscStatus, GscSummary } from '../types/search-console';
 
@@ -8,6 +10,7 @@ export function Dashboard() {
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [gscStatus, setGscStatus] = useState<GscStatus | null>(null);
   const [gscSummary, setGscSummary] = useState<GscSummary | null>(null);
+  const [today, setToday] = useState<EditorialTodaySummary | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -27,6 +30,7 @@ export function Dashboard() {
       .catch(() => {
         setGscStatus(null);
       });
+    fetchEditorialToday().then(setToday).catch(() => undefined);
   }, []);
 
   const vehicles = stats?.intelligence?.vehicle_health ?? [];
@@ -34,8 +38,7 @@ export function Dashboard() {
 
   return (
     <div className="revit-publisher-panel revit-publisher-dark">
-      <h1>RevIt Publisher Command Center</h1>
-      <p className="revit-publisher-muted">SEO operations and content maintenance for RevIt24</p>
+      <ProductHeader title="Command Center" />
 
       {error && (
         <div className="revit-publisher-result revit-publisher-result--error">
@@ -72,6 +75,22 @@ export function Dashboard() {
               <span className="revit-publisher-stat-value">{stats.intelligence?.topic_overlaps ?? 0}</span>
             </div>
           </div>
+
+          {today && (
+            <div className="revit-publisher-card revit-today-card">
+              <h3>What To Work On — Today</h3>
+              <p>
+                {(today.counts.high ?? 0) + (today.counts.urgent ?? 0)} high priority ·{' '}
+                {today.counts.medium ?? 0} medium priority
+              </p>
+              <ol>
+                {today.items.slice(0, 3).map((item) => (
+                  <li key={item.id}>{item.title}</li>
+                ))}
+              </ol>
+              <a className="button" href="admin.php?page=revit-publisher-editorial">Open Editorial Queue</a>
+            </div>
+          )}
 
           {gscStatus?.connected && gscSummary && (
             <div className="revit-publisher-card revit-gsc-dashboard-card">

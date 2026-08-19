@@ -81,6 +81,13 @@ class RevIt_Publisher_GSC_Schema {
 		);
 	}
 
+	public static function tables_exist(): bool {
+		global $wpdb;
+		$table = $wpdb->prefix . 'revit_gsc_page_metrics';
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		return $table === $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table ) );
+	}
+
 	public static function maybe_install(): void {
 		global $wpdb;
 		$table = $wpdb->prefix . 'revit_gsc_page_metrics';

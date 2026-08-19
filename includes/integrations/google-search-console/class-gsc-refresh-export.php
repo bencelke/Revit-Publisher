@@ -16,7 +16,7 @@ class RevIt_Publisher_GSC_Refresh_Export {
 	/**
 	 * @return array<string, mixed>|WP_Error
 	 */
-	public function export_for_post( int $post_id, string $reason = 'page2_opportunity' ): array|WP_Error {
+	public function export_for_post( int $post_id, string $reason = 'page2_opportunity', ?array $queue_item = null ): array|WP_Error {
 		if ( ! RevIt_Publisher_Services::resolver()->is_managed( $post_id ) ) {
 			return new WP_Error( 'revit_not_managed', __( 'Post is not RevIt-managed.', 'revit-publisher' ) );
 		}
@@ -29,8 +29,13 @@ class RevIt_Publisher_GSC_Refresh_Export {
 			'generation'   => (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::VEHICLE_GENERATION, true ),
 			'trim'         => (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::VEHICLE_TRIM, true ),
 		);
+		$cluster_key = (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::CLUSTER_KEY, true );
+		$secondary   = get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::SECONDARY_TOPICS, true );
+		$stored_hash = (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::LAST_IMPORT_CONTENT_HASH, true );
+		$manual_edit = '' !== $stored_hash
+			&& hash( 'sha256', (string) get_post_field( 'post_content', $post_id ) ) !== $stored_hash;
 
-		return array(
+		$export = array(
 			'request_type' => 'revit-refresh-request-v1',
 			'article_key'  => (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::ARTICLE_KEY, true ),
 			'vehicle'      => $vehicle,
@@ -46,6 +51,21 @@ class RevIt_Publisher_GSC_Refresh_Export {
 				'total_score' => (int) ( $health['total_score'] ?? 0 ),
 				'categories'  => $health['categories'] ?? array(),
 			),
+			'editorial_context' => array(
+				'priority_level'  => (string) ( $queue_item['priority_level'] ?? '' ),
+				'priority_score'  => (int) ( $queue_item['priority_score'] ?? 0 ),
+				'reasons'         => (array) ( $queue_item['reasons'] ?? array() ),
+				'cluster_key'     => $cluster_key,
+				'primary_topic'   => (string) get_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::PRIMARY_TOPIC, true ),
+				'secondary_topics'=> is_array( $secondary ) ? $secondary : array(),
+				'manual_edit_lock'=> $manual_edit,
+				'update_constraints' => array(
+					'do_not_auto_publish' => true,
+					'preserve_manual_edits' => $manual_edit,
+				),
+			),
 		);
+
+		return $export;
 	}
 }

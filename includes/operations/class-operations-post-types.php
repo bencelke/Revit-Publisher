@@ -21,6 +21,7 @@ class RevIt_Publisher_Operations_Post_Types {
 	public const REDIRECT       = 'revit_redirect';
 	public const LINK_CHANGE    = 'revit_link_change';
 	public const NOT_FOUND      = 'revit_404_entry';
+	public const EDITORIAL      = 'revit_editorial_item';
 
 	public static function init(): void {
 		add_action( 'init', array( self::class, 'register' ) );
@@ -99,6 +100,19 @@ class RevIt_Publisher_Operations_Post_Types {
 					'labels' => array(
 						'name'          => __( '404 Entries', 'revit-publisher' ),
 						'singular_name' => __( '404 Entry', 'revit-publisher' ),
+					),
+				)
+			)
+		);
+
+		register_post_type(
+			self::EDITORIAL,
+			array_merge(
+				$private,
+				array(
+					'labels' => array(
+						'name'          => __( 'Editorial Queue', 'revit-publisher' ),
+						'singular_name' => __( 'Editorial Item', 'revit-publisher' ),
 					),
 				)
 			)

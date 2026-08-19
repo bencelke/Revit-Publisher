@@ -13,3 +13,4 @@ package-lock.json
 .vscode/
 *.swp
 docker-data/
+/build/

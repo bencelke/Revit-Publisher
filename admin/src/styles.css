@@ -356,3 +356,89 @@
   margin-bottom: 0.75rem;
 }
 
+.revit-product-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #334155;
+}
+
+.revit-product-brand {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.revit-product-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.revit-version-badge {
+  background: #334155;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+}
+
+.revit-tab-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.revit-tab {
+  background: #334155;
+  border: none;
+  color: #e2e8f0;
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.revit-tab--active {
+  background: #2563eb;
+}
+
+.revit-priority {
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.revit-priority--urgent { background: #991b1b; }
+.revit-priority--high { background: #b45309; }
+.revit-priority--medium { background: #1d4ed8; }
+.revit-priority--low { background: #475569; }
+
+.revit-reason-list {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+
+.revit-health-check {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid #334155;
+}
+
+.revit-health-check--pass { color: #86efac; }
+.revit-health-check--warning { color: #fcd34d; }
+.revit-health-check--fail { color: #fca5a5; }
+
+.revit-today-card ol {
+  margin: 0.75rem 0;
+}
+

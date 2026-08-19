@@ -35,6 +35,7 @@ class RevIt_Publisher_Activator {
 		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/operations/class-audit-cron.php';
 		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-issue-retention-cron.php';
 		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-vehicle-hub-post-type.php';
+		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/core/class-migration-service.php';
 		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-schema.php';
 		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/integrations/google-search-console/class-gsc-cron.php';
 		require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/seo/class-settings.php';
