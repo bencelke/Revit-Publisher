@@ -1,0 +1,13 @@
+/vendor/
+/node_modules/
+/admin/dist/
+composer.lock
+package-lock.json
+.DS_Store
+*.log
+.phpunit.result.cache
+.idea/
+.vscode/
+*.swp
+.env
+.env.*

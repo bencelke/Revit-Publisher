@@ -1,0 +1,15 @@
+<?php
+/**
+ * Content model placeholders for future phases.
+ *
+ * Phase 0 defines the article package contract only.
+ * Value objects and WordPress entity mapping will be added in Phase 1+.
+ *
+ * @package RevIt_Publisher
+ */
+
+declare(strict_types=1);
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}

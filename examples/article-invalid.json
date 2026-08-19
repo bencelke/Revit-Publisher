@@ -1,0 +1,77 @@
+{
+  "schema_version": "revit-article-v0",
+  "article": {
+    "article_key": "",
+    "title": "Invalid Article Example",
+    "slug": "Invalid Slug With Spaces",
+    "article_type": "unknown_type",
+    "summary": "This package contains multiple intentional validation failures for testing.",
+    "excerpt": "Short excerpt for invalid example."
+  },
+  "vehicle": {
+    "manufacturer": "BMW",
+    "model": "X3",
+    "generation": "G01",
+    "trim": "M40i",
+    "start_year": 2025,
+    "end_year": 2018,
+    "engines": []
+  },
+  "cluster": {
+    "cluster_key": "bmw-x3-g01-m40i-cooling",
+    "name": "Cooling",
+    "pillar_article_key": "bmw-x3-g01-m40i-cooling-guide",
+    "parent_cluster_key": null
+  },
+  "seo": {
+    "primary_topic": "BMW X3 M40i coolant loss",
+    "secondary_topics": [],
+    "search_intent": "informational",
+    "seo_title": "Test",
+    "meta_description": "",
+    "canonical": "not-a-valid-url",
+    "index": true,
+    "follow": true
+  },
+  "content": {
+    "intro": "Intro text.",
+    "blocks": [
+      {
+        "type": "heading",
+        "level": 5,
+        "text": "Invalid heading level"
+      }
+    ],
+    "faq": []
+  },
+  "internal_links": [
+    {
+      "target_article_key": "some-target",
+      "preferred_anchor": "Bad link",
+      "relationship": "invalid_relationship",
+      "required": false
+    }
+  ],
+  "related_articles": [],
+  "sources": [
+    {
+      "source_name": "Bad Source",
+      "title": "Invalid URL Example",
+      "url": "not-a-url",
+      "source_type": "technical_reference",
+      "purpose": "Testing URL validation"
+    }
+  ],
+  "structured_data": {
+    "article": true,
+    "breadcrumbs": true,
+    "faq": false
+  },
+  "publishing": {
+    "status": "publish",
+    "author": null,
+    "featured_image_id": null,
+    "allow_comments": false
+  },
+  "unexpected_field": true
+}

@@ -1,0 +1,135 @@
+{
+  "schema_version": "revit-article-v1",
+  "article": {
+    "article_key": "bmw-x3-g01-m40i-coolant-loss",
+    "title": "BMW X3 M40i Coolant Loss: Causes, Symptoms and Fixes",
+    "slug": "bmw-x3-m40i-coolant-loss",
+    "article_type": "problem",
+    "summary": "A practical guide to diagnosing and resolving coolant loss on the BMW X3 G01 M40i with the B58 engine, covering common leak points, warning signs, and repair options.",
+    "excerpt": "Coolant loss on the BMW X3 M40i is often linked to water pump seal wear, thermostat housing leaks, or hose degradation. Learn the symptoms and what to check first."
+  },
+  "vehicle": {
+    "manufacturer": "BMW",
+    "model": "X3",
+    "generation": "G01",
+    "trim": "M40i",
+    "start_year": 2018,
+    "end_year": 2024,
+    "engines": ["B58"]
+  },
+  "cluster": {
+    "cluster_key": "bmw-x3-g01-m40i-cooling",
+    "name": "Cooling",
+    "pillar_article_key": "bmw-x3-g01-m40i-cooling-guide",
+    "parent_cluster_key": null
+  },
+  "seo": {
+    "primary_topic": "BMW X3 M40i coolant loss",
+    "secondary_topics": [
+      "B58 coolant leak",
+      "X3 M40i low coolant warning"
+    ],
+    "search_intent": "informational",
+    "seo_title": "BMW X3 M40i Coolant Loss: Causes & Fixes",
+    "meta_description": "Diagnose BMW X3 M40i coolant loss on the B58 engine. Common causes include water pump seals, thermostat housing leaks, and hose failures.",
+    "canonical": "auto",
+    "index": true,
+    "follow": true
+  },
+  "content": {
+    "intro": "Coolant loss on the BMW X3 G01 M40i is a common concern for owners of the B58-powered model. While some coolant consumption can be normal over long intervals, recurring top-ups or warning lights warrant immediate investigation.",
+    "blocks": [
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Common Symptoms"
+      },
+      {
+        "type": "paragraph",
+        "text": "Drivers typically notice a low coolant warning on the iDrive display, visible coolant residue under the engine bay, or a sweet smell after driving. Temperature gauge spikes may appear if the loss is severe."
+      },
+      {
+        "type": "bullet_list",
+        "items": [
+          "Low coolant warning message",
+          "Visible leaks near the water pump or thermostat housing",
+          "Overheating under load or in traffic"
+        ]
+      },
+      {
+        "type": "callout",
+        "variant": "warning",
+        "text": "Do not continue driving with an overheating engine. Stop safely and allow the engine to cool before checking coolant level."
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Likely Causes on the B58"
+      },
+      {
+        "type": "numbered_list",
+        "items": [
+          "Water pump and thermostat unit seal failure",
+          "Coolant hose degradation at connection points",
+          "Expansion tank cap or tank seam leak"
+        ]
+      }
+    ],
+    "faq": [
+      {
+        "question": "Is some coolant loss normal on the X3 M40i?",
+        "answer": "Minor loss over many thousands of miles can occur, but repeated top-ups within weeks or months indicate a leak that should be diagnosed."
+      },
+      {
+        "question": "Can I drive with a low coolant warning?",
+        "answer": "Only if you can confirm the level is safe and you are heading directly for inspection. Persistent warnings require immediate attention."
+      }
+    ]
+  },
+  "internal_links": [
+    {
+      "target_article_key": "bmw-x3-g01-m40i-water-pump",
+      "preferred_anchor": "BMW X3 M40i water pump failure",
+      "relationship": "related_problem",
+      "required": false
+    },
+    {
+      "target_article_key": "bmw-x3-g01-m40i-cooling-guide",
+      "preferred_anchor": "X3 M40i cooling system guide",
+      "relationship": "pillar",
+      "required": true
+    }
+  ],
+  "related_articles": [
+    {
+      "article_key": "bmw-x3-g01-m40i-water-pump",
+      "relationship": "related_problem",
+      "priority": 10
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-thermostat-housing",
+      "relationship": "related_problem",
+      "priority": 20
+    }
+  ],
+  "sources": [
+    {
+      "source_name": "BMW Technical Training",
+      "title": "B58 Engine Cooling System Overview",
+      "url": "https://example.com/bmw-b58-cooling",
+      "source_type": "technical_reference",
+      "purpose": "Cooling system component layout and common failure points"
+    }
+  ],
+  "structured_data": {
+    "article": true,
+    "breadcrumbs": true,
+    "faq": true
+  },
+  "publishing": {
+    "status": "draft",
+    "author": null,
+    "featured_image_id": null,
+    "allow_comments": false
+  }
+}
