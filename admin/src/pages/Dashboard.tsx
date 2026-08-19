@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { fetchStats } from '../api/validation';
+import { fetchStats } from '../api/article-packages';
 import { StatsResponse } from '../types/article-package';
 
 export function Dashboard() {
@@ -26,36 +26,65 @@ export function Dashboard() {
       )}
 
       {stats && (
-        <div className="revit-publisher-card">
-          <h2>RevIt Publisher {stats.version}</h2>
-          <ul className="revit-publisher-stats">
-            <li>
-              <span className="revit-publisher-stat-label">Imported Articles</span>
-              <span className="revit-publisher-stat-value">{stats.imported_articles}</span>
-            </li>
-            <li>
-              <span className="revit-publisher-stat-label">Vehicle Models</span>
-              <span className="revit-publisher-stat-value">{stats.vehicle_models}</span>
-            </li>
-            <li>
-              <span className="revit-publisher-stat-label">Clusters</span>
-              <span className="revit-publisher-stat-value">{stats.clusters}</span>
-            </li>
-            <li>
-              <span className="revit-publisher-stat-label">Article Schema</span>
-              <span className="revit-publisher-stat-value">{stats.schema_version}</span>
-            </li>
-          </ul>
-        </div>
-      )}
+        <>
+          <div className="revit-publisher-card">
+            <h2>RevIt Publisher {stats.version}</h2>
+            <h3>SEO Health</h3>
+            <ul className="revit-publisher-stats">
+              <li>
+                <span className="revit-publisher-stat-label">RevIt Articles</span>
+                <span className="revit-publisher-stat-value">{stats.seo_health?.revit_articles ?? stats.imported_articles}</span>
+              </li>
+              <li>
+                <span className="revit-publisher-stat-label">Orphan Articles</span>
+                <span className="revit-publisher-stat-value">{stats.seo_health?.orphan_articles ?? 0}</span>
+              </li>
+              <li>
+                <span className="revit-publisher-stat-label">Unresolved Links</span>
+                <span className="revit-publisher-stat-value">{stats.seo_health?.unresolved_links ?? 0}</span>
+              </li>
+              <li>
+                <span className="revit-publisher-stat-label">Missing Pillars</span>
+                <span className="revit-publisher-stat-value">{stats.seo_health?.missing_pillars ?? 0}</span>
+              </li>
+              <li>
+                <span className="revit-publisher-stat-label">Missing Meta</span>
+                <span className="revit-publisher-stat-value">{stats.seo_health?.missing_meta ?? 0}</span>
+              </li>
+              <li>
+                <span className="revit-publisher-stat-label">Duplicate Topics</span>
+                <span className="revit-publisher-stat-value">{stats.seo_health?.duplicate_topics ?? 0}</span>
+              </li>
+            </ul>
+          </div>
 
-      <div className="revit-publisher-card">
-        <h2>Phase 1 Scope</h2>
-        <p>
-          Validate, preview, and import <code>revit-article-v1</code> packages as WordPress drafts
-          with automotive taxonomies and structured RevIt metadata.
-        </p>
-      </div>
+          <div className="revit-publisher-card">
+            <h3>Content Graph</h3>
+            <ul className="revit-publisher-stats">
+              <li>
+                <span className="revit-publisher-stat-label">Vehicles</span>
+                <span className="revit-publisher-stat-value">{stats.content_graph?.vehicles ?? stats.vehicle_models}</span>
+              </li>
+              <li>
+                <span className="revit-publisher-stat-label">Clusters</span>
+                <span className="revit-publisher-stat-value">{stats.content_graph?.clusters ?? stats.clusters}</span>
+              </li>
+              <li>
+                <span className="revit-publisher-stat-label">Resolved Links</span>
+                <span className="revit-publisher-stat-value">{stats.content_graph?.resolved_links ?? 0}</span>
+              </li>
+              <li>
+                <span className="revit-publisher-stat-label">Pending Links</span>
+                <span className="revit-publisher-stat-value">{stats.content_graph?.pending_links ?? 0}</span>
+              </li>
+              <li>
+                <span className="revit-publisher-stat-label">Article Schema</span>
+                <span className="revit-publisher-stat-value">{stats.schema_version}</span>
+              </li>
+            </ul>
+          </div>
+        </>
+      )}
     </div>
   );
 }

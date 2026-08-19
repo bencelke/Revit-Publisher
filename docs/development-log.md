@@ -1,5 +1,44 @@
 # Development Log
 
+## Phase 2 — SEO Graph + Internal Linking + Public SEO Output
+
+**Status:** Implemented  
+**Version:** 0.3.0  
+**Date:** 2026-08-19
+
+### Purpose
+
+Build an interconnected automotive knowledge graph from imported articles and output conservative public SEO metadata.
+
+### Delivered
+
+- Article resolver with caching
+- Content graph service (inbound/outbound, pillar, cluster, vehicle)
+- Planned link resolution and status classification
+- Safe Gutenberg internal link suggestion and application engine
+- Backlink opportunity detection
+- SEO health signals (orphans, missing meta/pillar, duplicate topics)
+- Public meta description, canonical, robots output
+- Article + BreadcrumbList JSON-LD
+- Yoast / Rank Math conflict detection and admin warning
+- Settings page and Content Graph admin UI
+- Upgraded post editor RevIt panel
+- Graph REST endpoints and link audit service
+- Graph example packages (`examples/graph/`)
+- Integration tests and graph acceptance script
+
+### Explicitly Deferred
+
+- Full article update/re-import workflow
+- FAQ JSON-LD
+- Semantic duplicate detection / embeddings
+- Automatic bulk link rewriting
+- Public vehicle hub pages
+- Custom database tables
+- External SEO APIs
+
+---
+
 ## Phase 1 — Article Import Engine + Automotive Content Model
 
 **Status:** Implemented  

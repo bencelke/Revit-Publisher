@@ -1,0 +1,76 @@
+{
+  "schema_version": "revit-article-v1",
+  "article": {
+    "article_key": "bmw-x3-g01-m40i-cooling-guide",
+    "title": "BMW X3 M40i Cooling System Guide",
+    "slug": "bmw-x3-m40i-cooling-system-guide",
+    "article_type": "pillar",
+    "summary": "Pillar guide covering the BMW X3 G01 M40i B58 cooling system architecture, maintenance priorities, and common failure areas.",
+    "excerpt": "Understand the X3 M40i cooling system from water pump to expansion tank, and how to maintain reliable B58 engine temperatures."
+  },
+  "vehicle": {
+    "manufacturer": "BMW",
+    "model": "X3",
+    "generation": "G01",
+    "trim": "M40i",
+    "start_year": 2018,
+    "end_year": 2024,
+    "engines": ["B58"]
+  },
+  "cluster": {
+    "cluster_key": "bmw-x3-g01-m40i-cooling",
+    "name": "Cooling",
+    "pillar_article_key": "bmw-x3-g01-m40i-cooling-guide",
+    "parent_cluster_key": null
+  },
+  "seo": {
+    "primary_topic": "BMW X3 M40i cooling system",
+    "secondary_topics": ["B58 cooling maintenance", "X3 M40i coolant service"],
+    "search_intent": "informational",
+    "seo_title": "BMW X3 M40i Cooling System Guide",
+    "meta_description": "Complete BMW X3 M40i cooling system guide for the B58 engine including components, maintenance, and common problems.",
+    "canonical": "auto",
+    "index": true,
+    "follow": true
+  },
+  "content": {
+    "intro": "The BMW X3 G01 M40i uses a complex cooling circuit designed for the B58 turbocharged engine. This pillar guide explains the major components and how supporting problem articles fit together.",
+    "blocks": [
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Cooling System Overview"
+      },
+      {
+        "type": "paragraph",
+        "text": "The B58 cooling system includes an electric water pump, thermostat housing, radiator, and expansion tank. Supporting articles cover coolant loss and water pump failure in detail."
+      }
+    ],
+    "faq": []
+  },
+  "internal_links": [],
+  "related_articles": [
+    {
+      "article_key": "bmw-x3-g01-m40i-coolant-loss",
+      "relationship": "supporting",
+      "priority": 10
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-water-pump",
+      "relationship": "supporting",
+      "priority": 20
+    }
+  ],
+  "sources": [],
+  "structured_data": {
+    "article": true,
+    "breadcrumbs": true,
+    "faq": false
+  },
+  "publishing": {
+    "status": "draft",
+    "author": null,
+    "featured_image_id": null,
+    "allow_comments": false
+  }
+}

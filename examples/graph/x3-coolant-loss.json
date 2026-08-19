@@ -1,0 +1,88 @@
+{
+  "schema_version": "revit-article-v1",
+  "article": {
+    "article_key": "bmw-x3-g01-m40i-coolant-loss",
+    "title": "BMW X3 M40i Coolant Loss: Causes, Symptoms and Fixes",
+    "slug": "bmw-x3-m40i-coolant-loss",
+    "article_type": "problem",
+    "summary": "A practical guide to diagnosing and resolving coolant loss on the BMW X3 G01 M40i with the B58 engine.",
+    "excerpt": "Coolant loss on the BMW X3 M40i is often linked to water pump seal wear or hose degradation."
+  },
+  "vehicle": {
+    "manufacturer": "BMW",
+    "model": "X3",
+    "generation": "G01",
+    "trim": "M40i",
+    "start_year": 2018,
+    "end_year": 2024,
+    "engines": ["B58"]
+  },
+  "cluster": {
+    "cluster_key": "bmw-x3-g01-m40i-cooling",
+    "name": "Cooling",
+    "pillar_article_key": "bmw-x3-g01-m40i-cooling-guide",
+    "parent_cluster_key": null
+  },
+  "seo": {
+    "primary_topic": "BMW X3 M40i coolant loss",
+    "secondary_topics": ["B58 coolant leak"],
+    "search_intent": "informational",
+    "seo_title": "BMW X3 M40i Coolant Loss: Causes & Fixes",
+    "meta_description": "Diagnose BMW X3 M40i coolant loss on the B58 engine including water pump and hose failures.",
+    "canonical": "auto",
+    "index": true,
+    "follow": true
+  },
+  "content": {
+    "intro": "Coolant loss on the BMW X3 G01 M40i is a common concern. Recurring top-ups warrant investigation of the water pump and related components.",
+    "blocks": [
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "Common Symptoms"
+      },
+      {
+        "type": "paragraph",
+        "text": "Drivers notice low coolant warnings and may eventually need to inspect BMW X3 M40i water pump failure as a common root cause on the B58 engine."
+      },
+      {
+        "type": "paragraph",
+        "text": "Refer to the X3 M40i cooling system guide for the full component overview before replacing parts."
+      }
+    ],
+    "faq": []
+  },
+  "internal_links": [
+    {
+      "target_article_key": "bmw-x3-g01-m40i-water-pump",
+      "preferred_anchor": "BMW X3 M40i water pump failure",
+      "relationship": "related_problem",
+      "required": false
+    },
+    {
+      "target_article_key": "bmw-x3-g01-m40i-cooling-guide",
+      "preferred_anchor": "X3 M40i cooling system guide",
+      "relationship": "pillar",
+      "required": true
+    }
+  ],
+  "related_articles": [
+    {
+      "article_key": "bmw-x3-g01-m40i-water-pump",
+      "relationship": "related_problem",
+      "priority": 10
+    }
+  ],
+  "sources": [],
+  "structured_data": {
+    "article": true,
+    "breadcrumbs": true,
+    "faq": false
+  },
+  "publishing": {
+    "status": "draft",
+    "author": null,
+    "featured_image_id": null,
+    "allow_comments": false
+  }
+}

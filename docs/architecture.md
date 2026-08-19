@@ -2,6 +2,21 @@
 
 RevIt Publisher is a private WordPress plugin for RevIt24 that ingests structured automotive article packages, validates them against a stable contract, and publishes interconnected SEO content at scale.
 
+## Phase 2 Status (v0.3.0)
+
+Phase 2 adds SEO intelligence — content graph, internal linking, and public SEO output:
+
+- `RevIt_Publisher_Article_Resolver` — stable article key resolution
+- `RevIt_Publisher_Content_Graph` — relationship graph from meta and taxonomies
+- `RevIt_Publisher_Internal_Link_Service` — safe Gutenberg link suggestions and application
+- `RevIt_Publisher_SEO_Health_Service` — orphan detection, duplicate topics, health signals
+- `RevIt_Publisher_Link_Audit_Service` — site-wide link audit
+- Public SEO output (meta, canonical, robots, JSON-LD)
+- Yoast / Rank Math conflict detection
+- Settings, Content Graph admin UI, graph REST endpoints
+
+See [content-graph.md](./content-graph.md), [internal-linking.md](./internal-linking.md), and [seo-output.md](./seo-output.md).
+
 ## Phase 1 Status (v0.2.0)
 
 Phase 1 adds the article import engine and automotive content model:
@@ -46,7 +61,12 @@ Structured Data Intent (stored)       ← Phase 1
       ↓
 WordPress Draft
       ↓
-Future: link resolution, schema output, SEO health, hubs
+Content Graph + Link Resolution     ← Phase 2
+Internal Link Suggestions           ← Phase 2
+Public SEO Output + JSON-LD         ← Phase 2
+SEO Health Dashboard                ← Phase 2
+      ↓
+Future: vehicle hubs, re-import, bulk operations
 ```
 
 ## Current Components

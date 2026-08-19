@@ -272,6 +272,9 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 	public function get_stats( WP_REST_Request $request ) {
 		unset( $request );
 
+		$health = RevIt_Publisher_Services::health_service()->get_summary();
+		$audit  = RevIt_Publisher_Services::audit_service()->get_audit();
+
 		return new WP_REST_Response(
 			array(
 				'version'           => REVIT_PUBLISHER_VERSION,
@@ -279,6 +282,13 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 				'imported_articles' => $this->registry->count_managed_articles(),
 				'vehicle_models'    => $this->vehicle_service->count_models(),
 				'clusters'          => $this->cluster_service->count_clusters(),
+				'seo_health'        => $health,
+				'content_graph'     => array(
+					'vehicles'       => count( RevIt_Publisher_Services::graph()->get_vehicle_summaries() ),
+					'clusters'       => count( RevIt_Publisher_Services::graph()->get_cluster_summaries() ),
+					'resolved_links' => (int) ( $audit['resolved'] ?? 0 ),
+					'pending_links'  => (int) ( $audit['unresolved'] ?? 0 ),
+				),
 			),
 			200
 		);

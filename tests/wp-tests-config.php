@@ -12,7 +12,10 @@ define( 'DB_HOST', getenv( 'WP_TESTS_DB_HOST' ) ?: 'db' );
 define( 'DB_CHARSET', 'utf8' );
 define( 'DB_COLLATE', '' );
 
-define( 'ABSPATH', getenv( 'WP_CORE_DIR' ) ?: dirname( __DIR__ ) . '/../tmp/wordpress/' );
+$wp_core_dir = getenv( 'WP_CORE_DIR' ) ?: dirname( __DIR__ ) . '/tmp/wordpress';
+$wp_core_dir = rtrim( $wp_core_dir, '/' ) . '/';
+
+define( 'ABSPATH', $wp_core_dir );
 
 define( 'WP_TESTS_DOMAIN', 'example.org' );
 define( 'WP_TESTS_EMAIL', 'admin@example.org' );

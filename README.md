@@ -4,9 +4,24 @@
 
 RevIt Publisher ingests structured automotive article packages (`revit-article-v1`), validates them, and imports them as WordPress drafts with automotive taxonomies and structured metadata.
 
-> **Phase 1 (v0.2.0):** Article import engine, automotive content model, preview/import REST endpoints, Gutenberg content rendering, Docker dev environment.
+> **Phase 2 (v0.3.0):** SEO content graph, internal linking engine, public SEO output, structured data.
 
 ---
+
+## v0.3.0 Scope
+
+- Article resolver (`article_key` → post ID, permalink, title)
+- Content graph service (inbound/outbound, pillar, cluster, vehicle)
+- Planned link resolution with status classification
+- Safe Gutenberg internal link insertion (suggest + apply)
+- Backlink opportunity detection
+- SEO health signals (orphans, missing meta, duplicate topics)
+- Public meta description, canonical, robots output
+- Article + BreadcrumbList JSON-LD
+- Yoast / Rank Math conflict detection
+- Settings page, Content Graph admin UI, upgraded editor panel
+- Graph REST endpoints and link audit
+- Graph example packages and acceptance test
 
 ## v0.2.0 Scope
 

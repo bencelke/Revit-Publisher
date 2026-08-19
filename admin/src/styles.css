@@ -115,7 +115,40 @@
   margin-top: 0;
 }
 
-.revit-publisher-actions .button {
-  margin-right: 0.5rem;
+.revit-publisher-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
+
+.revit-publisher-tabs button.is-active {
+  background: #2271b1;
+  color: #fff;
+  border-color: #2271b1;
+}
+
+.revit-publisher-list-item {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f1;
+}
+
+.revit-publisher-list-item:last-child {
+  border-bottom: none;
+}
+
+.revit-publisher-card label {
+  display: block;
+  margin: 0.5rem 0;
+}
+
+.revit-publisher-card input[type='text'],
+.revit-publisher-card input[type='url'],
+.revit-publisher-card input[type='number'] {
+  display: block;
+  width: 100%;
+  max-width: 480px;
+  margin-top: 0.25rem;
+}
+
 

@@ -3,7 +3,7 @@ import {
   importArticlePackage,
   MAX_JSON_FILE_SIZE,
   previewArticlePackage,
-} from '../api/validation';
+} from '../api/article-packages';
 import {
   ImportResponse,
   PreviewResponse,

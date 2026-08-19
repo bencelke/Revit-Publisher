@@ -1,28 +1,19 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { ContentGraphPage } from './pages/ContentGraph';
 import { Dashboard } from './pages/Dashboard';
 import { ImportPage } from './pages/Import';
+import { SettingsPage } from './pages/Settings';
 import './styles.css';
 
-function mountApp() {
-  const dashboardRoot = document.getElementById('revit-publisher-dashboard');
-  const importRoot = document.getElementById('revit-publisher-import');
-
-  if (dashboardRoot) {
-    createRoot(dashboardRoot).render(
-      <StrictMode>
-        <Dashboard />
-      </StrictMode>,
-    );
-  }
-
-  if (importRoot) {
-    createRoot(importRoot).render(
-      <StrictMode>
-        <ImportPage />
-      </StrictMode>,
-    );
+function mount(id: string, node: JSX.Element) {
+  const root = document.getElementById(id);
+  if (root) {
+    createRoot(root).render(<StrictMode>{node}</StrictMode>);
   }
 }
 
-mountApp();
+mount('revit-publisher-dashboard', <Dashboard />);
+mount('revit-publisher-import', <ImportPage />);
+mount('revit-publisher-graph', <ContentGraphPage />);
+mount('revit-publisher-settings', <SettingsPage />);

@@ -46,6 +46,7 @@ class RevIt_Publisher_Admin {
 	 */
 	public function init(): void {
 		add_action( 'admin_menu', array( $this, 'register_menus' ) );
+		add_action( 'admin_notices', array( $this, 'maybe_show_seo_conflict_notice' ) );
 		RevIt_Publisher_Admin_Assets::instance()->init();
 	}
 
@@ -80,31 +81,86 @@ class RevIt_Publisher_Admin {
 			self::MENU_SLUG . '-import',
 			array( $this, 'render_import_page' )
 		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'Content Graph', 'revit-publisher' ),
+			__( 'Content Graph', 'revit-publisher' ),
+			'edit_posts',
+			self::MENU_SLUG . '-graph',
+			array( $this, 'render_graph_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'Settings', 'revit-publisher' ),
+			__( 'Settings', 'revit-publisher' ),
+			'manage_options',
+			self::MENU_SLUG . '-settings',
+			array( $this, 'render_settings_page' )
+		);
+	}
+
+	/**
+	 * Show SEO plugin conflict notice on RevIt admin pages.
+	 */
+	public function maybe_show_seo_conflict_notice(): void {
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( ! $screen || ! str_contains( (string) $screen->id, 'revit-publisher' ) ) {
+			return;
+		}
+
+		$message = RevIt_Publisher_SEO_Plugin_Detector::get_conflict_message();
+		if ( null === $message ) {
+			return;
+		}
+
+		printf(
+			'<div class="notice notice-warning"><p>%s <a href="%s">%s</a></p></div>',
+			esc_html( $message ),
+			esc_url( admin_url( 'admin.php?page=' . self::MENU_SLUG . '-settings' ) ),
+			esc_html__( 'Settings', 'revit-publisher' )
+		);
 	}
 
 	/**
 	 * Render dashboard mount point.
 	 */
 	public function render_dashboard_page(): void {
-		if ( ! current_user_can( 'edit_posts' ) ) {
-			wp_die( esc_html__( 'You do not have permission to access this page.', 'revit-publisher' ) );
-		}
-
-		echo '<div class="wrap">';
-		echo '<div id="revit-publisher-dashboard" class="revit-publisher-app"></div>';
-		echo '</div>';
+		$this->render_app_shell( 'revit-publisher-dashboard', 'edit_posts' );
 	}
 
 	/**
 	 * Render import mount point.
 	 */
 	public function render_import_page(): void {
-		if ( ! current_user_can( 'edit_posts' ) ) {
+		$this->render_app_shell( 'revit-publisher-import', 'edit_posts' );
+	}
+
+	/**
+	 * Render content graph mount point.
+	 */
+	public function render_graph_page(): void {
+		$this->render_app_shell( 'revit-publisher-graph', 'edit_posts' );
+	}
+
+	/**
+	 * Render settings mount point.
+	 */
+	public function render_settings_page(): void {
+		$this->render_app_shell( 'revit-publisher-settings', 'manage_options' );
+	}
+
+	/**
+	 * Output app mount shell.
+	 */
+	private function render_app_shell( string $element_id, string $capability ): void {
+		if ( ! current_user_can( $capability ) ) {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'revit-publisher' ) );
 		}
 
 		echo '<div class="wrap">';
-		echo '<div id="revit-publisher-import" class="revit-publisher-app"></div>';
+		printf( '<div id="%s" class="revit-publisher-app"></div>', esc_attr( $element_id ) );
 		echo '</div>';
 	}
 }

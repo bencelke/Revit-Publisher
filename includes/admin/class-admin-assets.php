@@ -55,6 +55,8 @@ class RevIt_Publisher_Admin_Assets {
 		$allowed_hooks = array(
 			'toplevel_page_revit-publisher',
 			'revit-publisher_page_revit-publisher-import',
+			'revit-publisher_page_revit-publisher-graph',
+			'revit-publisher_page_revit-publisher-settings',
 		);
 
 		if ( ! in_array( $hook_suffix, $allowed_hooks, true ) ) {
@@ -160,6 +162,8 @@ class RevIt_Publisher_Admin_Assets {
 				'pages'         => array(
 					'dashboard' => RevIt_Publisher_Admin::MENU_SLUG,
 					'import'    => RevIt_Publisher_Admin::MENU_SLUG . '-import',
+					'graph'     => RevIt_Publisher_Admin::MENU_SLUG . '-graph',
+					'settings'  => RevIt_Publisher_Admin::MENU_SLUG . '-settings',
 				),
 			)
 		);

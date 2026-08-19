@@ -12,38 +12,23 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Displays read-only RevIt metadata in the post editor.
+ * Displays RevIt metadata and SEO health in the post editor.
  */
 class RevIt_Publisher_Post_Meta_Box {
 
-	/**
-	 * Singleton instance.
-	 *
-	 * @var self|null
-	 */
 	private static ?self $instance = null;
 
-	/**
-	 * Get instance.
-	 */
 	public static function instance(): self {
 		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
-
 		return self::$instance;
 	}
 
-	/**
-	 * Register hooks.
-	 */
 	public function init(): void {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_box' ) );
 	}
 
-	/**
-	 * Register sidebar meta box.
-	 */
 	public function register_meta_box(): void {
 		add_meta_box(
 			'revit-publisher-info',
@@ -55,85 +40,77 @@ class RevIt_Publisher_Post_Meta_Box {
 		);
 	}
 
-	/**
-	 * Render meta box content.
-	 *
-	 * @param WP_Post $post Current post.
-	 */
 	public function render_meta_box( WP_Post $post ): void {
-		if ( ! get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::MANAGED, true ) ) {
+		if ( ! RevIt_Publisher_Services::resolver()->is_managed( $post->ID ) ) {
 			echo '<p>' . esc_html__( 'This post was not imported by RevIt Publisher.', 'revit-publisher' ) . '</p>';
 			return;
 		}
 
-		$vehicle_parts = array_filter(
-			array(
-				get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::VEHICLE_MANUFACTURER, true ),
-				get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::VEHICLE_MODEL, true ),
-				get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::VEHICLE_GENERATION, true ),
-				get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::VEHICLE_TRIM, true ),
-			)
-		);
-
-		$engines = get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::VEHICLE_ENGINES, true );
-		if ( ! is_array( $engines ) ) {
-			$engines = array();
-		}
-
-		$internal_links   = get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::INTERNAL_LINKS, true );
-		$related_articles = get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::RELATED_ARTICLES, true );
-		$article_type     = $this->get_article_type_label( $post->ID );
-		$cluster_name     = $this->get_cluster_label( $post->ID );
-
-		$rows = array(
-			__( 'Article Key', 'revit-publisher' )     => get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::ARTICLE_KEY, true ),
-			__( 'Vehicle', 'revit-publisher' )         => implode( ' ', $vehicle_parts ),
-			__( 'Engine', 'revit-publisher' )          => implode( ', ', $engines ),
-			__( 'Article Type', 'revit-publisher' )    => $article_type,
-			__( 'Cluster', 'revit-publisher' )         => $cluster_name,
-			__( 'Primary Topic', 'revit-publisher' )   => get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::PRIMARY_TOPIC, true ),
-			__( 'Pillar', 'revit-publisher' )          => get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::PILLAR_ARTICLE_KEY, true ),
-			__( 'Planned Links', 'revit-publisher' )     => is_array( $internal_links ) ? (string) count( $internal_links ) : '0',
-			__( 'Related Articles', 'revit-publisher' ) => is_array( $related_articles ) ? (string) count( $related_articles ) : '0',
-		);
+		$graph   = RevIt_Publisher_Services::graph();
+		$health  = RevIt_Publisher_Services::health_service()->get_post_health( $post->ID );
+		$outbound = $graph->get_outbound_relationships( $post->ID );
+		$resolved = count( $graph->get_resolved_links( $post->ID ) );
+		$unresolved = count( $graph->get_unresolved_links( $post->ID ) );
+		$inbound  = count( $graph->get_inbound_relationships( $post->ID ) );
+		$pillar   = $graph->get_pillar_article( $post->ID );
 
 		echo '<div class="revit-publisher-metabox">';
-		echo '<table class="widefat striped" style="border:none;">';
-		foreach ( $rows as $label => $value ) {
-			if ( '' === (string) $value ) {
-				continue;
+
+		$this->row( __( 'Vehicle', 'revit-publisher' ), $graph->get_vehicle_label( $post->ID ) );
+		$this->row( __( 'Cluster', 'revit-publisher' ), $this->get_cluster_label( $post->ID ) );
+
+		if ( is_array( $pillar ) ) {
+			if ( 'resolved' === ( $pillar['status'] ?? '' ) ) {
+				$this->row( __( 'Pillar', 'revit-publisher' ), '✓ ' . (string) ( $pillar['title'] ?? '' ) );
+			} else {
+				$this->row( __( 'Pillar', 'revit-publisher' ), esc_html__( 'Pillar planned — not imported yet', 'revit-publisher' ) );
 			}
-			printf(
-				'<tr><th style="width:40%%;padding:6px 0;">%s</th><td style="padding:6px 0;">%s</td></tr>',
-				esc_html( $label ),
-				esc_html( (string) $value )
-			);
 		}
-		echo '</table>';
+
+		echo '<hr /><strong>' . esc_html__( 'SEO', 'revit-publisher' ) . '</strong>';
+		$this->row( __( 'Primary Topic', 'revit-publisher' ), (string) get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::PRIMARY_TOPIC, true ) );
+		$this->row( __( 'SEO Title', 'revit-publisher' ), empty( $health['missing_seo_title'] ) ? '✓' : '⚠' );
+		$this->row( __( 'Meta Description', 'revit-publisher' ), empty( $health['missing_meta_description'] ) ? '✓' : '⚠' );
+
+		echo '<hr /><strong>' . esc_html__( 'Internal Linking', 'revit-publisher' ) . '</strong>';
+		$this->row( __( 'Outbound planned', 'revit-publisher' ), (string) count( $outbound ) );
+		$this->row( __( 'Resolved', 'revit-publisher' ), (string) $resolved );
+		$this->row( __( 'Unresolved', 'revit-publisher' ), (string) $unresolved );
+		$this->row( __( 'Inbound links', 'revit-publisher' ), (string) $inbound );
+
+		echo '<hr /><strong>' . esc_html__( 'SEO Health', 'revit-publisher' ) . '</strong>';
+		$this->row( __( 'Vehicle context', 'revit-publisher' ), empty( $health['missing_vehicle'] ) ? '✓' : '⚠' );
+		$this->row( __( 'Pillar linked', 'revit-publisher' ), empty( $health['missing_pillar'] ) ? '✓' : '⚠' );
+		if ( (int) $unresolved > 0 ) {
+			$this->row( __( 'Unresolved links', 'revit-publisher' ), '⚠ ' . (string) $unresolved );
+		}
+
+		echo '<hr />';
+		$this->row( __( 'Package hash', 'revit-publisher' ), substr( (string) get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::PACKAGE_HASH, true ), 0, 12 ) . '…' );
+		$this->row( __( 'Imported', 'revit-publisher' ), (string) get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::IMPORTED_AT, true ) );
+
+		printf(
+			'<p><a href="%s">%s</a></p>',
+			esc_url( admin_url( 'admin.php?page=' . RevIt_Publisher_Admin::MENU_SLUG . '-graph' ) ),
+			esc_html__( 'View Content Graph', 'revit-publisher' )
+		);
+
 		echo '</div>';
 	}
 
-	/**
-	 * Get article type label from taxonomy.
-	 */
-	private function get_article_type_label( int $post_id ): string {
-		$terms = wp_get_post_terms( $post_id, RevIt_Publisher_Taxonomies::ARTICLE_TYPE, array( 'fields' => 'names' ) );
-		if ( is_wp_error( $terms ) || empty( $terms ) ) {
-			return '';
+	private function row( string $label, string $value ): void {
+		if ( '' === $value ) {
+			return;
 		}
-
-		return (string) $terms[0];
+		printf(
+			'<p style="margin:4px 0;"><strong>%s</strong><br />%s</p>',
+			esc_html( $label ),
+			esc_html( $value )
+		);
 	}
 
-	/**
-	 * Get cluster label from taxonomy.
-	 */
 	private function get_cluster_label( int $post_id ): string {
 		$terms = wp_get_post_terms( $post_id, RevIt_Publisher_Taxonomies::CLUSTER, array( 'fields' => 'names' ) );
-		if ( is_wp_error( $terms ) || empty( $terms ) ) {
-			return '';
-		}
-
-		return (string) $terms[0];
+		return ( ! is_wp_error( $terms ) && ! empty( $terms ) ) ? (string) $terms[0] : '';
 	}
 }
