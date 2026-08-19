@@ -135,6 +135,36 @@ class RevIt_Publisher_SEO_Graph_Rest_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/posts/(?P<id>\d+)/seo-analysis',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_seo_analysis' ),
+				'permission_callback' => array( $this, 'can_edit_post' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/topic-overlaps',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'get_topic_overlaps' ),
+				'permission_callback' => array( $this, 'can_edit_posts' ),
+			)
+		);
+
+		register_rest_route(
+			self::REST_NAMESPACE,
+			'/link-opportunities/apply-batch',
+			array(
+				'methods'             => WP_REST_Server::CREATABLE,
+				'callback'            => array( $this, 'apply_batch_links' ),
+				'permission_callback' => array( $this, 'can_edit_posts' ),
+			)
+		);
 	}
 
 	/**
@@ -288,6 +318,8 @@ class RevIt_Publisher_SEO_Graph_Rest_Controller {
 			'avoid_duplicate_target'  => RevIt_Publisher_Settings::AVOID_DUPLICATE_TARGET,
 			'org_name'                => RevIt_Publisher_Settings::ORG_NAME,
 			'org_logo_url'            => RevIt_Publisher_Settings::ORG_LOGO_URL,
+			'review_after_months'     => RevIt_Publisher_Settings::REVIEW_AFTER_MONTHS,
+			'max_batch_links'         => RevIt_Publisher_Settings::MAX_BATCH_LINKS,
 		);
 
 		foreach ( $map as $key => $option ) {
@@ -342,5 +374,46 @@ class RevIt_Publisher_SEO_Graph_Rest_Controller {
 		}
 
 		return new WP_REST_Response( array( 'success' => true ), 200 );
+	}
+
+	/**
+	 * SEO analysis for one post.
+	 */
+	public function get_seo_analysis( WP_REST_Request $request ) {
+		$post_id = (int) $request->get_param( 'id' );
+		return new WP_REST_Response( RevIt_Publisher_Services::seo_score()->analyze( $post_id ), 200 );
+	}
+
+	/**
+	 * Topic overlap pairs.
+	 */
+	public function get_topic_overlaps( WP_REST_Request $request ) {
+		$refresh = (bool) $request->get_param( 'refresh' );
+		$risk    = sanitize_key( (string) $request->get_param( 'risk' ) );
+		$overlaps = RevIt_Publisher_Services::topic_overlaps()->find_overlaps( $refresh );
+
+		if ( '' !== $risk ) {
+			$overlaps = array_values(
+				array_filter(
+					$overlaps,
+					static fn( array $row ): bool => $risk === ( $row['risk'] ?? '' )
+				)
+			);
+		}
+
+		return new WP_REST_Response( $overlaps, 200 );
+	}
+
+	/**
+	 * Apply batch link suggestions.
+	 */
+	public function apply_batch_links( WP_REST_Request $request ) {
+		$params = $request->get_json_params();
+		if ( ! is_array( $params ) || ! isset( $params['suggestions'] ) || ! is_array( $params['suggestions'] ) ) {
+			return new WP_REST_Response( array( 'message' => 'Invalid JSON.' ), 400 );
+		}
+
+		$result = RevIt_Publisher_Services::link_service()->apply_batch( $params['suggestions'] );
+		return new WP_REST_Response( $result, 200 );
 	}
 }

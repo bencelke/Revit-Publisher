@@ -8,6 +8,22 @@ RevIt Publisher ingests structured automotive article packages (`revit-article-v
 
 ---
 
+## v0.4.0 Scope
+
+- Content plan contract (`revit-content-plan-v1`) and validator
+- Content plan import and private `revit_content_plan` registry
+- Plan-to-site reconciliation and vehicle/cluster coverage
+- Content gap detection and `revit-article-request-v1` export
+- Full article update workflow with diff preview and modes (full/seo/relationships)
+- Manual edit protection and WordPress revision preservation
+- Topic fingerprinting and overlap analysis
+- RevIt SEO Health score (0–100) with transparent category breakdown
+- Optimization recommendations
+- Content Planner and SEO Health admin UI
+- Dashboard command center redesign
+- Batch link approval (max 50)
+- Review-due signals
+
 ## v0.3.0 Scope
 
 - Article resolver (`article_key` → post ID, permalink, title)

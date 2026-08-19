@@ -84,6 +84,24 @@ class RevIt_Publisher_Admin {
 
 		add_submenu_page(
 			self::MENU_SLUG,
+			__( 'Content Planner', 'revit-publisher' ),
+			__( 'Content Planner', 'revit-publisher' ),
+			'edit_posts',
+			self::MENU_SLUG . '-planner',
+			array( $this, 'render_planner_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
+			__( 'SEO Health', 'revit-publisher' ),
+			__( 'SEO Health', 'revit-publisher' ),
+			'edit_posts',
+			self::MENU_SLUG . '-seo-health',
+			array( $this, 'render_seo_health_page' )
+		);
+
+		add_submenu_page(
+			self::MENU_SLUG,
 			__( 'Content Graph', 'revit-publisher' ),
 			__( 'Content Graph', 'revit-publisher' ),
 			'edit_posts',
@@ -142,6 +160,20 @@ class RevIt_Publisher_Admin {
 	 */
 	public function render_graph_page(): void {
 		$this->render_app_shell( 'revit-publisher-graph', 'edit_posts' );
+	}
+
+	/**
+	 * Render content planner mount point.
+	 */
+	public function render_planner_page(): void {
+		$this->render_app_shell( 'revit-publisher-planner', 'edit_posts' );
+	}
+
+	/**
+	 * Render SEO health mount point.
+	 */
+	public function render_seo_health_page(): void {
+		$this->render_app_shell( 'revit-publisher-seo-health', 'edit_posts' );
 	}
 
 	/**

@@ -1,0 +1,215 @@
+{
+  "schema_version": "revit-content-plan-v1",
+  "plan_key": "bmw-x3-g01-m40i-master-plan",
+  "vehicle": {
+    "manufacturer": "BMW",
+    "model": "X3",
+    "generation": "G01",
+    "trim": "M40i",
+    "start_year": 2018,
+    "end_year": 2024,
+    "engines": ["B58"]
+  },
+  "clusters": [
+    {
+      "cluster_key": "bmw-x3-g01-m40i-common-problems",
+      "name": "Common Problems",
+      "pillar_article_key": "bmw-x3-g01-m40i-common-problems-guide",
+      "recommended_article_count": 10,
+      "articles": [
+        "bmw-x3-g01-m40i-common-problems-guide",
+        "bmw-x3-g01-m40i-coolant-loss",
+        "bmw-x3-g01-m40i-water-pump",
+        "bmw-x3-g01-m40i-transfer-case-shudder"
+      ]
+    },
+    {
+      "cluster_key": "bmw-x3-g01-m40i-cooling",
+      "name": "Cooling",
+      "pillar_article_key": "bmw-x3-g01-m40i-cooling-guide",
+      "recommended_article_count": 6,
+      "articles": [
+        "bmw-x3-g01-m40i-cooling-guide",
+        "bmw-x3-g01-m40i-coolant-loss",
+        "bmw-x3-g01-m40i-water-pump",
+        "bmw-x3-g01-m40i-thermostat-problems"
+      ]
+    },
+    {
+      "cluster_key": "bmw-x3-g01-m40i-maintenance",
+      "name": "Maintenance",
+      "pillar_article_key": "bmw-x3-g01-m40i-maintenance-guide",
+      "recommended_article_count": 6,
+      "articles": [
+        "bmw-x3-g01-m40i-maintenance-guide",
+        "bmw-x3-g01-m40i-transfer-case-fluid",
+        "bmw-x3-g01-m40i-spark-plugs"
+      ]
+    },
+    {
+      "cluster_key": "bmw-x3-g01-m40i-modifications",
+      "name": "Modifications",
+      "pillar_article_key": "bmw-x3-g01-m40i-modifications-guide",
+      "recommended_article_count": 5,
+      "articles": [
+        "bmw-x3-g01-m40i-modifications-guide",
+        "bmw-x3-g01-m40i-intake-guide"
+      ]
+    },
+    {
+      "cluster_key": "bmw-x3-g01-m40i-buying",
+      "name": "Buying",
+      "pillar_article_key": "bmw-x3-g01-m40i-buying-guide",
+      "recommended_article_count": 3,
+      "articles": [
+        "bmw-x3-g01-m40i-buying-guide",
+        "bmw-x3-g01-m40i-reliability-guide"
+      ]
+    }
+  ],
+  "articles": [
+    {
+      "article_key": "bmw-x3-g01-m40i-common-problems-guide",
+      "title": "BMW X3 M40i Common Problems Guide",
+      "article_type": "pillar",
+      "cluster_key": "bmw-x3-g01-m40i-common-problems",
+      "pillar": true,
+      "priority": 100,
+      "primary_topic": "BMW X3 M40i common problems",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-cooling-guide",
+      "title": "BMW X3 M40i Cooling System Guide",
+      "article_type": "pillar",
+      "cluster_key": "bmw-x3-g01-m40i-cooling",
+      "pillar": true,
+      "priority": 95,
+      "primary_topic": "BMW X3 M40i cooling system",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-coolant-loss",
+      "title": "BMW X3 M40i Coolant Loss",
+      "article_type": "problem",
+      "cluster_key": "bmw-x3-g01-m40i-cooling",
+      "pillar": false,
+      "priority": 92,
+      "primary_topic": "BMW X3 M40i coolant loss",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-water-pump",
+      "title": "BMW X3 M40i Water Pump Failure",
+      "article_type": "problem",
+      "cluster_key": "bmw-x3-g01-m40i-cooling",
+      "pillar": false,
+      "priority": 90,
+      "primary_topic": "BMW X3 M40i water pump failure",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-thermostat-problems",
+      "title": "BMW X3 M40i Thermostat Problems",
+      "article_type": "problem",
+      "cluster_key": "bmw-x3-g01-m40i-cooling",
+      "pillar": false,
+      "priority": 88,
+      "primary_topic": "BMW X3 M40i thermostat problems",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-transfer-case-shudder",
+      "title": "BMW X3 M40i Transfer Case Shudder",
+      "article_type": "problem",
+      "cluster_key": "bmw-x3-g01-m40i-common-problems",
+      "pillar": false,
+      "priority": 85,
+      "primary_topic": "BMW X3 M40i transfer case shudder",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-maintenance-guide",
+      "title": "BMW X3 M40i Maintenance Guide",
+      "article_type": "pillar",
+      "cluster_key": "bmw-x3-g01-m40i-maintenance",
+      "pillar": true,
+      "priority": 84,
+      "primary_topic": "BMW X3 M40i maintenance schedule",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-transfer-case-fluid",
+      "title": "BMW X3 M40i Transfer Case Fluid Guide",
+      "article_type": "maintenance",
+      "cluster_key": "bmw-x3-g01-m40i-maintenance",
+      "pillar": false,
+      "priority": 82,
+      "primary_topic": "BMW X3 M40i transfer case fluid",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-spark-plugs",
+      "title": "BMW X3 M40i Spark Plug Replacement",
+      "article_type": "maintenance",
+      "cluster_key": "bmw-x3-g01-m40i-maintenance",
+      "pillar": false,
+      "priority": 80,
+      "primary_topic": "BMW X3 M40i spark plugs",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-modifications-guide",
+      "title": "BMW X3 M40i Modifications Guide",
+      "article_type": "pillar",
+      "cluster_key": "bmw-x3-g01-m40i-modifications",
+      "pillar": true,
+      "priority": 78,
+      "primary_topic": "BMW X3 M40i modifications",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-intake-guide",
+      "title": "BMW X3 M40i Intake Upgrade Guide",
+      "article_type": "modification",
+      "cluster_key": "bmw-x3-g01-m40i-modifications",
+      "pillar": false,
+      "priority": 75,
+      "primary_topic": "BMW X3 M40i intake upgrade",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-buying-guide",
+      "title": "BMW X3 M40i Buying Guide",
+      "article_type": "buying",
+      "cluster_key": "bmw-x3-g01-m40i-buying",
+      "pillar": true,
+      "priority": 70,
+      "primary_topic": "BMW X3 M40i buying guide",
+      "status": "planned"
+    },
+    {
+      "article_key": "bmw-x3-g01-m40i-reliability-guide",
+      "title": "BMW X3 M40i Reliability Guide",
+      "article_type": "reliability",
+      "cluster_key": "bmw-x3-g01-m40i-buying",
+      "pillar": false,
+      "priority": 68,
+      "primary_topic": "BMW X3 M40i reliability",
+      "status": "planned"
+    }
+  ],
+  "relationships": [
+    {
+      "source_article_key": "bmw-x3-g01-m40i-coolant-loss",
+      "target_article_key": "bmw-x3-g01-m40i-water-pump",
+      "relationship": "related_problem"
+    },
+    {
+      "source_article_key": "bmw-x3-g01-m40i-coolant-loss",
+      "target_article_key": "bmw-x3-g01-m40i-cooling-guide",
+      "relationship": "pillar"
+    }
+  ],
+  "generated_at": "2026-08-19T12:00:00Z"
+}

@@ -4,9 +4,15 @@ import {
   MAX_JSON_FILE_SIZE,
   previewArticlePackage,
 } from '../api/article-packages';
+import { applyUpdate, updatePreview } from '../api/intelligence';
 import {
   ImportResponse,
   PreviewResponse,
+  UpdateApplyFailure,
+  UpdateApplySuccess,
+  UpdateMode,
+  UpdatePreviewChanged,
+  UpdatePreviewResponse,
   ValidationFailure,
 } from '../types/article-package';
 
@@ -18,13 +24,57 @@ function formatStatus(status: string): string {
   return status.charAt(0).toUpperCase() + status.slice(1);
 }
 
+function formatDiffLabel(key: string): string {
+  return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function summarizeDiff(diff: UpdatePreviewChanged['diff']): string[] {
+  const lines: string[] = [];
+
+  Object.entries(diff.seo ?? {}).forEach(([key, value]) => {
+    if (value.changed) {
+      lines.push(`${formatDiffLabel(key)} — Changed`);
+    }
+  });
+
+  Object.entries(diff.article ?? {}).forEach(([key, value]) => {
+    if (value.changed) {
+      lines.push(`${formatDiffLabel(key)} — Changed`);
+    }
+  });
+
+  if (diff.content?.changed) {
+    const added = diff.content.blocks_added ?? 0;
+    const removed = diff.content.blocks_removed ?? 0;
+    lines.push(`Content Blocks — +${added} / -${removed}`);
+  }
+
+  if (diff.relationships?.internal_links?.changed) {
+    const added = diff.relationships.internal_links.added ?? 0;
+    lines.push(`Internal Links — +${added}`);
+  }
+
+  if (diff.vehicle?.changed === false) {
+    lines.push('Vehicle Identity — Unchanged');
+  } else if (diff.vehicle?.changed) {
+    lines.push('Vehicle Identity — Changed');
+  }
+
+  return lines;
+}
+
 export function ImportPage() {
   const [jsonInput, setJsonInput] = useState('');
   const [preview, setPreview] = useState<PreviewResponse | null>(null);
   const [importResult, setImportResult] = useState<ImportResponse | null>(null);
+  const [updatePreviewResult, setUpdatePreviewResult] = useState<UpdatePreviewResponse | null>(null);
+  const [updateResult, setUpdateResult] = useState<UpdateApplySuccess | UpdateApplyFailure | null>(null);
+  const [updateMode, setUpdateMode] = useState<UpdateMode>('full');
   const [parseError, setParseError] = useState<string | null>(null);
   const [isPreviewing, setIsPreviewing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
+  const [isUpdatePreviewing, setIsUpdatePreviewing] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   function parsePayload(): unknown | null {
@@ -43,6 +93,8 @@ export function ImportPage() {
     event.preventDefault();
     setPreview(null);
     setImportResult(null);
+    setUpdatePreviewResult(null);
+    setUpdateResult(null);
 
     const payload = parsePayload();
     if (null === payload) {
@@ -83,6 +135,59 @@ export function ImportPage() {
     }
   }
 
+  async function handleUpdatePreview() {
+    const payload = parsePayload();
+    const previewValid = preview?.valid === true ? preview : null;
+    if (null === payload || !previewValid?.existing_post_id) {
+      return;
+    }
+
+    setIsUpdatePreviewing(true);
+    setUpdatePreviewResult(null);
+    setUpdateResult(null);
+
+    try {
+      const response = (await updatePreview(
+        previewValid.existing_post_id,
+        payload,
+        updateMode,
+      )) as UpdatePreviewResponse;
+      setUpdatePreviewResult(response);
+    } catch (error) {
+      setParseError(
+        error instanceof Error ? error.message : 'Update preview request failed.',
+      );
+    } finally {
+      setIsUpdatePreviewing(false);
+    }
+  }
+
+  async function handleApplyUpdate() {
+    const payload = parsePayload();
+    const previewValid = preview?.valid === true ? preview : null;
+    if (null === payload || !previewValid?.existing_post_id) {
+      return;
+    }
+
+    setIsUpdating(true);
+    setUpdateResult(null);
+
+    try {
+      const response = (await applyUpdate(
+        previewValid.existing_post_id,
+        payload,
+        updateMode,
+      )) as UpdateApplySuccess | UpdateApplyFailure;
+      setUpdateResult(response);
+    } catch (error) {
+      setParseError(
+        error instanceof Error ? error.message : 'Update request failed.',
+      );
+    } finally {
+      setIsUpdating(false);
+    }
+  }
+
   function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) {
@@ -106,6 +211,8 @@ export function ImportPage() {
       setJsonInput(String(reader.result ?? ''));
       setPreview(null);
       setImportResult(null);
+      setUpdatePreviewResult(null);
+      setUpdateResult(null);
       setParseError(null);
     };
     reader.onerror = () => {
@@ -119,17 +226,27 @@ export function ImportPage() {
     setJsonInput('');
     setPreview(null);
     setImportResult(null);
+    setUpdatePreviewResult(null);
+    setUpdateResult(null);
     setParseError(null);
   }
 
   const previewValid = preview?.valid === true ? preview : null;
   const previewInvalid = preview && !preview.valid ? (preview as ValidationFailure) : null;
+  const updateChanged =
+    updatePreviewResult?.valid === true && updatePreviewResult.status === 'changed'
+      ? (updatePreviewResult as UpdatePreviewChanged)
+      : null;
+  const updateUnchanged =
+    updatePreviewResult?.valid === true && updatePreviewResult.status === 'unchanged'
+      ? updatePreviewResult
+      : null;
 
   return (
     <div className="revit-publisher-panel">
       <h1>Import Article Package</h1>
       <p className="revit-publisher-muted">
-        Paste or upload a <code>revit-article-v1</code> package to validate, preview, and import.
+        Paste or upload a <code>revit-article-v1</code> package to validate, preview, import, or update.
       </p>
 
       <form className="revit-publisher-card" onSubmit={handlePreview}>
@@ -142,6 +259,8 @@ export function ImportPage() {
             setJsonInput(event.target.value);
             setPreview(null);
             setImportResult(null);
+            setUpdatePreviewResult(null);
+            setUpdateResult(null);
           }}
           placeholder="Paste revit-article-v1 JSON here..."
         />
@@ -184,7 +303,7 @@ export function ImportPage() {
         </div>
       )}
 
-      {previewValid && !importResult && (
+      {previewValid && !importResult && !updateResult?.success && (
         <div className="revit-publisher-card revit-publisher-preview">
           <h2>{previewValid.existing_article ? 'Existing Article Detected' : 'Ready to Import'}</h2>
 
@@ -208,10 +327,28 @@ export function ImportPage() {
           </dl>
 
           {previewValid.existing_article ? (
-            <p className="revit-publisher-muted">
-              An article with this key already exists (Post ID: {previewValid.existing_post_id}).
-              Phase 1 does not overwrite existing articles.
-            </p>
+            <>
+              <p className="revit-publisher-muted">
+                An article with this key already exists (Post ID: {previewValid.existing_post_id}).
+                Review changes before applying an update.
+              </p>
+
+              <div className="revit-publisher-actions">
+                <label htmlFor="update-mode">Update mode</label>
+                <select
+                  id="update-mode"
+                  value={updateMode}
+                  onChange={(event) => setUpdateMode(event.target.value as UpdateMode)}
+                >
+                  <option value="full">Full package update</option>
+                  <option value="seo">SEO only</option>
+                  <option value="relationships">Relationships only</option>
+                </select>
+                <button type="button" onClick={handleUpdatePreview} disabled={isUpdatePreviewing}>
+                  {isUpdatePreviewing ? 'Reviewing…' : 'Review Changes'}
+                </button>
+              </div>
+            </>
           ) : (
             <div className="revit-publisher-actions">
               <button type="button" onClick={handleImport} disabled={isImporting}>
@@ -223,6 +360,42 @@ export function ImportPage() {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {updateUnchanged && (
+        <div className="revit-publisher-result revit-publisher-result--success">
+          <h2>No Changes Detected</h2>
+          <p>{updateUnchanged.message}</p>
+        </div>
+      )}
+
+      {updateChanged && (
+        <div className="revit-publisher-card">
+          <h2>Article Update Available</h2>
+
+          {updateChanged.manual_edits && (
+            <div className="revit-publisher-result revit-publisher-result--error">
+              <p>
+                ⚠ Manual edits detected — this article appears to have been edited in WordPress after
+                the last RevIt import. Choose update mode carefully.
+              </p>
+            </div>
+          )}
+
+          <ul className="revit-publisher-list">
+            {summarizeDiff(updateChanged.diff).map((line) => (
+              <li key={line}>{line}</li>
+            ))}
+          </ul>
+
+          <p className="revit-publisher-muted">{updateChanged.revision_note}</p>
+
+          <div className="revit-publisher-actions">
+            <button type="button" onClick={handleApplyUpdate} disabled={isUpdating}>
+              {isUpdating ? 'Applying…' : `Apply ${formatDiffLabel(updateMode)} Update`}
+            </button>
+          </div>
         </div>
       )}
 
@@ -241,6 +414,27 @@ export function ImportPage() {
             <a className="button button-primary" href={importResult.edit_url}>
               Edit Article
             </a>
+            <button type="button" onClick={resetForm}>
+              Import Another
+            </button>
+          </div>
+        </div>
+      )}
+
+      {updateResult?.success && (
+        <div className="revit-publisher-result revit-publisher-result--success">
+          <h2>{updateResult.status === 'unchanged' ? 'No Changes Applied' : 'Article Updated'}</h2>
+          <ul className="revit-publisher-list">
+            <li>
+              <strong>Post ID:</strong> {updateResult.post_id}
+            </li>
+          </ul>
+          <div className="revit-publisher-actions">
+            {updateResult.edit_url && (
+              <a className="button button-primary" href={updateResult.edit_url}>
+                Edit Article
+              </a>
+            )}
             <button type="button" onClick={resetForm}>
               Import Another
             </button>
@@ -278,6 +472,13 @@ export function ImportPage() {
               ))}
             </ul>
           )}
+        </div>
+      )}
+
+      {updateResult && !updateResult.success && (
+        <div className="revit-publisher-result revit-publisher-result--error">
+          <h2>Update Failed</h2>
+          <p>{updateResult.message ?? 'Unable to apply update.'}</p>
         </div>
       )}
     </div>

@@ -2,6 +2,18 @@
 
 RevIt Publisher is a private WordPress plugin for RevIt24 that ingests structured automotive article packages, validates them against a stable contract, and publishes interconnected SEO content at scale.
 
+## Phase 3 Status (v0.4.0)
+
+Phase 3 adds content intelligence:
+
+- `revit-content-plan-v1` schema and content planner
+- Plan reconciliation, coverage, and gap detection
+- Article update workflow with diff and manual edit protection
+- Topic overlap analysis and RevIt SEO Health scoring
+- Batch link approval and review-due signals
+
+See [content-planner.md](./content-planner.md), [article-updates.md](./article-updates.md), [topic-intelligence.md](./topic-intelligence.md), [seo-health.md](./seo-health.md).
+
 ## Phase 2 Status (v0.3.0)
 
 Phase 2 adds SEO intelligence — content graph, internal linking, and public SEO output:

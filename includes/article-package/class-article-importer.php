@@ -240,6 +240,13 @@ class RevIt_Publisher_Article_Importer {
 			set_post_thumbnail( $post_id, (int) $package->publishing->featured_image_id );
 		}
 
+		update_post_meta(
+			$post_id,
+			RevIt_Publisher_Post_Meta_Keys::LAST_IMPORT_CONTENT_HASH,
+			hash( 'sha256', (string) get_post_field( 'post_content', $post_id ) )
+		);
+		RevIt_Publisher_Services::review_status()->sync_status( $post_id );
+
 		return array(
 			'success'     => true,
 			'status'      => 'created',

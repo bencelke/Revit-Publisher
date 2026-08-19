@@ -42,6 +42,8 @@ final class RevIt_Publisher_Post_Meta_Keys {
 	public const VEHICLE_ENGINES       = '_revit_vehicle_engines';
 	public const CLUSTER_KEY           = '_revit_cluster_key';
 	public const MANAGED               = '_revit_managed';
+	public const LAST_IMPORT_CONTENT_HASH = '_revit_last_import_content_hash';
+	public const REVIEW_STATUS         = '_revit_review_status';
 
 	/**
 	 * Prevent instantiation.

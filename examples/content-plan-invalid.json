@@ -1,0 +1,37 @@
+{
+  "schema_version": "revit-content-plan-v1",
+  "plan_key": "invalid-plan",
+  "vehicle": {
+    "manufacturer": "BMW",
+    "model": "X3",
+    "generation": "G01",
+    "trim": "M40i"
+  },
+  "clusters": [
+    {
+      "cluster_key": "bmw-x3-cooling",
+      "name": "Cooling",
+      "pillar_article_key": "missing-pillar-key",
+      "articles": ["article-a", "article-a"]
+    }
+  ],
+  "articles": [
+    {
+      "article_key": "article-a",
+      "title": "Duplicate Key Article",
+      "article_type": "problem",
+      "cluster_key": "nonexistent-cluster",
+      "primary_topic": "Test topic",
+      "status": "planned"
+    },
+    {
+      "article_key": "article-a",
+      "title": "Duplicate Key Article Two",
+      "article_type": "problem",
+      "cluster_key": "bmw-x3-cooling",
+      "primary_topic": "Test topic two",
+      "status": "planned"
+    }
+  ],
+  "generated_at": "2026-08-19T12:00:00Z"
+}

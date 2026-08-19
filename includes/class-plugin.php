@@ -21,6 +21,18 @@ require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/article-package/class-packag
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/article-package/class-content-renderer.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/article-package/class-package-preview.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/article-package/class-article-importer.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/article-package/class-article-update-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/content-plan/class-content-plan-meta-keys.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/content-plan/class-content-plan-post-type.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/content-plan/class-content-plan-validator.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/content-plan/class-content-plan-importer.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/content-plan/class-content-plan-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/content-plan/class-article-request-exporter.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/intelligence/class-topic-fingerprint.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/intelligence/class-topic-overlap-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/intelligence/class-seo-score-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/intelligence/class-optimization-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/intelligence/class-review-status-service.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/seo/class-seo-plugin-detector.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/seo/class-settings.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/seo/class-public-seo-output.php';
@@ -34,6 +46,7 @@ require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/graph/class-link-audit-servi
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/class-services.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-article-package-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-seo-graph-rest-controller.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-content-plan-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-admin.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-post-meta-box.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-post-list-columns.php';
@@ -66,6 +79,7 @@ final class RevIt_Publisher_Plugin {
 	 */
 	public function init(): void {
 		RevIt_Publisher_Taxonomies::init();
+		RevIt_Publisher_Content_Plan_Post_Type::init();
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
@@ -133,5 +147,8 @@ final class RevIt_Publisher_Plugin {
 
 		$graph_controller = new RevIt_Publisher_SEO_Graph_Rest_Controller();
 		$graph_controller->register_routes();
+
+		$plan_controller = new RevIt_Publisher_Content_Plan_Rest_Controller();
+		$plan_controller->register_routes();
 	}
 }

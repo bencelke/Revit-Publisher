@@ -1,5 +1,38 @@
 # Development Log
 
+## Phase 3 — Content Intelligence + Cluster Coverage + Article Update Workflow
+
+**Status:** Implemented  
+**Version:** 0.4.0  
+**Date:** 2026-08-19
+
+### Delivered
+
+- `revit-content-plan-v1` schema, validator, examples
+- Private `revit_content_plan` CPT registry
+- Plan reconciliation, cluster completeness, vehicle coverage
+- Content gap detection and `revit-article-request-v1` export
+- Full article update service with diff preview and modes
+- Manual edit protection via content hash
+- Topic fingerprinting and overlap analysis
+- RevIt SEO Health score with category explainability
+- Optimization recommendations and review status
+- Content Planner and SEO Health admin UI
+- Dashboard command center redesign
+- Batch link approval REST and UI
+- Resolver cache invalidation on register
+- Integration tests and acceptance script
+
+### Explicitly Deferred
+
+- SERP/search volume APIs
+- Embeddings/semantic similarity
+- Auto-publish and bulk auto-rewrite
+- XML sitemap, redirects, 404 monitor
+- External SEO plugin deep integration
+
+---
+
 ## Phase 2 — SEO Graph + Internal Linking + Public SEO Output
 
 **Status:** Implemented  

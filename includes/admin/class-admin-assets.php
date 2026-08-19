@@ -55,7 +55,9 @@ class RevIt_Publisher_Admin_Assets {
 		$allowed_hooks = array(
 			'toplevel_page_revit-publisher',
 			'revit-publisher_page_revit-publisher-import',
+			'revit-publisher_page_revit-publisher-planner',
 			'revit-publisher_page_revit-publisher-graph',
+			'revit-publisher_page_revit-publisher-seo-health',
 			'revit-publisher_page_revit-publisher-settings',
 		);
 
@@ -160,10 +162,12 @@ class RevIt_Publisher_Admin_Assets {
 				'restUrl'       => esc_url_raw( rest_url( RevIt_Publisher_Article_Package_Rest_Controller::REST_NAMESPACE ) ),
 				'nonce'         => wp_create_nonce( 'wp_rest' ),
 				'pages'         => array(
-					'dashboard' => RevIt_Publisher_Admin::MENU_SLUG,
-					'import'    => RevIt_Publisher_Admin::MENU_SLUG . '-import',
-					'graph'     => RevIt_Publisher_Admin::MENU_SLUG . '-graph',
-					'settings'  => RevIt_Publisher_Admin::MENU_SLUG . '-settings',
+					'dashboard'  => RevIt_Publisher_Admin::MENU_SLUG,
+					'import'     => RevIt_Publisher_Admin::MENU_SLUG . '-import',
+					'planner'    => RevIt_Publisher_Admin::MENU_SLUG . '-planner',
+					'graph'      => RevIt_Publisher_Admin::MENU_SLUG . '-graph',
+					'seoHealth'  => RevIt_Publisher_Admin::MENU_SLUG . '-seo-health',
+					'settings'   => RevIt_Publisher_Admin::MENU_SLUG . '-settings',
 				),
 			)
 		);

@@ -389,4 +389,76 @@ class RevIt_Publisher_Internal_Link_Service {
 		);
 		update_post_meta( $post_id, self::META_APPLIED_LINKS, $applied );
 	}
+
+	/**
+	 * Apply multiple link suggestions with per-item validation.
+	 *
+	 * @param array<int, array<string, mixed>> $suggestions Suggestion payloads with source_post_id.
+	 * @return array{applied: int, skipped: int, results: array<int, array<string, mixed>>}
+	 */
+	public function apply_batch( array $suggestions ): array {
+		$max     = RevIt_Publisher_Services::settings()->max_batch_links();
+		$results = array();
+		$applied = 0;
+		$skipped = 0;
+
+		foreach ( array_slice( $suggestions, 0, $max ) as $index => $suggestion ) {
+			$post_id = (int) ( $suggestion['source_post_id'] ?? 0 );
+			if ( $post_id <= 0 ) {
+				++$skipped;
+				$results[] = array(
+					'index'   => $index,
+					'success' => false,
+					'message' => __( 'Missing source post.', 'revit-publisher' ),
+				);
+				continue;
+			}
+
+			$fresh = null;
+			foreach ( $this->get_suggestions( $post_id ) as $candidate ) {
+				if ( (int) ( $candidate['target_post_id'] ?? 0 ) === (int) ( $suggestion['target_post_id'] ?? -1 )
+					&& (string) ( $candidate['anchor'] ?? '' ) === (string) ( $suggestion['anchor'] ?? '' )
+				) {
+					$fresh = $candidate;
+					break;
+				}
+			}
+
+			if ( null === $fresh ) {
+				++$skipped;
+				$results[] = array(
+					'index'    => $index,
+					'post_id'  => $post_id,
+					'success'  => false,
+					'message'  => __( 'Suggestion is stale or invalid.', 'revit-publisher' ),
+				);
+				continue;
+			}
+
+			$result = $this->apply_link( $post_id, $fresh );
+			if ( is_wp_error( $result ) ) {
+				++$skipped;
+				$results[] = array(
+					'index'   => $index,
+					'post_id' => $post_id,
+					'success' => false,
+					'message' => $result->get_error_message(),
+				);
+				continue;
+			}
+
+			++$applied;
+			$results[] = array(
+				'index'   => $index,
+				'post_id' => $post_id,
+				'success' => true,
+			);
+		}
+
+		return array(
+			'applied' => $applied,
+			'skipped' => $skipped,
+			'results' => $results,
+		);
+	}
 }

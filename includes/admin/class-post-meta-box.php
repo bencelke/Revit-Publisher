@@ -46,19 +46,41 @@ class RevIt_Publisher_Post_Meta_Box {
 			return;
 		}
 
-		$graph   = RevIt_Publisher_Services::graph();
-		$health  = RevIt_Publisher_Services::health_service()->get_post_health( $post->ID );
-		$outbound = $graph->get_outbound_relationships( $post->ID );
+		$graph    = RevIt_Publisher_Services::graph();
+		$analysis = RevIt_Publisher_Services::seo_score()->analyze( $post->ID );
+		$health   = RevIt_Publisher_Services::health_service()->get_post_health( $post->ID );
 		$resolved = count( $graph->get_resolved_links( $post->ID ) );
 		$unresolved = count( $graph->get_unresolved_links( $post->ID ) );
 		$inbound  = count( $graph->get_inbound_relationships( $post->ID ) );
 		$pillar   = $graph->get_pillar_article( $post->ID );
+		$review   = (string) get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::REVIEW_STATUS, true );
 
 		echo '<div class="revit-publisher-metabox">';
 
+		printf(
+			'<p style="margin:0 0 8px;"><strong>%s</strong><br /><span style="font-size:18px;">%d / %d</span></p>',
+			esc_html( (string) ( $analysis['label'] ?? __( 'RevIt SEO Health', 'revit-publisher' ) ) ),
+			(int) ( $analysis['total_score'] ?? 0 ),
+			(int) ( $analysis['max_score'] ?? 100 )
+		);
+		echo '<p class="description">' . esc_html__( 'Internal site-quality metric — not a Google ranking score.', 'revit-publisher' ) . '</p>';
+
+		if ( '' !== $review && 'healthy' !== $review ) {
+			$this->row( __( 'Review Status', 'revit-publisher' ), ucwords( str_replace( '_', ' ', $review ) ) );
+		}
+
+		echo '<hr /><strong>' . esc_html__( 'Metadata', 'revit-publisher' ) . '</strong>';
+		$this->row( __( 'SEO title', 'revit-publisher' ), empty( $health['missing_seo_title'] ) ? '✓' : '⚠' );
+		$this->row( __( 'Meta description', 'revit-publisher' ), empty( $health['missing_meta_description'] ) ? '✓' : '⚠' );
+
+		echo '<hr /><strong>' . esc_html__( 'Internal Linking', 'revit-publisher' ) . '</strong>';
+		$this->row( __( 'Outbound resolved', 'revit-publisher' ), (string) $resolved );
+		$this->row( __( 'Unresolved', 'revit-publisher' ), (string) $unresolved );
+		$this->row( __( 'Inbound links', 'revit-publisher' ), (string) $inbound );
+
+		echo '<hr /><strong>' . esc_html__( 'Cluster', 'revit-publisher' ) . '</strong>';
 		$this->row( __( 'Vehicle', 'revit-publisher' ), $graph->get_vehicle_label( $post->ID ) );
 		$this->row( __( 'Cluster', 'revit-publisher' ), $this->get_cluster_label( $post->ID ) );
-
 		if ( is_array( $pillar ) ) {
 			if ( 'resolved' === ( $pillar['status'] ?? '' ) ) {
 				$this->row( __( 'Pillar', 'revit-publisher' ), '✓ ' . (string) ( $pillar['title'] ?? '' ) );
@@ -67,28 +89,30 @@ class RevIt_Publisher_Post_Meta_Box {
 			}
 		}
 
-		echo '<hr /><strong>' . esc_html__( 'SEO', 'revit-publisher' ) . '</strong>';
-		$this->row( __( 'Primary Topic', 'revit-publisher' ), (string) get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::PRIMARY_TOPIC, true ) );
-		$this->row( __( 'SEO Title', 'revit-publisher' ), empty( $health['missing_seo_title'] ) ? '✓' : '⚠' );
-		$this->row( __( 'Meta Description', 'revit-publisher' ), empty( $health['missing_meta_description'] ) ? '✓' : '⚠' );
-
-		echo '<hr /><strong>' . esc_html__( 'Internal Linking', 'revit-publisher' ) . '</strong>';
-		$this->row( __( 'Outbound planned', 'revit-publisher' ), (string) count( $outbound ) );
-		$this->row( __( 'Resolved', 'revit-publisher' ), (string) $resolved );
-		$this->row( __( 'Unresolved', 'revit-publisher' ), (string) $unresolved );
-		$this->row( __( 'Inbound links', 'revit-publisher' ), (string) $inbound );
-
-		echo '<hr /><strong>' . esc_html__( 'SEO Health', 'revit-publisher' ) . '</strong>';
-		$this->row( __( 'Vehicle context', 'revit-publisher' ), empty( $health['missing_vehicle'] ) ? '✓' : '⚠' );
-		$this->row( __( 'Pillar linked', 'revit-publisher' ), empty( $health['missing_pillar'] ) ? '✓' : '⚠' );
-		if ( (int) $unresolved > 0 ) {
-			$this->row( __( 'Unresolved links', 'revit-publisher' ), '⚠ ' . (string) $unresolved );
+		$recommendations = is_array( $analysis['recommendations'] ?? null ) ? $analysis['recommendations'] : array();
+		if ( ! empty( $recommendations ) ) {
+			echo '<hr /><strong>' . esc_html__( 'Topic', 'revit-publisher' ) . '</strong>';
+			foreach ( array_slice( $recommendations, 0, 2 ) as $rec ) {
+				if ( ! is_array( $rec ) ) {
+					continue;
+				}
+				$prefix = 'high' === ( $rec['severity'] ?? '' ) ? '⚠ ' : '• ';
+				printf(
+					'<p style="margin:4px 0;font-size:12px;">%s</p>',
+					esc_html( $prefix . (string) ( $rec['message'] ?? '' ) )
+				);
+			}
 		}
 
 		echo '<hr />';
 		$this->row( __( 'Package hash', 'revit-publisher' ), substr( (string) get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::PACKAGE_HASH, true ), 0, 12 ) . '…' );
 		$this->row( __( 'Imported', 'revit-publisher' ), (string) get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::IMPORTED_AT, true ) );
 
+		printf(
+			'<p><a href="%s">%s</a></p>',
+			esc_url( admin_url( 'admin.php?page=' . RevIt_Publisher_Admin::MENU_SLUG . '-seo-health' ) ),
+			esc_html__( 'View Full Analysis', 'revit-publisher' )
+		);
 		printf(
 			'<p><a href="%s">%s</a></p>',
 			esc_url( admin_url( 'admin.php?page=' . RevIt_Publisher_Admin::MENU_SLUG . '-graph' ) ),

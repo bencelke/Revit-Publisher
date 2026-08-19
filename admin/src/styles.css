@@ -1,5 +1,62 @@
 .revit-publisher-panel {
-  max-width: 960px;
+  max-width: 1100px;
+}
+
+.revit-publisher-dark {
+  color: #e2e8f0;
+}
+
+.revit-publisher-dark .revit-publisher-card {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.revit-publisher-dark .revit-publisher-muted {
+  color: #94a3b8;
+}
+
+.revit-publisher-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0;
+}
+
+.revit-publisher-metric {
+  text-align: center;
+}
+
+.revit-publisher-metric .revit-publisher-stat-value {
+  display: block;
+  font-size: 1.75rem;
+  color: #60a5fa;
+}
+
+.revit-publisher-progress {
+  background: #334155;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.revit-publisher-progress span {
+  display: block;
+  height: 100%;
+  background: #3b82f6;
+}
+
+.revit-publisher-disclaimer {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.revit-publisher-tabs button.is-active {
+  background: #2563eb;
+  color: #fff;
+  border-color: #2563eb;
 }
 
 .revit-publisher-panel h1 {

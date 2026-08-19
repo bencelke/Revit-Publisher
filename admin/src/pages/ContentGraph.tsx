@@ -7,6 +7,7 @@ import {
   fetchVehicles,
   runLinkAudit,
 } from '../api/graph';
+import { applyBatchLinks } from '../api/intelligence';
 import {
   ClusterSummary,
   LinkOpportunity,
@@ -24,6 +25,7 @@ export function ContentGraphPage() {
   const [orphans, setOrphans] = useState<OrphanEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState<number[]>([]);
 
   async function loadTab(next: Tab) {
     setTab(next);
@@ -38,6 +40,18 @@ export function ContentGraphPage() {
       setError(err instanceof Error ? err.message : 'Failed to load data.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleBatchApply() {
+    const batch = opportunities.filter((_, index) => selected.includes(index));
+    if (batch.length === 0) return;
+    try {
+      await applyBatchLinks(batch);
+      setSelected([]);
+      await loadTab('opportunities');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Batch apply failed.');
     }
   }
 
@@ -107,9 +121,23 @@ export function ContentGraphPage() {
 
       {tab === 'opportunities' && (
         <div className="revit-publisher-card">
+          {selected.length > 0 && (
+            <div className="revit-publisher-actions">
+              <button type="button" onClick={handleBatchApply}>Apply Selected ({selected.length})</button>
+            </div>
+          )}
           {opportunities.map((opp, index) => (
             <div key={`${opp.source_post_id}-${opp.target_post_id}-${index}`} className="revit-publisher-list-item">
-              <div><strong>{opp.source_title}</strong> → {opp.target_title}</div>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={selected.includes(index)}
+                  onChange={(e) => {
+                    setSelected((prev) => e.target.checked ? [...prev, index] : prev.filter((i) => i !== index));
+                  }}
+                />
+                <strong>{opp.source_title}</strong> → {opp.target_title}
+              </label>
               <div>Suggested anchor: “{opp.anchor}” ({opp.paragraph_label})</div>
               <button type="button" onClick={() => handleApply(opp)}>Apply</button>
             </div>

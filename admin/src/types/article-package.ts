@@ -105,6 +105,47 @@ export interface ImportFailure {
 
 export type ImportResponse = ImportSuccess | ImportExisting | ImportFailure;
 
+export type UpdateMode = 'full' | 'seo' | 'relationships';
+
+export interface UpdatePreviewUnchanged {
+  valid: true;
+  status: 'unchanged';
+  message: string;
+}
+
+export interface UpdatePreviewChanged {
+  valid: true;
+  status: 'changed';
+  post_id: number;
+  article_key: string;
+  mode: UpdateMode;
+  manual_edits: boolean;
+  revision_note: string;
+  diff: {
+    article?: Record<string, { changed: boolean }>;
+    seo?: Record<string, { changed: boolean }>;
+    content?: { changed: boolean; blocks_added?: number; blocks_removed?: number };
+    vehicle?: { changed: boolean };
+    cluster?: { changed: boolean };
+    relationships?: Record<string, { changed: boolean; added?: number }>;
+    sources?: Record<string, unknown>;
+  };
+}
+
+export type UpdatePreviewResponse = UpdatePreviewUnchanged | UpdatePreviewChanged | ValidationFailure;
+
+export interface UpdateApplySuccess {
+  success: true;
+  status: 'updated' | 'unchanged';
+  post_id: number;
+  edit_url?: string;
+}
+
+export interface UpdateApplyFailure {
+  success: false;
+  message?: string;
+}
+
 export interface SeoHealthSummary {
   revit_articles: number;
   orphan_articles: number;
@@ -121,14 +162,91 @@ export interface ContentGraphSummary {
   pending_links: number;
 }
 
+export interface IntelligenceSummary {
+  missing_content: number;
+  topic_overlaps: number;
+  needs_attention?: {
+    orphans: number;
+    topic_overlaps: number;
+    missing_meta: number;
+    unresolved_links: number;
+  };
+}
+
+export interface ContentPlanPreview {
+  valid: boolean;
+  plan_key?: string;
+  vehicle?: string;
+  summary?: {
+    planned_articles: number;
+    existing_articles: number;
+    missing_articles: number;
+    clusters: number;
+    overall_coverage: number;
+  };
+  errors?: ValidationError[];
+}
+
+export interface ContentPlanSummary {
+  plan_id: number;
+  plan_key: string;
+  vehicle: string;
+  summary: {
+    planned_articles: number;
+    existing_articles: number;
+    missing_articles: number;
+    overall_coverage: number;
+  };
+}
+
+export interface ContentPlanCoverage {
+  plan_id: number;
+  plan_key: string;
+  vehicle: string;
+  summary: {
+    planned_articles: number;
+    existing_articles: number;
+    missing_articles: number;
+    published: number;
+    draft: number;
+    overall_coverage: number;
+  };
+  clusters: Array<{
+    cluster_key: string;
+    name: string;
+    planned: number;
+    existing: number;
+    published: number;
+    missing: number;
+    plan_coverage: number;
+    pillar_status: string;
+    internal_link_pct: number;
+    meta_completeness: number;
+    orphans: number;
+  }>;
+  missing: Array<{
+    article_key: string;
+    title: string;
+    priority: number;
+    cluster_key: string;
+  }>;
+  next_content: Array<{
+    article_key: string;
+    title: string;
+    priority: number;
+  }>;
+}
+
 export interface StatsResponse {
   version: string;
   schema_version: string;
   imported_articles: number;
   vehicle_models: number;
   clusters: number;
+  content_plans?: number;
   seo_health?: SeoHealthSummary;
   content_graph?: ContentGraphSummary;
+  intelligence?: IntelligenceSummary;
 }
 
 export interface SettingsResponse {
@@ -202,7 +320,9 @@ export interface RevitPublisherAdminConfig {
   pages: {
     dashboard: string;
     import: string;
+    planner: string;
     graph: string;
+    seoHealth: string;
     settings: string;
   };
 }

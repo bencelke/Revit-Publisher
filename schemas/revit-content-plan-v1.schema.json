@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://revit24.com/schemas/revit-content-plan-v1.schema.json",
+  "title": "RevIt Content Plan v1",
+  "description": "Planning document describing a vehicle content ecosystem for RevIt Publisher.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "plan_key", "vehicle", "clusters", "articles", "generated_at"],
+  "properties": {
+    "schema_version": { "type": "string", "const": "revit-content-plan-v1" },
+    "plan_key": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+      "minLength": 3,
+      "maxLength": 200
+    },
+    "vehicle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manufacturer", "model", "generation", "trim"],
+      "properties": {
+        "manufacturer": { "type": "string", "minLength": 1 },
+        "model": { "type": "string", "minLength": 1 },
+        "generation": { "type": "string", "minLength": 1 },
+        "trim": { "type": "string", "minLength": 1 },
+        "start_year": { "type": "integer", "minimum": 1900, "maximum": 2100 },
+        "end_year": { "type": "integer", "minimum": 1900, "maximum": 2100 },
+        "engines": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "clusters": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["cluster_key", "name", "pillar_article_key", "articles"],
+        "properties": {
+          "cluster_key": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "name": { "type": "string", "minLength": 1 },
+          "pillar_article_key": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "parent_cluster_key": { "type": ["string", "null"] },
+          "recommended_article_count": { "type": "integer", "minimum": 1 },
+          "articles": {
+            "type": "array",
+            "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+          }
+        }
+      }
+    },
+    "articles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["article_key", "title", "article_type", "cluster_key", "primary_topic"],
+        "properties": {
+          "article_key": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "title": { "type": "string", "minLength": 1 },
+          "article_type": {
+            "type": "string",
+            "enum": ["vehicle_hub", "pillar", "problem", "maintenance", "modification", "product", "fitment", "buying", "reliability", "comparison", "guide", "faq", "other"]
+          },
+          "cluster_key": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$" },
+          "pillar": { "type": "boolean", "default": false },
+          "priority": { "type": "integer", "minimum": 0, "maximum": 100 },
+          "primary_topic": { "type": "string", "minLength": 1 },
+          "status": {
+            "type": "string",
+            "enum": ["planned", "imported", "draft", "pending", "published", "missing", "outdated", "review_required"]
+          }
+        }
+      }
+    },
+    "relationships": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_article_key", "target_article_key", "relationship"],
+        "properties": {
+          "source_article_key": { "type": "string" },
+          "target_article_key": { "type": "string" },
+          "relationship": { "type": "string" }
+        }
+      }
+    },
+    "generated_at": { "type": "string", "format": "date-time" }
+  }
+}

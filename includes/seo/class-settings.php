@@ -28,6 +28,8 @@ class RevIt_Publisher_Settings {
 	public const AVOID_DUPLICATE_TARGET    = 'revit_publisher_avoid_duplicate_target';
 	public const ORG_NAME                  = 'revit_publisher_org_name';
 	public const ORG_LOGO_URL              = 'revit_publisher_org_logo_url';
+	public const REVIEW_AFTER_MONTHS       = 'revit_publisher_review_after_months';
+	public const MAX_BATCH_LINKS           = 'revit_publisher_max_batch_links';
 
 	public const LINK_MODE_SUGGEST = 'suggest_only';
 
@@ -85,6 +87,16 @@ class RevIt_Publisher_Settings {
 			'sanitize_callback' => 'esc_url_raw',
 			'default'           => '',
 		) );
+		register_setting( self::OPTION_GROUP, self::REVIEW_AFTER_MONTHS, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_review_months' ),
+			'default'           => 12,
+		) );
+		register_setting( self::OPTION_GROUP, self::MAX_BATCH_LINKS, array(
+			'type'              => 'integer',
+			'sanitize_callback' => array( self::class, 'sanitize_batch_links' ),
+			'default'           => 50,
+		) );
 	}
 
 	/**
@@ -104,6 +116,8 @@ class RevIt_Publisher_Settings {
 			'avoid_duplicate_target'     => $this->avoid_duplicate_target(),
 			'org_name'                   => $this->org_name(),
 			'org_logo_url'               => $this->org_logo_url(),
+			'review_after_months'        => $this->review_after_months(),
+			'max_batch_links'            => $this->max_batch_links(),
 			'public_seo_output_enabled'  => $this->public_seo_output_enabled(),
 			'seo_plugin_conflict'        => RevIt_Publisher_SEO_Plugin_Detector::get_conflict_message(),
 		);
@@ -156,6 +170,14 @@ class RevIt_Publisher_Settings {
 		return (string) get_option( self::ORG_LOGO_URL, '' );
 	}
 
+	public function review_after_months(): int {
+		return (int) get_option( self::REVIEW_AFTER_MONTHS, 12 );
+	}
+
+	public function max_batch_links(): int {
+		return (int) get_option( self::MAX_BATCH_LINKS, 50 );
+	}
+
 	/**
 	 * @param mixed $value Raw value.
 	 */
@@ -176,5 +198,15 @@ class RevIt_Publisher_Settings {
 	public static function sanitize_max_links( mixed $value ): int {
 		$max = (int) $value;
 		return max( 1, min( 20, $max ) );
+	}
+
+	public static function sanitize_review_months( mixed $value ): int {
+		$months = (int) $value;
+		return max( 0, min( 60, $months ) );
+	}
+
+	public static function sanitize_batch_links( mixed $value ): int {
+		$max = (int) $value;
+		return max( 1, min( 50, $max ) );
 	}
 }

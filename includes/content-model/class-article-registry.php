@@ -71,6 +71,7 @@ class RevIt_Publisher_Article_Registry {
 
 		update_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::ARTICLE_KEY, sanitize_text_field( $article_key ) );
 		update_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::MANAGED, '1' );
+		wp_cache_delete( 'revit_resolve_' . md5( $article_key ), 'revit_publisher' );
 
 		return true;
 	}
