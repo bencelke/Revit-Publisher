@@ -172,6 +172,7 @@ final class RevIt_Publisher_Plugin {
 
 		add_action( 'init', array( $this, 'load_textdomain' ) );
 		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
+		add_filter( 'rest_post_dispatch', array( $this, 'nocache_publisher_rest' ), 10, 3 );
 		add_action( 'admin_init', array( RevIt_Publisher_Settings::class, 'register' ) );
 
 		$this->init_public_seo();
@@ -272,6 +273,29 @@ final class RevIt_Publisher_Plugin {
 
 		$scan_controller = new RevIt_Publisher_Seo_Scan_Rest_Controller();
 		$scan_controller->register_routes();
+	}
+
+	/**
+	 * Prevent LiteSpeed/CDN from serving stale Publisher admin REST payloads.
+	 *
+	 * @param mixed           $response Response object.
+	 * @param WP_REST_Server  $server   Server.
+	 * @param WP_REST_Request $request  Request.
+	 * @return mixed
+	 */
+	public function nocache_publisher_rest( $response, $server, $request ) {
+		unset( $server );
+		if ( ! $request instanceof WP_REST_Request || ! $response instanceof WP_REST_Response ) {
+			return $response;
+		}
+		$route = $request->get_route();
+		if ( ! is_string( $route ) || ! str_starts_with( $route, '/revit-publisher/' ) ) {
+			return $response;
+		}
+		$response->header( 'Cache-Control', 'private, no-store, no-cache, must-revalidate' );
+		$response->header( 'Pragma', 'no-cache' );
+		$response->header( 'Expires', '0' );
+		return $response;
 	}
 
 	/**

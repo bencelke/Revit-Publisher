@@ -157,7 +157,7 @@ export function SeoPage() {
           ) : (
             <p className="revit-publisher-muted">
               Scan the live WordPress posts to measure mechanical SEO compliance, orphans, and natural internal-link ideas.
-              Current imported articles: {stats?.imported_articles ?? 0}. Orphans (package graph): {seo?.orphan_articles ?? 0}.
+              Imported articles: {stats?.imported_articles ?? 0}. Orphan count uses inbound contextual links in article body after Scan Site.
             </p>
           )}
         </section>

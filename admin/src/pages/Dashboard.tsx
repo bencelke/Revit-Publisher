@@ -6,6 +6,7 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { StatCard } from '../components/StatCard';
 import { StatusBadge } from '../components/StatusBadge';
 import { adminUrl } from '../lib/api-client';
+import { vehicleArticleCount } from '../lib/vehicle-count';
 import { RecentBatchSummary, StatsResponse } from '../types/article-package';
 
 function formatBatchDate(value: string): string {
@@ -60,7 +61,7 @@ export function Dashboard() {
               label="SEO Issues"
               value={(needs?.missing_meta ?? 0) + (needs?.orphans ?? 0) + (needs?.topic_overlaps ?? 0)}
             />
-            <StatCard label="Link Opportunities" value={graph?.pending_links ?? needs?.unresolved_links ?? 0} />
+            <StatCard label="Link Opportunities" value={graph?.link_opportunities ?? graph?.pending_links ?? needs?.unresolved_links ?? 0} />
           </div>
 
           <section className="revit-publisher-card">
@@ -127,7 +128,7 @@ export function Dashboard() {
                 {vehicles.slice(0, 6).map((vehicle) => (
                   <div key={vehicle.label} className="revit-vehicle-card">
                     <h3>{vehicle.label}</h3>
-                    <p>Articles {vehicle.articles}</p>
+                    <p>Articles {vehicleArticleCount(vehicle)}</p>
                     <p>SEO Health {vehicle.seo_health_avg}</p>
                     <p className="revit-publisher-muted">Link Coverage {vehicle.plan_coverage}%</p>
                     <a className="revit-link" href={adminUrl('vehicles')}>Open</a>

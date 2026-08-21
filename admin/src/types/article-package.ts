@@ -160,6 +160,7 @@ export interface ContentGraphSummary {
   clusters: number;
   resolved_links: number;
   pending_links: number;
+  link_opportunities?: number;
 }
 
 export interface IntelligenceSummary {
@@ -180,6 +181,7 @@ export interface IntelligenceSummary {
 export interface VehicleHealthRow {
   label: string;
   articles: number;
+  article_count?: number;
   seo_health_avg: number;
   plan_coverage: number;
   published: number;

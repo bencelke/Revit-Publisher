@@ -2,6 +2,7 @@
   "name": "revit24/revit-publisher",
   "description": "Private automotive SEO and content intelligence engine for RevIt24.",
   "type": "wordpress-plugin",
+  "version": "0.9.0",
   "license": "proprietary",
   "require": {
     "php": ">=8.2",

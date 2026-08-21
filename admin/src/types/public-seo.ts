@@ -107,6 +107,7 @@ export interface ClusterLinkMatrix {
 export interface VehicleRowWithHub {
   label: string;
   articles: number;
+  article_count?: number;
   seo_health_avg: number;
   plan_coverage: number;
   published: number;

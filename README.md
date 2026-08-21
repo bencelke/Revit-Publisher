@@ -34,9 +34,14 @@ See [docs/operator-workflow.md](docs/operator-workflow.md) for details.
 
 ---
 
----
+## v0.9.0 Scope
 
----
+- Mechanical SEO Compliance scan of live WordPress posts
+- Corrected vehicle article counts and multi-vehicle batch summaries
+- Repaired imported draft timestamps
+- Deterministic internal-link discovery and contextual orphan detection
+- Safe-fix workflow without auto-publish
+- Consistent Dashboard/SEO data, version+filemtime cache busting, no-store REST
 
 ## v0.8.0 Scope
 

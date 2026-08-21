@@ -371,6 +371,10 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 		$audit    = RevIt_Publisher_Services::audit_service()->get_audit();
 		$overlaps = RevIt_Publisher_Services::topic_overlaps()->find_overlaps();
 		$plans    = RevIt_Publisher_Services::plan_service()->list_plans();
+		$scan     = RevIt_Publisher_Services::site_seo_scan()->get_last_site_scan();
+		if ( isset( $scan['orphan_articles'] ) ) {
+			$health['orphan_articles'] = (int) $scan['orphan_articles'];
+		}
 
 		$missing_content = 0;
 		foreach ( $plans as $plan ) {
@@ -391,10 +395,11 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 				'content_plans'     => count( $plans ),
 				'seo_health'        => $health,
 				'content_graph'     => array(
-					'vehicles'       => count( RevIt_Publisher_Services::graph()->get_vehicle_summaries() ),
-					'clusters'       => count( RevIt_Publisher_Services::graph()->get_cluster_summaries() ),
-					'resolved_links' => (int) ( $audit['resolved'] ?? 0 ),
-					'pending_links'  => (int) ( $audit['unresolved'] ?? 0 ),
+					'vehicles'           => count( RevIt_Publisher_Services::graph()->get_vehicle_summaries() ),
+					'clusters'           => count( RevIt_Publisher_Services::graph()->get_cluster_summaries() ),
+					'resolved_links'     => (int) ( $audit['resolved'] ?? 0 ),
+					'pending_links'      => (int) ( $audit['unresolved'] ?? 0 ),
+					'link_opportunities' => (int) ( $scan['internal_link_ideas'] ?? 0 ),
 				),
 				'intelligence'      => array(
 					'missing_content'    => $missing_content,
@@ -403,7 +408,7 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 					'latest_audit'       => $latest_audit,
 					'vehicle_health'     => RevIt_Publisher_Services::vehicle_health()->get_all_vehicle_summaries(),
 					'needs_attention'    => array(
-						'orphans'          => (int) ( $health['orphan_articles'] ?? 0 ),
+						'orphans'          => (int) ( $scan['orphan_articles'] ?? $health['orphan_articles'] ?? 0 ),
 						'topic_overlaps'   => count( array_filter( $overlaps, static fn( $o ) => 'high' === ( $o['risk'] ?? '' ) ) ),
 						'missing_meta'     => (int) ( $health['missing_meta'] ?? 0 ),
 						'unresolved_links' => (int) ( $health['unresolved_links'] ?? 0 ),

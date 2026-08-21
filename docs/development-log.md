@@ -1,5 +1,24 @@
 # Development Log
 
+## Phase B — Live WordPress SEO workflow
+
+**Status:** Implemented  
+**Version:** 0.9.0  
+**Date:** 2026-08-21
+
+### Delivered
+
+- Site scan against stored WordPress posts (Mechanical SEO Compliance)
+- Vehicle cards use real article counts including drafts
+- Multi-vehicle import batch summaries
+- GMT timestamps on imported drafts
+- Deterministic internal-link discovery with existing-link and irrelevant-pair suppression
+- Contextual orphan detection aligned across Dashboard and SEO
+- Safe mechanical fixes; no auto-publish
+- Admin asset filemtime cache-busting and no-store REST responses
+
+---
+
 ## Phase A — Product Reset & UI Simplification
 
 **Status:** Implemented  

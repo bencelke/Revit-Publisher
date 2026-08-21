@@ -242,16 +242,32 @@ class RevIt_Publisher_Internal_Link_Service {
 	 */
 	public function content_already_links_to( int $post_id, int $target_id ): bool {
 		$post = get_post( $post_id );
-		if ( ! $post instanceof WP_Post ) {
+		if ( ! $post instanceof WP_Post || $target_id <= 0 ) {
+			return false;
+		}
+
+		if ( ! preg_match_all( '/<a\s[^>]*href=["\']([^"\']+)["\'][^>]*>/i', $post->post_content, $matches ) ) {
 			return false;
 		}
 
 		$permalink = get_permalink( $target_id );
-		if ( ! is_string( $permalink ) || '' === $permalink ) {
-			return false;
+		$permalink = is_string( $permalink ) ? $permalink : '';
+		$slug      = (string) get_post_field( 'post_name', $target_id );
+
+		foreach ( $matches[1] as $href ) {
+			$href = (string) $href;
+			if ( (bool) preg_match( '/[?&]p=' . $target_id . '(?:\D|$)/', $href ) ) {
+				return true;
+			}
+			if ( '' !== $permalink && ( str_contains( $href, $permalink ) || str_contains( $href, esc_url( $permalink ) ) ) ) {
+				return true;
+			}
+			if ( '' !== $slug && str_contains( $href, '/' . $slug ) ) {
+				return true;
+			}
 		}
 
-		return str_contains( $post->post_content, esc_url( $permalink ) );
+		return false;
 	}
 
 	/**

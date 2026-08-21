@@ -118,6 +118,36 @@ class LinkDiscoveryTest extends PHPUnit\Framework\TestCase {
 		$this->assertNull( $discovery->evaluate_pair( $wrx, $gr86 ) );
 	}
 
+	public function test_existing_body_link_is_suppressed(): void {
+		$discovery = new RevIt_Publisher_Link_Opportunity_Discovery();
+		$source    = array(
+			'post_id'         => 213,
+			'title'           => 'BMW M340i Reliability',
+			'content_text'    => 'The B58 engine is shared with the GR Supra.',
+			'engines'         => array( 'B58' ),
+			'manufacturer'    => 'BMW',
+			'model'           => 'M340i',
+			'vehicle_label'   => 'BMW M340i',
+			'cluster'         => 'reliability',
+			'primary_topic'   => 'bmw m340i reliability',
+			'linked_post_ids' => array( 214 ),
+		);
+		$target    = array(
+			'post_id'         => 214,
+			'title'           => 'Toyota GR Supra 3.0 Reliability',
+			'content_text'    => 'The GR Supra 3.0 uses the B58 engine.',
+			'engines'         => array( 'B58' ),
+			'manufacturer'    => 'Toyota',
+			'model'           => 'GR Supra',
+			'vehicle_label'   => 'Toyota GR Supra',
+			'cluster'         => 'reliability',
+			'primary_topic'   => 'toyota gr supra reliability',
+			'linked_post_ids' => array(),
+		);
+
+		$this->assertNull( $discovery->evaluate_pair( $source, $target ) );
+	}
+
 	public function test_inbound_natural_mention(): void {
 		$discovery = new RevIt_Publisher_Link_Opportunity_Discovery();
 		$older     = array(

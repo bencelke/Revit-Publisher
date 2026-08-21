@@ -56,15 +56,11 @@ class RevIt_Publisher_SEO_Health_Service {
 	 * @return array<string, mixed>
 	 */
 	public function get_post_health( int $post_id ): array {
-		$type_terms = wp_get_post_terms( $post_id, RevIt_Publisher_Taxonomies::ARTICLE_TYPE, array( 'fields' => 'slugs' ) );
-		$type       = ( ! is_wp_error( $type_terms ) && ! empty( $type_terms ) ) ? (string) $type_terms[0] : '';
-
 		$inbound_resolved = $this->count_resolved_inbound( $post_id );
-		$is_hub_or_pillar = in_array( $type, array( 'vehicle_hub', 'pillar' ), true );
 
 		return array(
 			'post_id'              => $post_id,
-			'is_orphan'            => ! $is_hub_or_pillar && 0 === $inbound_resolved,
+			'is_orphan'            => 0 === $inbound_resolved,
 			'unresolved_links'     => count( $this->graph->get_unresolved_links( $post_id ) ),
 			'missing_pillar'       => $this->has_missing_pillar( $post_id ),
 			'missing_vehicle'      => '' === $this->graph->get_vehicle_label( $post_id ),
@@ -182,15 +178,8 @@ class RevIt_Publisher_SEO_Health_Service {
 	 * Count resolved inbound contextual links (applied or in content).
 	 */
 	private function count_resolved_inbound( int $post_id ): int {
-		$count = 0;
-		foreach ( $this->graph->get_inbound_relationships( $post_id ) as $link ) {
-			$source_id = (int) ( $link['source_post_id'] ?? 0 );
-			if ( $source_id > 0 && $this->link_service->content_already_links_to( $source_id, $post_id ) ) {
-				++$count;
-			}
-		}
-
-		return $count;
+		$scan = ( new RevIt_Publisher_Post_Content_Scanner() )->scan_post( $post_id );
+		return (int) ( $scan['inbound_count'] ?? 0 );
 	}
 
 	/**

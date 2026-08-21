@@ -84,11 +84,15 @@ class RevIt_Publisher_Vehicle_Health_Service {
 		}
 
 		$article_count = count( $post_ids );
+		if ( $article_count < 1 ) {
+			$article_count = (int) ( $summary['articles'] ?? 0 );
+		}
 
 		return array_merge(
 			$summary,
 			array(
 				'articles'          => $article_count,
+				'article_count'     => $article_count,
 				'seo_health_avg'    => ! empty( $scores ) ? (int) round( array_sum( $scores ) / count( $scores ) ) : 0,
 				'published'         => $published,
 				'draft'             => $draft,

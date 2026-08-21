@@ -8,12 +8,12 @@ composer install --no-dev --optimize-autoloader
 ./scripts/package-plugin.sh
 ```
 
-Produces: `build/revit-publisher-v0.8.0.zip`
+Produces: `build/revit-publisher-v0.9.0.zip`
 
 ## Validate
 
 ```bash
-./scripts/validate-package.sh build/revit-publisher-v0.8.0.zip
+./scripts/validate-package.sh build/revit-publisher-v0.9.0.zip
 ```
 
 Checks: main plugin file, vendor autoload, admin dist, schemas, no `.env`, no git/node_modules, no credential strings.

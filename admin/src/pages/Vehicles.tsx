@@ -9,6 +9,7 @@ import {
 import { EmptyState, LoadingBlock, SectionError } from '../components/EmptyState';
 import { PageHeader } from '../components/PageHeader';
 import { adminUrl } from '../lib/api-client';
+import { vehicleArticleCount } from '../lib/vehicle-count';
 import { HubCreatePreview, VehicleHubRecord, VehicleRowWithHub } from '../types/public-seo';
 import { GscVehicleRow } from '../types/search-console';
 
@@ -217,7 +218,7 @@ export function VehiclesPage() {
             onClick={() => setSelected(v.label)}
           >
             <h3>{v.label}</h3>
-            <p>Articles {v.articles}</p>
+            <p>Articles {vehicleArticleCount(v)}</p>
             <p>Clusters {v.clusters_count ?? '—'}</p>
             <p>SEO Health {v.seo_health_avg}</p>
             <p className="revit-publisher-muted">Link Coverage {v.plan_coverage}%</p>

@@ -100,14 +100,14 @@ class RevIt_Publisher_Admin_Assets {
 			self::HANDLE,
 			REVIT_PUBLISHER_PLUGIN_URL . 'admin/dist/assets/index.css',
 			array(),
-			REVIT_PUBLISHER_VERSION
+			$this->asset_version( 'admin/dist/assets/index.css' )
 		);
 
 		wp_enqueue_script(
 			self::HANDLE,
 			REVIT_PUBLISHER_PLUGIN_URL . 'admin/dist/assets/index.js',
 			array(),
-			REVIT_PUBLISHER_VERSION,
+			$this->asset_version( 'admin/dist/assets/index.js' ),
 			true
 		);
 
@@ -137,20 +137,22 @@ class RevIt_Publisher_Admin_Assets {
 
 		if ( isset( $entry['css'] ) && is_array( $entry['css'] ) ) {
 			foreach ( $entry['css'] as $index => $css_file ) {
+				$css_rel = 'admin/dist/' . ltrim( (string) $css_file, '/' );
 				wp_enqueue_style(
 					self::HANDLE . '-css-' . $index,
-					REVIT_PUBLISHER_PLUGIN_URL . 'admin/dist/' . ltrim( $css_file, '/' ),
+					REVIT_PUBLISHER_PLUGIN_URL . $css_rel,
 					array(),
-					REVIT_PUBLISHER_VERSION
+					$this->asset_version( $css_rel )
 				);
 			}
 		}
 
+		$script_rel = 'admin/dist/' . ltrim( (string) $entry['file'], '/' );
 		wp_enqueue_script(
 			self::HANDLE,
-			REVIT_PUBLISHER_PLUGIN_URL . 'admin/dist/' . ltrim( $entry['file'], '/' ),
+			REVIT_PUBLISHER_PLUGIN_URL . $script_rel,
 			array(),
-			REVIT_PUBLISHER_VERSION,
+			$this->asset_version( $script_rel ),
 			true
 		);
 
@@ -192,5 +194,14 @@ class RevIt_Publisher_Admin_Assets {
 				),
 			)
 		);
+	}
+
+	/**
+	 * Deterministic cache-bust: plugin version + filemtime.
+	 */
+	private function asset_version( string $relative_path ): string {
+		$path  = REVIT_PUBLISHER_PLUGIN_DIR . ltrim( $relative_path, '/' );
+		$mtime = is_readable( $path ) ? (string) filemtime( $path ) : '0';
+		return REVIT_PUBLISHER_VERSION . '.' . $mtime;
 	}
 }
