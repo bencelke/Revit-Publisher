@@ -73,6 +73,17 @@ require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-cluster-link-ma
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-serp-preview-service.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-issue-retention-cron.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/public/class-hub-structured-data.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-engine-family.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-heading-auditor.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-natural-anchor-finder.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-rendered-html-analyzer.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-mechanical-seo-checklist.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-link-opportunity-discovery.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-import-batch-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-post-content-scanner.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-rendered-page-validator.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-seo-fix-service.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/scan/class-site-seo-scan-service.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/class-services.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-article-package-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-seo-graph-rest-controller.php';
@@ -114,6 +125,7 @@ require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/system/class-fixture-generat
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-editorial-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-system-health-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-backup-rest-controller.php';
+require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/rest/class-seo-scan-rest-controller.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-vehicle-hub-meta-box.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-admin.php';
 require_once REVIT_PUBLISHER_PLUGIN_DIR . 'includes/admin/class-post-meta-box.php';
@@ -257,6 +269,9 @@ final class RevIt_Publisher_Plugin {
 
 		$backup_controller = new RevIt_Publisher_Backup_Rest_Controller();
 		$backup_controller->register_routes();
+
+		$scan_controller = new RevIt_Publisher_Seo_Scan_Rest_Controller();
+		$scan_controller->register_routes();
 	}
 
 	/**

@@ -90,7 +90,7 @@ class RevIt_Publisher_Article_Importer {
 	 * @param mixed $data Package data.
 	 * @return array<string, mixed>
 	 */
-	public function import( mixed $data ): array {
+	public function import( mixed $data, array $context = array() ): array {
 		$validation = $this->validator->validate( $data );
 		if ( ! $validation['valid'] ) {
 			return array(
@@ -246,6 +246,11 @@ class RevIt_Publisher_Article_Importer {
 			hash( 'sha256', (string) get_post_field( 'post_content', $post_id ) )
 		);
 		RevIt_Publisher_Services::review_status()->sync_status( $post_id );
+
+		$batch_id = sanitize_key( (string) ( $context['batch_id'] ?? '' ) );
+		if ( '' !== $batch_id ) {
+			update_post_meta( $post_id, RevIt_Publisher_Post_Meta_Keys::IMPORT_BATCH_ID, $batch_id );
+		}
 
 		return array(
 			'success'     => true,

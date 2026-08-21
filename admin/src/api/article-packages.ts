@@ -24,8 +24,16 @@ export async function previewArticlePackage(payload: unknown): Promise<PreviewRe
   });
 }
 
-export async function importArticlePackage(payload: unknown): Promise<ImportResponse> {
-  return apiRequest<ImportResponse>('/article-packages/import', {
+export async function importArticlePackage(payload: unknown, batchId?: string): Promise<ImportResponse> {
+  const suffix = batchId ? `?batch_id=${encodeURIComponent(batchId)}` : '';
+  return apiRequest<ImportResponse>(`/article-packages/import${suffix}`, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function recordImportBatch(payload: { id: string; status: string }): Promise<unknown> {
+  return apiRequest('/import-batches', {
     method: 'POST',
     body: JSON.stringify(payload),
   });

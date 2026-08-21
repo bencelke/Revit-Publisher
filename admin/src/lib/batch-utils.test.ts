@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   BatchFileItem,
+  batchSummaryFromAnalysis,
   buildAnalysis,
   buildOptimizeSummary,
   deriveFileStatus,
@@ -43,6 +44,45 @@ describe('deriveFileStatus', () => {
       },
     });
     expect(result.status).toBe('valid');
+  });
+});
+
+describe('batchSummaryFromAnalysis', () => {
+  it('labels multi-vehicle batches by vehicle count, not the first vehicle', () => {
+    const items = [
+      file({
+        preview: {
+          valid: true,
+          article: { title: 'A', article_key: 'a', article_type: 'problem' },
+          vehicle: 'BMW M340i',
+          cluster: 'reliability',
+          seo: { primary_topic: 'x', seo_title: 'y' },
+          relationships: { internal_links: 1, related_articles: 0, pillar_article_key: null },
+          publishing: { status: 'draft' },
+          existing_article: false,
+        },
+        status: 'valid',
+      }),
+      file({
+        preview: {
+          valid: true,
+          article: { title: 'B', article_key: 'b', article_type: 'problem' },
+          vehicle: 'Toyota GR Supra',
+          cluster: 'reliability',
+          seo: { primary_topic: 'x', seo_title: 'y' },
+          relationships: { internal_links: 1, related_articles: 0, pillar_article_key: null },
+          publishing: { status: 'draft' },
+          existing_article: false,
+        },
+        status: 'valid',
+      }),
+    ];
+    const analysis = buildAnalysis(items);
+    const summary = batchSummaryFromAnalysis(analysis, 'batch-1', 'SEO Ready');
+    expect(summary.article_count).toBe(2);
+    expect(summary.vehicle_count).toBe(2);
+    expect(summary.vehicle_label).toBe('2 vehicles');
+    expect(summary.vehicle_label).not.toBe('BMW M340i');
   });
 });
 

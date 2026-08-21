@@ -3,6 +3,7 @@ import {
   importArticlePackage,
   MAX_JSON_FILE_SIZE,
   previewArticlePackage,
+  recordImportBatch,
   validateArticlePackage,
 } from '../api/article-packages';
 import { ApiError } from '../lib/api-client';
@@ -14,8 +15,6 @@ import {
   buildAnalysis,
   buildOptimizeSummary,
   deriveFileStatus,
-  readRecentBatches,
-  saveRecentBatch,
 } from '../lib/batch-utils';
 import { DropZone } from '../components/DropZone';
 import { EmptyState, LoadingBlock, SectionError } from '../components/EmptyState';
@@ -155,6 +154,7 @@ export function BatchImportPage() {
     let failed = 0;
     let existing = 0;
 
+    const batchId = uid();
     for (const item of validItems) {
       if (!item.payload || !item.preview) continue;
       const action = skipExisting[item.preview.article.article_key] ?? (item.preview.existing_article ? 'skip' : 'update');
@@ -175,7 +175,7 @@ export function BatchImportPage() {
       }
 
       try {
-        const response = await importArticlePackage(item.payload);
+        const response = await importArticlePackage(item.payload, batchId);
         results.push({ filename: item.filename, response });
         if ('success' in response && response.success) {
           created += 1;
@@ -198,14 +198,12 @@ export function BatchImportPage() {
     setImportResult(batchResult);
     setStep('complete');
 
-    const primaryVehicle = analysis?.vehicles.values().next().value?.label ?? 'Mixed vehicles';
-    saveRecentBatch({
-      id: uid(),
-      vehicleLabel: primaryVehicle,
-      articleCount: validItems.length,
-      importedAt: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-      status: failed > 0 ? 'Partial' : skipped > 0 ? 'Needs Review' : 'SEO Ready',
-    });
+    const status = failed > 0 ? 'Partial' : skipped > 0 ? 'Needs Review' : 'SEO Ready';
+    try {
+      await recordImportBatch({ id: batchId, status });
+    } catch {
+      /* Dashboard will still infer batches from post meta. */
+    }
 
     setBusy(false);
   }
@@ -285,7 +283,7 @@ export function BatchImportPage() {
 
       {step === 'analyze' && analysis && (
         <div className="revit-publisher-card">
-          <h2>{analysis.articleCount} Articles Detected</h2>
+          <h2>{analysis.articleCount} articles · {analysis.vehicles.size} vehicles</h2>
           {[...analysis.vehicles.values()].map((vehicle) => (
             <div key={vehicle.label} className="revit-batch-vehicle-group">
               <h3>Vehicle: {vehicle.label}</h3>
@@ -390,7 +388,7 @@ export function BatchImportPage() {
         </div>
       )}
 
-      {files.length === 0 && step === 'upload' && readRecentBatches().length === 0 && (
+      {files.length === 0 && step === 'upload' && (
         <EmptyState
           title="No article batches yet"
           description="Upload your first RevIt article package JSON files to get started."

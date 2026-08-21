@@ -16,6 +16,8 @@ Dashboard → Batch Import → Analyze → Optimize → Import Drafts → Review
 
 See [docs/operator-workflow.md](docs/operator-workflow.md) for details.
 
+> **Phase B (v0.9.0):** Live WordPress SEO scan, mechanical checklist, natural internal-link discovery, Optimize Article / Scan Site.
+
 > **Phase A (v0.8.1):** Product reset and UI simplification — streamlined navigation, batch-first import, design system, error boundaries.
 
 > **Phase 7 (v0.8.0):** Editorial prioritization queue, system health, backups, production packaging.

@@ -8,6 +8,9 @@
             <file>tests/ArticlePackageValidatorTest.php</file>
             <file>tests/TopicNormalizerTest.php</file>
             <file>tests/ContentPlanValidatorTest.php</file>
+            <file>tests/ImportBatchSummaryTest.php</file>
+            <file>tests/MechanicalSeoChecklistTest.php</file>
+            <file>tests/LinkDiscoveryTest.php</file>
         </testsuite>
     </testsuites>
 </phpunit>

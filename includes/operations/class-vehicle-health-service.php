@@ -83,9 +83,12 @@ class RevIt_Publisher_Vehicle_Health_Service {
 			}
 		}
 
+		$article_count = count( $post_ids );
+
 		return array_merge(
 			$summary,
 			array(
+				'articles'          => $article_count,
 				'seo_health_avg'    => ! empty( $scores ) ? (int) round( array_sum( $scores ) / count( $scores ) ) : 0,
 				'published'         => $published,
 				'draft'             => $draft,
@@ -170,14 +173,24 @@ class RevIt_Publisher_Vehicle_Health_Service {
 	 * @return array<int, array<string, mixed>>
 	 */
 	private function get_vehicle_clusters( array $post_ids ): array {
+		$counts = array();
+		foreach ( $post_ids as $post_id ) {
+			$key = (string) get_post_meta( (int) $post_id, RevIt_Publisher_Post_Meta_Keys::CLUSTER_KEY, true );
+			if ( '' === $key ) {
+				continue;
+			}
+			$counts[ $key ] = ( $counts[ $key ] ?? 0 ) + 1;
+		}
+
 		$clusters = array();
-		foreach ( RevIt_Publisher_Services::graph()->get_cluster_summaries() as $cluster ) {
+		foreach ( $counts as $key => $count ) {
 			$clusters[] = array(
-				'cluster_key' => (string) ( $cluster['cluster_key'] ?? '' ),
-				'name'        => (string) ( $cluster['name'] ?? '' ),
-				'articles'    => (int) ( $cluster['article_count'] ?? 0 ),
+				'cluster_key' => $key,
+				'name'        => $key,
+				'articles'    => $count,
 			);
 		}
+
 		return $clusters;
 	}
 

@@ -6,14 +6,26 @@ import { PrimaryButton } from '../components/PrimaryButton';
 import { StatCard } from '../components/StatCard';
 import { StatusBadge } from '../components/StatusBadge';
 import { adminUrl } from '../lib/api-client';
-import { readRecentBatches } from '../lib/batch-utils';
-import { StatsResponse } from '../types/article-package';
+import { RecentBatchSummary, StatsResponse } from '../types/article-package';
+
+function formatBatchDate(value: string): string {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function batchTone(status: string): 'success' | 'warning' | 'error' {
+  if (status === 'SEO Ready' || status === 'Imported') return 'success';
+  if (status === 'Partial') return 'error';
+  return 'warning';
+}
 
 export function Dashboard() {
   const [stats, setStats] = useState<StatsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [batches] = useState(readRecentBatches);
 
   useEffect(() => {
     fetchStats()
@@ -28,6 +40,7 @@ export function Dashboard() {
   const graph = stats?.content_graph;
   const vehicles = stats?.intelligence?.vehicle_health ?? [];
   const needs = stats?.intelligence?.needs_attention;
+  const batches: RecentBatchSummary[] = stats?.recent_batches ?? [];
 
   return (
     <div className="revit-publisher-panel revit-publisher-dark">
@@ -64,10 +77,13 @@ export function Dashboard() {
                 {batches.slice(0, 5).map((batch) => (
                   <li key={batch.id} className="revit-batch-list__item">
                     <div>
-                      <strong>{batch.vehicleLabel}</strong>
-                      <span className="revit-publisher-muted">{batch.articleCount} articles · Imported {batch.importedAt}</span>
+                      <strong>{batch.vehicle_label}</strong>
+                      <span className="revit-publisher-muted">
+                        {batch.article_count} articles · {batch.vehicle_count} vehicles · {batch.cluster_count} clusters
+                        · Imported {formatBatchDate(batch.imported_at)}
+                      </span>
                     </div>
-                    <StatusBadge tone={batch.status === 'SEO Ready' ? 'success' : batch.status === 'Partial' ? 'error' : 'warning'}>
+                    <StatusBadge tone={batchTone(batch.status)}>
                       {batch.status}
                     </StatusBadge>
                   </li>
@@ -111,7 +127,7 @@ export function Dashboard() {
                 {vehicles.slice(0, 6).map((vehicle) => (
                   <div key={vehicle.label} className="revit-vehicle-card">
                     <h3>{vehicle.label}</h3>
-                    <p>Articles {vehicle.published + vehicle.missing_articles}</p>
+                    <p>Articles {vehicle.articles}</p>
                     <p>SEO Health {vehicle.seo_health_avg}</p>
                     <p className="revit-publisher-muted">Link Coverage {vehicle.plan_coverage}%</p>
                     <a className="revit-link" href={adminUrl('vehicles')}>Open</a>

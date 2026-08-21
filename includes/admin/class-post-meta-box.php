@@ -27,6 +27,21 @@ class RevIt_Publisher_Post_Meta_Box {
 
 	public function init(): void {
 		add_action( 'add_meta_boxes', array( $this, 'register_meta_box' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_optimize_script' ) );
+	}
+
+	public function enqueue_optimize_script( string $hook ): void {
+		if ( ! in_array( $hook, array( 'post.php', 'post-new.php' ), true ) ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'revit-optimize-article',
+			REVIT_PUBLISHER_PLUGIN_URL . 'includes/admin/js/optimize-article.js',
+			array(),
+			REVIT_PUBLISHER_VERSION,
+			true
+		);
 	}
 
 	public function register_meta_box(): void {
@@ -120,6 +135,17 @@ class RevIt_Publisher_Post_Meta_Box {
 				}
 			}
 		}
+
+		echo '<hr />';
+		echo '<p><button type="button" class="button button-primary" id="revit-optimize-article" data-post-id="' . esc_attr( (string) $post->ID ) . '">';
+		echo esc_html__( 'Optimize Article', 'revit-publisher' );
+		echo '</button></p>';
+		echo '<div id="revit-optimize-panel" style="display:none;margin-top:8px;font-size:12px;"></div>';
+		printf(
+			'<script>window.revitPublisherOptimize = window.revitPublisherOptimize || { restUrl: %s, nonce: %s };</script>',
+			wp_json_encode( untrailingslashit( rest_url( 'revit-publisher/v1' ) ) ),
+			wp_json_encode( wp_create_nonce( 'wp_rest' ) )
+		);
 
 		echo '<hr />';
 		$this->row( __( 'Package hash', 'revit-publisher' ), substr( (string) get_post_meta( $post->ID, RevIt_Publisher_Post_Meta_Keys::PACKAGE_HASH, true ), 0, 12 ) . '…' );

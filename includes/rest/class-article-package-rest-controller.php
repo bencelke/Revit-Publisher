@@ -110,6 +110,12 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'import_package' ),
 				'permission_callback' => array( $this, 'permissions_check' ),
+				'args'                => array(
+					'batch_id' => array(
+						'type'              => 'string',
+						'sanitize_callback' => 'sanitize_key',
+					),
+				),
 			)
 		);
 
@@ -259,7 +265,12 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 			return $error;
 		}
 
-		$result = $this->importer->import( $params );
+		$result = $this->importer->import(
+			$params,
+			array(
+				'batch_id' => sanitize_key( (string) $request->get_param( 'batch_id' ) ),
+			)
+		);
 
 		if ( 'validation_failed' === ( $result['status'] ?? '' ) ) {
 			return new WP_REST_Response(
@@ -399,6 +410,7 @@ class RevIt_Publisher_Article_Package_Rest_Controller {
 						'open_issues'      => $open_issues,
 					),
 				),
+				'recent_batches'    => RevIt_Publisher_Services::import_batches()->list_recent(),
 			),
 			200
 		);

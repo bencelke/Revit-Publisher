@@ -179,10 +179,13 @@ export interface IntelligenceSummary {
 
 export interface VehicleHealthRow {
   label: string;
+  articles: number;
   seo_health_avg: number;
   plan_coverage: number;
   published: number;
+  draft?: number;
   missing_articles: number;
+  clusters_count?: number;
 }
 
 export interface ContentPlanPreview {
@@ -259,6 +262,17 @@ export interface ContentPlanCoverage {
   };
 }
 
+export interface RecentBatchSummary {
+  id: string;
+  vehicle_label: string;
+  vehicle_count: number;
+  vehicle_labels?: string[];
+  article_count: number;
+  cluster_count: number;
+  imported_at: string;
+  status: string;
+}
+
 export interface StatsResponse {
   version: string;
   schema_version: string;
@@ -269,6 +283,7 @@ export interface StatsResponse {
   seo_health?: SeoHealthSummary;
   content_graph?: ContentGraphSummary;
   intelligence?: IntelligenceSummary;
+  recent_batches?: RecentBatchSummary[];
 }
 
 export interface SettingsResponse {

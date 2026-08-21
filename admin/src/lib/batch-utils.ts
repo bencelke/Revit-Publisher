@@ -56,8 +56,40 @@ export interface StoredBatch {
   id: string;
   vehicleLabel: string;
   articleCount: number;
+  vehicleCount?: number;
+  clusterCount?: number;
   importedAt: string;
-  status: 'SEO Ready' | 'Needs Review' | 'Partial';
+  status: 'SEO Ready' | 'Needs Review' | 'Partial' | 'Imported';
+}
+
+export interface BatchSummary {
+  id: string;
+  vehicle_label: string;
+  vehicle_count: number;
+  vehicle_labels?: string[];
+  article_count: number;
+  cluster_count: number;
+  imported_at: string;
+  status: string;
+}
+
+export function batchSummaryFromAnalysis(
+  analysis: BatchAnalysis,
+  id: string,
+  status: StoredBatch['status'],
+): BatchSummary {
+  const labels = [...analysis.vehicles.keys()];
+  const vehicleCount = labels.length;
+  return {
+    id,
+    vehicle_label: vehicleCount === 1 ? (labels[0] ?? 'Unknown') : `${vehicleCount} vehicles`,
+    vehicle_count: vehicleCount,
+    vehicle_labels: labels,
+    article_count: analysis.articleCount,
+    cluster_count: [...analysis.vehicles.values()].reduce((sum, v) => sum + v.clusters.size, 0),
+    imported_at: new Date().toISOString(),
+    status,
+  };
 }
 
 const BATCH_STORAGE_KEY = 'revit_recent_batches';

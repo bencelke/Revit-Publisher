@@ -67,6 +67,8 @@ final class RevIt_Publisher_Services {
 	private static ?RevIt_Publisher_Backup_Service $backup = null;
 	private static ?RevIt_Publisher_Performance_Profiler $profiler = null;
 	private static ?RevIt_Publisher_Fixture_Generator $fixture_generator = null;
+	private static ?RevIt_Publisher_Import_Batch_Service $import_batches = null;
+	private static ?RevIt_Publisher_Site_Seo_Scan_Service $site_seo_scan = null;
 
 	public static function registry(): RevIt_Publisher_Article_Registry {
 		return self::$registry ??= new RevIt_Publisher_Article_Registry();
@@ -320,6 +322,14 @@ final class RevIt_Publisher_Services {
 
 	public static function fixture_generator(): RevIt_Publisher_Fixture_Generator {
 		return self::$fixture_generator ??= new RevIt_Publisher_Fixture_Generator();
+	}
+
+	public static function import_batches(): RevIt_Publisher_Import_Batch_Service {
+		return self::$import_batches ??= new RevIt_Publisher_Import_Batch_Service();
+	}
+
+	public static function site_seo_scan(): RevIt_Publisher_Site_Seo_Scan_Service {
+		return self::$site_seo_scan ??= new RevIt_Publisher_Site_Seo_Scan_Service();
 	}
 
 	private function __construct() {}
